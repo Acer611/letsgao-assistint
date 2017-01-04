@@ -1,0 +1,40 @@
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="utf-8">
+	  
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <meta name="description" content="">
+      <title>订单详情</title>
+	  <link rel="stylesheet" href="/css/mobile.css">
+	
+    </head>
+    <body> 
+	<div class="headbg"></div>
+	<div class="bgcontop">
+		<ul><li>航班号 </li><li>FM6277</li></ul>
+		<div class="decur">
+			<div><p>上海 </p><p>起飞</p>   </div> 
+			<div class="centerBg"></div>                        
+			<div><p>三亚</p><p>抵达</p></div>
+		</div>
+	</div>
+	<div class="bgcon">
+		<ul class="wei_f">
+			<li><div>订单号：</div><div>121212</div></li>
+			<li><div>下单时间：</div><div>2016-06-09</div></li>
+			<li><div>乘机人：</div>
+				<div>
+					<p>张三，身份证号：130622178809096546<p>
+					<p>李四，身份证号：130622178809096546</p>
+				 </div>
+			 </li>
+			 <li><div>数量：</div><div>2</div></li>
+			 <li><div>联系电话：</div><div>1282828900</div></li>
+		 </ul>
+		<div class="total">订单总额：<span class="money">1220元</span></div>
+		 
+		 <div class="btnPay">立即支付</div>
+	</div>
+    </body>
+    </html>

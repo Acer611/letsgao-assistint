@@ -1,0 +1,46 @@
+/*!
+ * WeUI v1.1.0 (https://github.com/weui/weui)
+ * Copyright 2016 Tencent, Inc.
+ * Licensed under the MIT license
+ */
+html {
+  -ms-text-size-adjust: 100%;
+  -webkit-text-size-adjust: 100%;
+}
+body {
+  line-height: 1.6;
+  font-family: -apple-system-font, "Helvetica Neue", sans-serif;
+}
+* {
+  margin: 0;
+  padding: 0;
+}
+a img {
+  border: 0;
+}
+a {
+  text-decoration: none;
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+}
+li{list-style-type:none;}
+
+html{font-size:10px}
+@media screen and (min-width:321px) and (max-width:375px){html{font-size:11px}}
+@media screen and (min-width:376px) and (max-width:414px){html{font-size:12px}}
+@media screen and (min-width:415px) and (max-width:639px){html{font-size:15px}}
+@media screen and (min-width:640px) and (max-width:719px){html{font-size:20px}}
+@media screen and (min-width:720px) and (max-width:749px){html{font-size:22.5px}}
+@media screen and (min-width:750px) and (max-width:799px){html{font-size:23.5px}}
+.assistant{background: url(../images/weixinbg.jpg?ddd=1) left top no-repeat;background-size:100% 100%;color:#fff;}
+.s_headcenter{background: url(../images/bgqas.png) left top no-repeat;background-size:100% auto;width:100%;padding:16% 0;margin-top:8.6%}
+.s_headtop{padding-top:13%;display:flex;}
+.headRev{flex:3;text-align:right;padding-right:4%;font-size:16px;}
+
+.headRev p{padding-top:0.2%;}
+.headImg{height:auto;flex:1;}
+.headImg img{width:4em;height:auto;}
+.erweima{margin-top:18%;width: 100%;}
+.erweima img{width:61%;height:auto;display: block;margin:0 auto;}
+.jieshao{width:100%;text-align: center;font-size:16px;padding-bottom: 24%;margin-top:4px;}
+
+.jieshao p{padding-top:0.2%;}

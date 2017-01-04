@@ -1,0 +1,49 @@
+package com.umessage.letsgo.assistant.controller;
+
+import com.umessage.letsgo.assistant.model.WeChatInfoEntity;
+import com.umessage.letsgo.assistant.service.IWeChatInfoService;
+import me.chanjar.weixin.common.exception.WxErrorException;
+import me.chanjar.weixin.mp.api.WxMpService;
+import me.chanjar.weixin.mp.bean.result.WxMpUser;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import javax.servlet.http.HttpServletRequest;
+
+/**
+ * Created by gaofei on 2016/12/23.
+ */
+@Controller
+@RequestMapping("/wechat")
+public class WeChatUserInfoController {
+
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
+    @Autowired
+    private WxMpService wxService;
+    @Autowired
+    private IWeChatInfoService weChatInfoService;
+
+
+    @RequestMapping("/findWeChatInfo")
+    public String findWeChatInfo(HttpServletRequest request, String openId, Model model){
+        logger.info("进入获取二维码信息的接口");
+        WxMpUser userWxInfo = new WxMpUser();
+        try {
+            userWxInfo = wxService.getUserService().userInfo(openId);
+        } catch (WxErrorException e) {
+            logger.info("获取微信信息失败：" + e.getMessage());
+        }
+        WeChatInfoEntity  weChatInfoEntity = weChatInfoService.findWecahtUserByOpenID(openId);
+        weChatInfoEntity.setNickname(userWxInfo.getNickname());
+        weChatInfoEntity.setHeadImgUrl("https://mp.weixin.qq.com/cgi-bin/showqrcode?ticket=" + weChatInfoEntity.getHeadImgUrl());
+        model.addAttribute("wechatInfo",weChatInfoEntity);
+        //TODO 添加要跳转的页面
+        return "";
+    }
+}

@@ -1,0 +1,24 @@
+package com.umessage.letsgo.assistant.service;
+
+import com.umessage.letsgo.assistant.model.WeChatInfo;
+import me.chanjar.weixin.mp.bean.result.WxMpUser;
+
+/**
+ * Created by gaofei on 2016/12/15.
+ */
+public interface IWeChatInfoService {
+
+
+    /**
+     * 根据openID 获取用户信息
+     * @param openId
+     * @return
+     */
+    WeChatInfo findWecahtUserByOpenID(String openId);
+
+    /**
+     * 创建微信用户
+     * @param userWxInfo
+     */
+    void createWechatuser(WxMpUser userWxInfo,String pid);
+}

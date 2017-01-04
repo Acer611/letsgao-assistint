@@ -1,0 +1,17 @@
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="utf-8">
+        <meta name="format-detection" content="telephone = no"/>
+        <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0, minimum-scale=1.0,user-scalable=no">
+      <meta name="description" content="">
+      <title>邀请同行</title>
+	  <link rel="stylesheet" href="/css/mobile.css">
+        <script src="http://res.wx.qq.com/open/js/jweixin-1.0.0.js"></script>
+    </head>
+    <body> 
+		<div class="invitationbg"></div>
+		<div class="invitationjs">推荐你的朋友来使用助理服务，完成首次助理服务，额外获得20元奖金收益；</div>
+		<div class="invitationshare"><a href="javascript:;"><span>邀请</span></a></div>
+    </body>
+    </html>

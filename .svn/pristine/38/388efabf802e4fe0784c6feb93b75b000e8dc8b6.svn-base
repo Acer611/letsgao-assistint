@@ -1,0 +1,323 @@
+package com.umessage.letsgo.assistant.dao.provider;
+
+import com.umessage.letsgo.assistant.model.po.WeChatOrderInfoEntity;
+import org.apache.commons.lang.StringUtils;
+import org.apache.ibatis.jdbc.SQL;
+/**
+ * Created by lizhen on 2016/12/16.
+ */
+public class WeChatOrderInfoSqlProvider {
+
+    public String insertOrderInfoSql(WeChatOrderInfoEntity orderInfoEntity) {
+        return new SQL(){
+            {
+                INSERT_INTO("wechat_order_info");
+                    VALUES("order_id","#{orderInfoEntity.orderId}");
+                    VALUES("customer_openid","#{orderInfoEntity.customerOpenid}");
+                    VALUES("order_title","#{orderInfoEntity.orderTitle}");
+                    VALUES("order_detail","#{orderInfoEntity.orderDetail}");
+                    VALUES("customer_name","#{orderInfoEntity.customerName}");
+                    VALUES("phone","#{orderInfoEntity.phone}");
+                    VALUES("create_time","#{orderInfoEntity.createTime}");
+                    VALUES("update_time","#{orderInfoEntity.updateTime}");
+                    VALUES("deadline","#{orderInfoEntity.deadline}");
+                    VALUES("total_fee","#{orderInfoEntity.totalFee}");
+                    VALUES("real_fee","#{orderInfoEntity.realFee}");
+                    VALUES("proverder","#{orderInfoEntity.proverder}");
+                    VALUES("order_status","#{orderInfoEntity.orderStatus}");
+                    VALUES("seller_openid","#{orderInfoEntity.sellerOpenid}");
+                    VALUES("reward","#{orderInfoEntity.reward}");
+                    VALUES("isdel","#{orderInfoEntity.isdel}");
+                    VALUES("wx_nick","#{orderInfoEntity.wxNick}");
+                    VALUES("exten","#{orderInfoEntity.exten}");
+                    VALUES("status","#{orderInfoEntity.status}");
+            }
+        }.toString();
+    }
+
+
+    public String findOrderInfoByIdSql(Long id) {
+        return new SQL() {{
+            SELECT("id, order_id,customer_openid,order_title,order_detail,customer_name,phone,create_time,update_time,deadline,total_fee,real_fee,proverder,order_status,seller_openid,reward,isdel,wx_nick,exten,`status`");
+            FROM("wechat_order_info");
+            if (id != null) {
+                WHERE("id = "+id);
+            }
+            WHERE("isdel = 0");
+        }}.toString();
+    }
+
+
+    public String updateOrderInfoByIdSql(WeChatOrderInfoEntity orderInfoEntity) {
+        return new SQL(){
+            {
+                UPDATE("wechat_order_info");
+                if(!StringUtils.isEmpty(orderInfoEntity.getOrderId())){
+                    SET("order_id=#{orderInfoEntity.orderId}");
+                }
+                if(!StringUtils.isEmpty(orderInfoEntity.getCustomerOpenid())){
+                    SET("customer_openid=#{orderInfoEntity.customerOpenid}");
+                }
+                if(!StringUtils.isEmpty(orderInfoEntity.getOrderTitle())){
+                    SET("order_title=#{orderInfoEntity.orderTitle}");
+                }
+                if(!StringUtils.isEmpty(orderInfoEntity.getOrderDetail())){
+                    SET("order_detail=#{orderInfoEntity.orderDetail}");
+                }
+                if(!StringUtils.isEmpty(orderInfoEntity.getCustomerName())){
+                    SET("customer_name=#{orderInfoEntity.customerName}");
+                }
+                if(!StringUtils.isEmpty(orderInfoEntity.getPhone())){
+                    SET("phone=#{orderInfoEntity.phone}");
+                }
+                if(orderInfoEntity.getCreateTime() != null){
+                    SET("create_time=#{orderInfoEntity.createTime}");
+                }
+                if(orderInfoEntity.getUpdateTime() != null){
+                    SET("update_time=#{orderInfoEntity.updateTime}");
+                }
+                if(orderInfoEntity.getDeadline() != null){
+                    SET("deadline=#{orderInfoEntity.deadline}");
+                }
+                if(orderInfoEntity.getTotalFee() != null){
+                    SET("total_fee=#{orderInfoEntity.totalFee}");
+                }
+                if(orderInfoEntity.getRealFee() != null){
+                    SET("real_fee=#{orderInfoEntity.realFee}");
+                }
+                if(!StringUtils.isEmpty(orderInfoEntity.getProverder())){
+                    SET("proverder=#{orderInfoEntity.proverder}");
+                }
+                if(orderInfoEntity.getOrderStatus() != null){
+                    SET("order_status=#{orderInfoEntity.orderStatus}");
+                }
+                if(!StringUtils.isEmpty(orderInfoEntity.getSellerOpenid())){
+                    SET("seller_openid=#{orderInfoEntity.sellerOpenid}");
+                }
+                if(orderInfoEntity.getReward() != null){
+                    SET("reward=#{orderInfoEntity.reward}");
+                }
+                if(orderInfoEntity.getIsdel() != null){
+                    SET("isdel=#{orderInfoEntity.isdel}");
+                }
+                if(!StringUtils.isEmpty(orderInfoEntity.getWxNick())){
+                    SET("wx_nick=#{orderInfoEntity.wxNick}");
+                }
+                if(!StringUtils.isEmpty(orderInfoEntity.getExten())){
+                    SET("exten=#{orderInfoEntity.exten}");
+                }
+                if(orderInfoEntity.getStatus() != null){
+                    SET("`status`=#{orderInfoEntity.status}");
+                }
+                WHERE("id=#{orderInfoEntity.id}");
+            }
+        }.toString();
+    }
+
+
+    public String selectByCustomerOpenidSql(String customerOpenid) {
+        return new SQL() {{
+            SELECT("id, order_id,customer_openid,order_title,order_detail,customer_name,phone,create_time,update_time,deadline,total_fee,real_fee,proverder,order_status,seller_openid,reward,isdel,wx_nick,exten,`status`");
+            FROM("wechat_order_info");
+            if (!StringUtils.isEmpty(customerOpenid)) {
+                WHERE("customer_openid = "+customerOpenid);
+            }
+            WHERE("isdel = 0");
+            ORDER_BY("create_time DESC");
+        }}.toString();
+    }
+
+
+    public String selectBySellerOpenidSql(String sellerOpenid) {
+        return new SQL() {{
+            SELECT("id, order_id,customer_openid,order_title,order_detail,customer_name,phone,create_time,update_time,deadline,total_fee,real_fee,proverder,order_status,seller_openid,reward,isdel,wx_nick,exten,`status`");
+            FROM("wechat_order_info");
+            if (!StringUtils.isEmpty(sellerOpenid)) {
+                WHERE("seller_openid = "+sellerOpenid);
+            }
+            WHERE("isdel = 0");
+            ORDER_BY("create_time DESC");
+        }}.toString();
+    }
+
+    public String selectByStatusSql(String customerOpenid) {
+        return new SQL() {{
+            SELECT("id, order_id,customer_openid,order_title,order_detail,customer_name,phone,create_time,update_time,deadline,total_fee,real_fee,proverder,order_status,seller_openid,reward,isdel,wx_nick,exten,`status`");
+            FROM("wechat_order_info");
+            if (!StringUtils.isEmpty(customerOpenid)) {
+                WHERE("customer_openid = "+customerOpenid);
+            }
+            WHERE("`status` = 0");
+            ORDER_BY("create_time DESC");
+        }}.toString();
+    }
+
+
+
+    /**
+     * 获取订单列表（助手端）
+     * @param wechatOrderInfoEntity
+     * @return
+     */
+    public String selectOrderList(WeChatOrderInfoEntity wechatOrderInfoEntity) {
+        return new SQL() {{
+            SELECT("id, order_id,customer_openid,order_title,order_detail,customer_name,phone,create_time,update_time,deadline,total_fee,real_fee,proverder,order_status,seller_openid,reward,isdel,wx_nick,exten,`status`");
+            FROM("wechat_order_info");
+
+            if(wechatOrderInfoEntity.getStatus()!=null){
+                WHERE("`status`=#{wechatOrderInfoEntity.status}");
+            }
+            WHERE("isdel = 0");
+            if(!StringUtils.isEmpty(wechatOrderInfoEntity.getCustomerOpenid())){
+                WHERE("customer_openid = #{wechatOrderInfoEntity.customerOpenid}");
+            }
+            if(!StringUtils.isEmpty(wechatOrderInfoEntity.getKeyWords())) {
+                WHERE("phone=#{wechatOrderInfoEntity.keyWords}");
+                OR();
+                WHERE("order_id=#{wechatOrderInfoEntity.keyWords}");
+            }
+            ORDER_BY("create_time DESC");
+        }}.toString();
+    }
+
+    /**
+     * 获取待处理订单列表（助手端）
+     * @param wechatOrderInfoEntity
+     * @return
+     */
+    public String selectTODOOrderList(WeChatOrderInfoEntity wechatOrderInfoEntity) {
+        return new SQL() {{
+            SELECT("id, order_id,customer_openid,order_title,order_detail,customer_name,phone,create_time,update_time,deadline,total_fee,real_fee,proverder,order_status,seller_openid,reward,isdel,wx_nick,exten,`status`");
+            FROM("wechat_order_info");
+
+            WHERE("`status`=0");
+            OR();
+            WHERE("`status`=1");
+            WHERE("isdel = 0");
+            if(!StringUtils.isEmpty(wechatOrderInfoEntity.getCustomerOpenid())){
+                WHERE("customer_openid = #{wechatOrderInfoEntity.customerOpenid}");
+            }
+            if(!StringUtils.isEmpty(wechatOrderInfoEntity.getKeyWords())) {
+                WHERE("phone=#{wechatOrderInfoEntity.keyWords}");
+                OR();
+                WHERE("order_id=#{wechatOrderInfoEntity.keyWords}");
+            }
+            ORDER_BY("create_time DESC");
+        }}.toString();
+    }
+
+
+    /**
+     * 获取订单列表获取分页的数据（助手端）
+     * @param wechatOrderInfoEntity
+     * @return
+     */
+    public String selectOrderListPages(WeChatOrderInfoEntity wechatOrderInfoEntity) {
+        return new SQL() {{
+            SELECT("id, order_id,customer_openid,order_title,order_detail,customer_name,phone,create_time,update_time,deadline,total_fee,real_fee,proverder,order_status,seller_openid,reward,isdel,wx_nick,exten,`status`");
+            FROM("wechat_order_info");
+
+            if(wechatOrderInfoEntity.getStatus()!=null){
+                WHERE("`status`=#{wechatOrderInfoEntity.status}");
+            }
+            WHERE("isdel = 0");
+            if(!StringUtils.isEmpty(wechatOrderInfoEntity.getCustomerOpenid())){
+                WHERE("customer_openid = #{wechatOrderInfoEntity.customerOpenid}");
+            }
+            if(!StringUtils.isEmpty(wechatOrderInfoEntity.getKeyWords())) {
+                WHERE("phone=#{wechatOrderInfoEntity.keyWords}");
+                OR();
+                WHERE("order_id=#{wechatOrderInfoEntity.keyWords}");
+            }
+            ORDER_BY("create_time DESC");
+        }}.toString();
+    }
+
+    /**
+     * 根据订单id 修改支付状态
+     * @param orderInfoEntity
+     * @return
+     */
+    public String updateOrderInfoByOrderIdSql(WeChatOrderInfoEntity orderInfoEntity) {
+        return new SQL(){
+            {
+                UPDATE("wechat_order_info");
+                if(!StringUtils.isEmpty(orderInfoEntity.getOrderId())){
+                    SET("order_id=#{orderInfoEntity.orderId}");
+                }
+                if(!StringUtils.isEmpty(orderInfoEntity.getCustomerOpenid())){
+                    SET("customer_openid=#{orderInfoEntity.customerOpenid}");
+                }
+                if(!StringUtils.isEmpty(orderInfoEntity.getOrderTitle())){
+                    SET("order_title=#{orderInfoEntity.orderTitle}");
+                }
+                if(!StringUtils.isEmpty(orderInfoEntity.getOrderDetail())){
+                    SET("order_detail=#{orderInfoEntity.orderDetail}");
+                }
+                if(!StringUtils.isEmpty(orderInfoEntity.getCustomerName())){
+                    SET("customer_name=#{orderInfoEntity.customerName}");
+                }
+                if(!StringUtils.isEmpty(orderInfoEntity.getPhone())){
+                    SET("phone=#{orderInfoEntity.phone}");
+                }
+                if(orderInfoEntity.getCreateTime() != null){
+                    SET("create_time=#{orderInfoEntity.createTime}");
+                }
+                if(orderInfoEntity.getUpdateTime() != null){
+                    SET("update_time=#{orderInfoEntity.updateTime}");
+                }
+                if(orderInfoEntity.getDeadline() != null){
+                    SET("deadline=#{orderInfoEntity.deadline}");
+                }
+                if(orderInfoEntity.getTotalFee() != null){
+                    SET("total_fee=#{orderInfoEntity.totalFee}");
+                }
+                if(orderInfoEntity.getRealFee() != null){
+                    SET("real_fee=#{orderInfoEntity.realFee}");
+                }
+                if(!StringUtils.isEmpty(orderInfoEntity.getProverder())){
+                    SET("proverder=#{orderInfoEntity.proverder}");
+                }
+                if(orderInfoEntity.getOrderStatus() != null){
+                    SET("order_status=#{orderInfoEntity.orderStatus}");
+                }
+                if(!StringUtils.isEmpty(orderInfoEntity.getSellerOpenid())){
+                    SET("seller_openid=#{orderInfoEntity.sellerOpenid}");
+                }
+                if(orderInfoEntity.getReward() != null){
+                    SET("reward=#{orderInfoEntity.reward}");
+                }
+                if(orderInfoEntity.getIsdel() != null){
+                    SET("isdel=#{orderInfoEntity.isdel}");
+                }
+                if(!StringUtils.isEmpty(orderInfoEntity.getWxNick())){
+                    SET("wx_nick=#{orderInfoEntity.wxNick}");
+                }
+                if(!StringUtils.isEmpty(orderInfoEntity.getExten())){
+                    SET("exten=#{orderInfoEntity.exten}");
+                }
+                if(orderInfoEntity.getStatus() != null){
+                    SET("`status`=#{orderInfoEntity.status}");
+                }
+                WHERE("order_id=#{orderInfoEntity.orderId}");
+            }
+        }.toString();
+    }
+
+    /**
+     * 根据订单id 查看订单信息
+     * @param orderId
+     * @return
+     */
+    public String selectOrderInfoByOrderId(String orderId) {
+        return new SQL() {{
+            SELECT("id,order_id,customer_openid,order_title,order_detail,customer_name,phone,create_time,update_time,deadline,total_fee,real_fee,proverder,order_status,seller_openid,reward,isdel,wx_nick,exten,`status`");
+            FROM("wechat_order_info");
+            if (orderId != null) {
+                WHERE("order_id = '" + orderId + "'");
+            }
+            WHERE("isdel = 0");
+        }}.toString();
+    }
+
+}

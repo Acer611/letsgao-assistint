@@ -1,0 +1,173 @@
+package com.umessage.letsgo.assistant.wechat.handler;
+
+import com.umessage.letsgo.assistant.model.po.WeChatInfoEntity;
+import com.umessage.letsgo.assistant.service.IWeChatInfoService;
+import me.chanjar.weixin.common.exception.WxErrorException;
+import me.chanjar.weixin.common.session.WxSessionManager;
+import me.chanjar.weixin.mp.api.WxMpService;
+import me.chanjar.weixin.mp.bean.message.WxMpXmlMessage;
+import me.chanjar.weixin.mp.bean.message.WxMpXmlOutMessage;
+import me.chanjar.weixin.mp.bean.message.WxMpXmlOutNewsMessage;
+import me.chanjar.weixin.mp.bean.result.WxMpUser;
+import me.chanjar.weixin.mp.bean.tag.WxUserTag;
+import org.springframework.stereotype.Component;
+
+import javax.annotation.Resource;
+import java.util.List;
+import java.util.Map;
+
+/**
+ * @author Binary Wang
+ */
+@Component
+public class SubscribeHandler extends AbstractHandler {
+
+    @Resource
+    private IWeChatInfoService wechatInfoService;
+
+    @Override
+    public WxMpXmlOutMessage handle(WxMpXmlMessage wxMessage,
+                                    Map<String, Object> context, WxMpService weixinService,
+                                    WxSessionManager sessionManager) throws WxErrorException {
+
+        this.logger.info("新关注用户 OPENID: " + wxMessage.getFromUser());
+        WxMpUser userWxInfo = weixinService.getUserService()
+                .userInfo(wxMessage.getFromUser(), null);
+        WxMpXmlOutMessage responseResult = null;
+        try {
+            responseResult = handleSpecial(wxMessage,weixinService,responseResult);
+        } catch (Exception e) {
+            this.logger.error(e.getMessage(), e);
+        }
+
+        if (responseResult != null) {
+            return responseResult;
+        }
+
+        return responseResult;
+    }
+
+    /**
+     *
+     */
+    public WxMpXmlOutMessage handleSpecial(WxMpXmlMessage wxMessage,WxMpService weixinService,WxMpXmlOutMessage responseResult)
+            throws Exception {
+
+        logger.info("获取用户基本信息");
+        // 获取微信用户基本信息
+        WxMpUser userWxInfo = weixinService.getUserService()
+                .userInfo(wxMessage.getFromUser(), null);
+
+        String pid = "0";
+        if(!"" .equals(wxMessage.getEventKey()) || null != wxMessage.getTicket()){
+            pid = wxMessage.getEventKey();
+            if(pid.contains("_")){
+                pid = pid.substring(pid.indexOf("_") + 1,pid.length());
+            }
+        }
+
+        logger.info("获取当前公众号的所有标签");
+       List<WxUserTag> userTagList = weixinService.getUserTagService().tagGet();
+        long guidTag = 0L;
+        long customerTag = 0L;
+        for (WxUserTag userTag: userTagList) {
+            if(userTag.getName().equals("导游")){
+                guidTag = userTag.getId();
+            }
+            if(userTag.getName().equals("用户")){
+                customerTag = userTag.getId();
+            }
+        }
+        logger.info("当前用户的openId 为 " + userWxInfo.getOpenId() );
+        if (userWxInfo != null) {
+            //检查用户是否存在
+            WeChatInfoEntity wechatInfo = wechatInfoService.findWecahtUserByOpenID(userWxInfo.getOpenId());
+            if(null == wechatInfo){
+                logger.info("新关注用户信息录入");
+                //新关注用户
+                wechatInfoService.createWechatuser(userWxInfo,pid);
+
+            }else{
+                logger.info("重新关注用户状态修改");
+                wechatInfo.setOpenid(userWxInfo.getOpenId());
+                wechatInfo.setCity(userWxInfo.getCity());
+                wechatInfo.setSex(userWxInfo.getSex());
+                wechatInfo.setHeadImgUrl(userWxInfo.getHeadImgUrl());
+                wechatInfo.setCountry(userWxInfo.getCountry());
+                wechatInfo.setUnionid(userWxInfo.getUnionId());
+                wechatInfo.setNickname(userWxInfo.getNickname());
+                wechatInfo.setProvince(userWxInfo.getProvince());
+                wechatInfo.setStatus(0);
+                logger.info("当前用户pid是：" + pid);
+                if(!"0".equals(pid) ){
+                    int iPid = Integer.parseInt(pid);
+                    if(iPid<=100){
+                        wechatInfo.setIsGuide(0);
+                    }else{
+                        wechatInfo.setIsGuide(1);
+                    }
+                    wechatInfo.setParentid(pid);
+                }else{
+                    wechatInfo.setParentid("0");
+                    wechatInfo.setIsGuide(1);
+                }
+                //重新关注用户
+                wechatInfoService.updateStatus(wechatInfo,0,userWxInfo.getOpenId());
+            }
+            // 给用户打标签
+            if(!"0".equals(pid)){
+                int iPid = Integer.parseInt(pid);
+                if(iPid<=100){
+                    logger.info("给导游角色的用户打标签");
+                    //打导游标签
+                    String [] openIdArray = new  String[1];
+                    if(0L != guidTag){
+                        openIdArray [0] = userWxInfo.getOpenId();
+                        weixinService.getUserTagService().batchTagging(guidTag,openIdArray);
+                    }
+
+                    WxMpXmlOutNewsMessage.Item item = new WxMpXmlOutNewsMessage.Item();
+                    item.setDescription(userWxInfo.getNickname() + "，欢迎进入“跟上旅游助理  代理人”端后台。\n\n" +
+                            "想知道“旅游助理”如何帮你赚收益吗？\n" +
+                            "想知道如何成为“旅游助理”代理人吗？\n\n" +
+                            "《一个帮旅游行业从业者赚外快的公众号》\n" +
+                            "（如有任何疑问，均可点击键盘留言咨询）" );
+                    item.setPicUrl("http://image.baidu.com/search/detail?ct=503316480&z=0&ipn=d&word=%E5%9B%BE%E7%89%87&hs=0&pn=25&spn=0&di=106370093170&pi=0&rn=1&tn=baiduimagedetail&is=0%2C0&ie=utf-8&oe=utf-8&cl=2&lm=-1&cs=1799345195%2C2075280808&os=752107523%2C511924394&simid=3260953964%2C242792128&adpicid=0&ln=30&fr=ala&fm=&sme=&cg=&bdtype=0&oriquery=&objurl=http%3A%2F%2Fm2.quanjing.com%2F2m%2Ftongro_rf002%2Ftds003tg2260.jpg&fromurl=ippr_z2C%24qAzdH3FAzdH3Fooo_z%26e3Bq7wg3tg2_z%26e3Bv54AzdH3Ffiw6jAzdH3Fp1faanp2ddma_z%26e3Bip4s&gsm=0");
+                    item.setTitle("《一个帮旅游行业从业者赚外快的公众号》");
+                    item.setUrl("http://mp.weixin.qq.com/s?__biz=MzIzMjcwNDgzNg==&tempkey=F19o2lyIH0DJ2Whvcde%2FxAocYxjGyT0TtgtbLG719d8HLtnNzjdBiKS4jYrHz6m0qglaSP1x0JQRE2dcy8023QWtYl1wE39gfYYBGIYPEoxNqKYpgOZ4t9JEpUYpquHTXtgT5NddeRvi%2FBgAx2FwQA%3D%3D&chksm=68919f2e5fe616388be931b40a909f6ead1ad63e0adf68fd31ec5b75ce9b6e859d8460451de4#rd");
+
+                    WxMpXmlOutNewsMessage m = WxMpXmlOutMessage.NEWS()
+                            .fromUser(wxMessage.getToUser())
+                            .toUser(wxMessage.getFromUser())
+                            .addArticle(item)
+                            .build();
+                    return m;
+                }else{
+                    responseResult = WxMpXmlOutMessage.TEXT()
+                            .content("您负责说走就走，我负责帮您动手。\n" +
+                                    " “跟上旅游助理”24小时在线提供：境外酒店预订、机票购买、签证办理、自由行产品预定等服务（价格比携程更优）。\n" +
+                                    "点击下方菜单“呼叫助理”来召唤我吧！")
+                            .fromUser(wxMessage.getToUser())
+                            .toUser(wxMessage.getFromUser())
+                            .build();
+                }
+
+            }else{
+                responseResult = WxMpXmlOutMessage.TEXT()
+                        .content("您负责说走就走，我负责帮您动手。\n" +
+                                " “跟上旅游助理”24小时在线\n" +
+                                "提供\n" +
+                                "：境外酒店预订、机票购买、签证办理、自由行产品预定等服务（价格比携程更优）。\n" +
+                                "点击下方菜单“呼叫助理”来召唤我吧！")
+                        .fromUser(wxMessage.getToUser())
+                        .toUser(wxMessage.getFromUser())
+                        .build();
+            }
+
+
+        }
+
+        return responseResult;
+    }
+
+}

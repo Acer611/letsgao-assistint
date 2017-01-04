@@ -1,0 +1,60 @@
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="utf-8">
+        <meta name="format-detection" content="telephone = no"/>
+        <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0, minimum-scale=1.0,user-scalable=no">
+      <meta name="description" content="">
+      <title>旅游从业者必做的赚钱神技！</title>
+	  <link rel="stylesheet" href="/css/mobile.css">
+        <script src="/js/zepto.min.js"></script>
+        <script src="https://res.wx.qq.com/open/js/jweixin-1.0.0.js"></script>
+    </head>
+    <body> 
+		<div class="invitationbg"><img src="/images/erwei.png"/></div>
+		<div class="invitationjs">推荐你的朋友来使用助理服务，完成首次助理服务，额外获得20元奖金收益；</div>
+		<div class="invitationshare"><a href="javascript:;"><span>邀请</span></a></div>
+        <div class="weixin" id="oweixin" style="display:none;"></div>
+        <script>
+            $(function(){
+                $(".invitationshare a").on("click",function(){
+                    $("#oweixin").show();
+                })
+            })
+            wx.config({
+                debug: true, // 开启调试模式,调用的所有api的返回值会在客户端alert出来，若要查看传入的参数，可以在pc端打开，参数信息会通过log打出，仅在pc端时才会打印。
+                appId: '$!{jsapiSignature.appid}', // 必填，公众号的唯一标识
+                timestamp:$!{jsapiSignature.timestamp} , // 必填，生成签名的时间戳
+                nonceStr: '$!{jsapiSignature.noncestr}', // 必填，生成签名的随机串
+                signature: '$!{jsapiSignature.signature}',// 必填，签名，见附录1
+                jsApiList: ["onMenuShareTimeline","onMenuShareAppMessage","onMenuShareQQ","onMenuShareWeibo","onMenuShareQZone"] // 必填，需要使用的JS接口列表，所有JS接口列表见附录2
+            });
+            wx.onMenuShareTimeline({
+                title: '旅游从业者必做的赚钱神技！', // 分享标题
+                link: 'http://zhuli.igenshang.com/wechat/askUser', // 分享链接
+                imgUrl: '$!{HeadImgUrl}', // 分享图标
+                success: function () {
+                    // 用户确认分享后执行的回调函数
+                },
+                cancel: function () {
+                    // 用户取消分享后执行的回调函数
+                }
+            });
+            wx.onMenuShareAppMessage({
+                title: '旅游从业者必做的赚钱神技！', // 分享标题
+                desc: '从今天起，小钱也能帮你赚，让熟的鸭子不在送别人嘴里了！跟上旅游助理轻轻松松让你赚取丰厚佣金。', // 分享描述
+                link: 'http://zhuli.igenshang.com/wechat/askUser', // 分享链接
+                imgUrl: '$!{HeadImgUrl}', // 分享图标
+                type: '', // 分享类型,music、video或link，不填默认为link
+                dataUrl: '', // 如果type是music或video，则要提供数据链接，默认为空
+                success: function () {
+                    // 用户确认分享后执行的回调函数
+
+                },
+                cancel: function () {
+                    // 用户取消分享后执行的回调函数
+                }
+            });
+        </script>
+    </body>
+    </html>

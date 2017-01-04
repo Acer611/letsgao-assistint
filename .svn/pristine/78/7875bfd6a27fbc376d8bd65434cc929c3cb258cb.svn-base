@@ -1,0 +1,70 @@
+package com.umessage.letsgo.assistant.wechat.security;
+
+import com.umessage.letsgo.assistant.common.constant.ErrorConstant;
+import com.umessage.letsgo.assistant.model.WeChatInfoEntity;
+import com.umessage.letsgo.assistant.service.IWeChatInfoService;
+import com.umessage.letsgo.assistant.wechat.security.exception.BusinessException;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestTemplate;
+
+import javax.annotation.Resource;
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * Created by zhajl on 2016/6/2.
+ */
+
+@Component
+public class UserAccountUserDetailsService implements UserDetailsService {
+
+    private Logger logger = Logger.getLogger(UserAccountUserDetailsService.class);
+
+    @Autowired
+    private IWeChatInfoService weChatInfoService;
+
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+
+        WeChatInfoEntity userEntity = null;
+        try {
+            userEntity = weChatInfoService.findWecahtUserByOpenID(username);
+        } catch (Exception e) {
+            throw new BusinessException(ErrorConstant.INTERNAL_SERVER_ERROR, e.getMessage());
+        }
+        if (userEntity == null) {
+            throw new UsernameNotFoundException("没有找到对应的微信用户信息");
+        }
+
+        // 用户角色权限
+        List<GrantedAuthority> grantedAuthorities = getGrantedAuthorities();
+
+        return new User(userEntity.getOpenid(), "", grantedAuthorities);
+    }
+
+    private List<GrantedAuthority> getGrantedAuthorities() {
+        List<GrantedAuthority> grantedAuthorities = new ArrayList<GrantedAuthority>();
+        SimpleGrantedAuthority authority = new SimpleGrantedAuthority("ROLE_WX_USER");
+        grantedAuthorities.add(authority);
+        return grantedAuthorities;
+    }
+
+
+    public final WxUser createWxUserDetails(String username, String password, String unionId){
+        logger.info("获取当前的用户信息username  password  unionId"+username + " ,  "+password + " ,  "+unionId + "   ");
+        // 用户角色权限
+        // 用户角色权限
+        List<GrantedAuthority> grantedAuthorities = getGrantedAuthorities();
+        return new WxUser(username,StringUtils.defaultString(password), grantedAuthorities, unionId);
+    }
+
+}

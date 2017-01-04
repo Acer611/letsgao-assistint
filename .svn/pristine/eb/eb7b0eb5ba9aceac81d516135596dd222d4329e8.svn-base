@@ -1,0 +1,38 @@
+package com.umessage.letsgo.assistant.service.impl;
+
+import com.umessage.letsgo.assistant.dao.WeChatInfoDao;
+import com.umessage.letsgo.assistant.model.WeChatInfo;
+import com.umessage.letsgo.assistant.service.IWeChatInfoService;
+import me.chanjar.weixin.mp.bean.result.WxMpUser;
+import org.springframework.stereotype.Service;
+
+import javax.annotation.Resource;
+
+/**
+ * Created by gaofei on 2016/12/15.
+ */
+
+@Service
+public class WeChatInfoServiceImpl implements IWeChatInfoService {
+
+    @Resource
+    private WeChatInfoDao wechatInfoDao;
+
+    @Override
+    public WeChatInfo findWecahtUserByOpenID(String openId) {
+        return wechatInfoDao.findByOpenID(openId);
+    }
+
+    @Override
+    public void createWechatuser(WxMpUser userWxInfo) {
+        WeChatInfo wechatInfo =  new WeChatInfo();
+        wechatInfo.setOpenid(userWxInfo.getOpenId());
+        wechatInfo.setCity(userWxInfo.getCity());
+        wechatInfo.setSex(userWxInfo.getSex());
+        wechatInfo.setHeadImgUrl(userWxInfo.getHeadImgUrl());
+        wechatInfo.setCountry(userWxInfo.getCountry());
+        //TODO 待完善信息
+        wechatInfoDao.insert(wechatInfo);
+
+    }
+}

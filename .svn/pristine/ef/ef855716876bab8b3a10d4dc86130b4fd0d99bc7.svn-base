@@ -1,0 +1,64 @@
+package com.umessage.letsgo.assistant.wechat.handler;
+
+import com.umessage.letsgo.assistant.model.WeChatInfoEntity;
+import com.umessage.letsgo.assistant.service.IWeChatInfoService;
+import com.umessage.letsgo.assistant.service.IWeChatSendMessageService;
+import me.chanjar.weixin.common.api.WxConsts;
+import me.chanjar.weixin.common.exception.WxErrorException;
+import me.chanjar.weixin.common.session.WxSessionManager;
+import me.chanjar.weixin.mp.api.WxMpService;
+import me.chanjar.weixin.mp.bean.message.WxMpXmlMessage;
+import me.chanjar.weixin.mp.bean.message.WxMpXmlOutMessage;
+import me.chanjar.weixin.mp.bean.result.WxMpQrCodeTicket;
+import me.chanjar.weixin.mp.bean.result.WxMpUser;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+import javax.annotation.Resource;
+import java.io.File;
+import java.util.Map;
+
+/**
+ * @author Binary Wang
+ */
+@Component
+public class MenuHandler extends AbstractHandler {
+    @Resource
+    private IWeChatInfoService weChatInfoService;
+   /* @Autowired
+    private IWeChatSendMessageService weChatSendMessageService;*/
+
+    @Override
+    public WxMpXmlOutMessage handle(WxMpXmlMessage wxMessage,
+            Map<String, Object> context, WxMpService weixinService,
+            WxSessionManager sessionManager)  throws WxErrorException {
+        this.logger.info("二级菜单点击事件: " + wxMessage.getFromUser());
+        String msg = String.format("type:%s, event:%s, key:%s",
+            wxMessage.getMsgType(), wxMessage.getEvent(),
+            wxMessage.getEventKey());
+
+        String openId = wxMessage.getFromUser();
+        String eventKey = wxMessage.getEventKey();
+        WxMpUser userWxInfo = weixinService.getUserService()
+                .userInfo(wxMessage.getFromUser(), null);
+        //二维码
+        if("assistint".equals(eventKey)){
+            return WxMpXmlOutMessage.TEXT()
+                    .content("Hi " + userWxInfo.getNickname() + "，等了好久终于等到了你！\n" )
+                    .fromUser(wxMessage.getToUser())
+                    .toUser(wxMessage.getFromUser())
+                    .build();
+
+
+            //通送二维码信息
+           /*/weChatSendMessageService.sendQrCodeTemplateMessage(openId);*/
+        }
+
+
+
+        return WxMpXmlOutMessage.TEXT().content(msg)
+                .fromUser(wxMessage.getToUser()).toUser(wxMessage.getFromUser())
+                .build();
+    }
+
+}

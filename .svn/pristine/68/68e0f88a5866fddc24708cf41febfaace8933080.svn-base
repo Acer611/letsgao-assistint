@@ -1,0 +1,391 @@
+package com.umessage.letsgo.assistant.model;
+
+import java.util.Date;
+
+/**
+ * Created by lizhen on 2016/12/15.
+ */
+public class WechatOrderInfoEntity {
+
+    private Long id;
+    //订单id
+    private String orderId;
+    //供应商
+    private String proverder;
+    //真正的订单id
+    private String realOrderId;
+    //下单人微信openID
+    private String customerOpenid;
+    //订单类型（1 机票 2酒店 3签证 4其他（门票））
+    private Integer orderType;
+    //商品编号
+    private String goodId;
+    // 订购的个数
+    private Integer count;
+    //客户真正的姓名
+    private String customerName;
+    //客户手机号
+    private String phone;
+    //收货地址
+    private String address;
+    //订单创建时间
+    private Date createTime;
+    //订单修改时间
+    private Date updateTime;
+    //订单总价
+    private Double totalFee;
+    //酒店名称
+    private String hotelName;
+    //入店时间
+    private Date checkInTime;
+    //离店时间
+    private Date checkOutTime;
+    //房间类型(1 单人间,2 双人间3.三人间4.大床房5套房)
+    private Integer roomType;
+    //航班号
+    private String fltNo;
+    //航班日期
+    private Date fltDate;
+    //出发地
+    private String starting;
+    //目的地
+    private String destination;
+    //签证目的地
+    private String visaPlace;
+    //签证类型
+    private String visaType;
+    //景点名称
+    private String scenicSpots;
+    //支付状态(0 待支付，1 客户支付完成(即待处理的状态) 2 已完成)
+    private Integer status;
+    //订单状态(0 完成，1进行中)
+    private Integer orderStatus;
+    //推荐人微信openID
+    private String sellerOpenid;
+    //订单回扣率
+    private Double reward;
+    //备注
+    private String remark;
+    //低价
+    private Double realFee;
+    //是否删除（0：未删除，1：已删除）
+    private Integer isdel;
+
+    //以下为临时字段
+    //推荐人收益
+    private Double sellerReward;
+
+    //临时字段查询关键字
+    private String keyWords;
+
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getOrderId() {
+        return orderId;
+    }
+
+    public void setOrderId(String orderId) {
+        this.orderId = orderId;
+    }
+
+    public String getProverder() {
+        return proverder;
+    }
+
+    public void setProverder(String proverder) {
+        this.proverder = proverder;
+    }
+
+    public String getRealOrderId() {
+        return realOrderId;
+    }
+
+    public void setRealOrderId(String realOrderId) {
+        this.realOrderId = realOrderId;
+    }
+
+    public String getCustomerOpenid() {
+        return customerOpenid;
+    }
+
+    public void setCustomerOpenid(String customerOpenid) {
+        this.customerOpenid = customerOpenid;
+    }
+
+    public Integer getOrderType() {
+        return orderType;
+    }
+
+    public void setOrderType(Integer orderType) {
+        this.orderType = orderType;
+    }
+
+    public String getGoodId() {
+        return goodId;
+    }
+
+    public void setGoodId(String goodId) {
+        this.goodId = goodId;
+    }
+
+    public Integer getCount() {
+        return count;
+    }
+
+    public void setCount(Integer count) {
+        this.count = count;
+    }
+
+    public String getCustomerName() {
+        return customerName;
+    }
+
+    public void setCustomerName(String customerName) {
+        this.customerName = customerName;
+    }
+
+    public String getPhone() {
+        return phone;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
+    public Date getCreateTime() {
+        return createTime;
+    }
+
+    public void setCreateTime(Date createTime) {
+        this.createTime = createTime;
+    }
+
+    public Date getUpdateTime() {
+        return updateTime;
+    }
+
+    public void setUpdateTime(Date updateTime) {
+        this.updateTime = updateTime;
+    }
+
+    public Double getTotalFee() {
+        return totalFee;
+    }
+
+    public void setTotalFee(Double totalFee) {
+        this.totalFee = totalFee;
+    }
+
+    public String getHotelName() {
+        return hotelName;
+    }
+
+    public void setHotelName(String hotelName) {
+        this.hotelName = hotelName;
+    }
+
+    public Date getCheckInTime() {
+        return checkInTime;
+    }
+
+    public void setCheckInTime(Date checkInTime) {
+        this.checkInTime = checkInTime;
+    }
+
+    public Date getCheckOutTime() {
+        return checkOutTime;
+    }
+
+    public void setCheckOutTime(Date checkOutTime) {
+        this.checkOutTime = checkOutTime;
+    }
+
+    public Integer getRoomType() {
+        return roomType;
+    }
+
+    public void setRoomType(Integer roomType) {
+        this.roomType = roomType;
+    }
+
+    public String getFltNo() {
+        return fltNo;
+    }
+
+    public void setFltNo(String fltNo) {
+        this.fltNo = fltNo;
+    }
+
+    public Date getFltDate() {
+        return fltDate;
+    }
+
+    public void setFltDate(Date fltDate) {
+        this.fltDate = fltDate;
+    }
+
+    public String getStarting() {
+        return starting;
+    }
+
+    public void setStarting(String starting) {
+        this.starting = starting;
+    }
+
+    public String getDestination() {
+        return destination;
+    }
+
+    public void setDestination(String destination) {
+        this.destination = destination;
+    }
+
+    public String getVisaPlace() {
+        return visaPlace;
+    }
+
+    public void setVisaPlace(String visaPlace) {
+        this.visaPlace = visaPlace;
+    }
+
+    public String getVisaType() {
+        return visaType;
+    }
+
+    public void setVisaType(String visaType) {
+        this.visaType = visaType;
+    }
+
+    public String getScenicSpots() {
+        return scenicSpots;
+    }
+
+    public void setScenicSpots(String scenicSpots) {
+        this.scenicSpots = scenicSpots;
+    }
+
+    public Integer getStatus() {
+        return status;
+    }
+
+    public void setStatus(Integer status) {
+        this.status = status;
+    }
+
+    public Integer getOrderStatus() {
+        return orderStatus;
+    }
+
+    public void setOrderStatus(Integer orderStatus) {
+        this.orderStatus = orderStatus;
+    }
+
+    public String getSellerOpenid() {
+        return sellerOpenid;
+    }
+
+    public void setSellerOpenid(String sellerOpenid) {
+        this.sellerOpenid = sellerOpenid;
+    }
+
+    public Double getReward() {
+        return reward;
+    }
+
+    public void setReward(Double reward) {
+        this.reward = reward;
+    }
+
+    public String getRemark() {
+        return remark;
+    }
+
+    public void setRemark(String remark) {
+        this.remark = remark;
+    }
+
+    public Double getRealFee() {
+        return realFee;
+    }
+
+    public void setRealFee(Double realFee) {
+        this.realFee = realFee;
+    }
+
+    public Integer getIsdel() {
+        return isdel;
+    }
+
+    public void setIsdel(Integer isdel) {
+        this.isdel = isdel;
+    }
+
+    public Double getSellerReward() {
+        return sellerReward;
+    }
+
+    public void setSellerReward(Double sellerReward) {
+        this.sellerReward = sellerReward;
+    }
+
+    public String getKeyWords() {
+        return keyWords;
+    }
+
+    public void setKeyWords(String keyWords) {
+        this.keyWords = keyWords;
+    }
+
+    @Override
+    public String toString() {
+        return "WechatOrderInfoEntity{" +
+                "id=" + id +
+                ", orderId='" + orderId + '\'' +
+                ", proverder='" + proverder + '\'' +
+                ", realOrderId='" + realOrderId + '\'' +
+                ", customerOpenid='" + customerOpenid + '\'' +
+                ", orderType=" + orderType +
+                ", goodId='" + goodId + '\'' +
+                ", count=" + count +
+                ", customerName='" + customerName + '\'' +
+                ", phone='" + phone + '\'' +
+                ", address='" + address + '\'' +
+                ", createTime=" + createTime +
+                ", updateTime=" + updateTime +
+                ", totalFee=" + totalFee +
+                ", hotelName='" + hotelName + '\'' +
+                ", checkInTime=" + checkInTime +
+                ", checkOutTime=" + checkOutTime +
+                ", roomType=" + roomType +
+                ", fltNo='" + fltNo + '\'' +
+                ", fltDate=" + fltDate +
+                ", starting='" + starting + '\'' +
+                ", destination='" + destination + '\'' +
+                ", visaPlace='" + visaPlace + '\'' +
+                ", visaType='" + visaType + '\'' +
+                ", scenicSpots='" + scenicSpots + '\'' +
+                ", status=" + status +
+                ", orderStatus=" + orderStatus +
+                ", sellerOpenid='" + sellerOpenid + '\'' +
+                ", reward=" + reward +
+                ", remark='" + remark + '\'' +
+                ", realFee=" + realFee +
+                ", isdel=" + isdel +
+                '}';
+    }
+}

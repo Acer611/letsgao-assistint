@@ -1,0 +1,466 @@
+package com.umessage.letsgo.assistant.service.impl;
+
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
+import com.umessage.letsgo.assistant.common.utils.*;
+import com.umessage.letsgo.assistant.dao.RefundInfoDao;
+import com.umessage.letsgo.assistant.dao.WeChatOrderInfoDao;
+import com.umessage.letsgo.assistant.model.po.RefundInfoEntity;
+import com.umessage.letsgo.assistant.model.po.WeChatOrderInfoEntity;
+import com.umessage.letsgo.assistant.model.vo.request.WxWithDrawRequest;
+import com.umessage.letsgo.assistant.model.vo.response.OrderSellerOpenIdResponse;
+import com.umessage.letsgo.assistant.service.IRefundInfoService;
+import com.umessage.letsgo.assistant.service.IWeChatOrderInfoService;
+import me.chanjar.weixin.common.exception.WxErrorException;
+import me.chanjar.weixin.mp.api.WxMpConfigStorage;
+import me.chanjar.weixin.mp.api.WxMpPayService;
+import me.chanjar.weixin.mp.api.WxMpService;
+import me.chanjar.weixin.mp.bean.pay.request.WxPayRefundRequest;
+import me.chanjar.weixin.mp.bean.pay.request.WxPayUnifiedOrderRequest;
+import me.chanjar.weixin.mp.bean.pay.result.WxPayRefundResult;
+import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.StringUtils;
+import org.apache.http.HttpStatus;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.utils.HttpClientUtils;
+import org.apache.http.protocol.HTTP;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.stereotype.Service;
+
+import javax.servlet.http.HttpServlet;
+import java.io.File;
+import java.io.InputStream;
+import java.math.BigDecimal;
+import java.net.URLDecoder;
+import java.util.*;
+
+/**
+ * Created by ZhaoYidong on 2016/12/15.
+ */
+@Service
+public class WeChatOrderInfoServiceImpl implements IWeChatOrderInfoService {
+
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    //手机端每页展示多少条
+    private final int pageSize = 6;
+    //助手端每页展示多少条
+    private final int pageSize_assistint = 10;
+
+
+    @Autowired
+    private WeChatOrderInfoDao weChatOrderInfoDao;
+    @Autowired
+    private WxMpService wxService;
+    @Autowired
+    private IRefundInfoService refundInfoService;
+    @Autowired
+    private RefundInfoDao refundInfoDao;
+    @Autowired
+    protected WxMpConfigStorage wxMpConfigStorage;
+
+    @Override
+    public void insert(WeChatOrderInfoEntity wechatOrderInfoEntity,String wxNick) {
+        wechatOrderInfoEntity.setOrderId(UuidUtil.getUuidStr());
+        wechatOrderInfoEntity.setCreateTime(new Date());
+        wechatOrderInfoEntity.setIsdel(0);
+        wechatOrderInfoEntity.setOrderStatus(1);
+        wechatOrderInfoEntity.setStatus(0);
+        wechatOrderInfoEntity.setWxNick(wxNick);
+        weChatOrderInfoDao.insert(wechatOrderInfoEntity);
+    }
+
+    @Override
+    public WeChatOrderInfoEntity select(Long id) {
+        WeChatOrderInfoEntity wechatOrderInfoEntity = weChatOrderInfoDao.select(id);
+        Double totalFee = wechatOrderInfoEntity.getTotalFee();
+        Double realFee = null != wechatOrderInfoEntity.getRealFee() ? wechatOrderInfoEntity.getRealFee(): 0.0;
+        Double reward = null != wechatOrderInfoEntity.getReward() ? wechatOrderInfoEntity.getReward(): 1.0;
+        double reslutRe = 0.0;
+        if (totalFee != null && realFee != null && reward != null){
+            reslutRe = (totalFee - realFee) * reward;
+        }
+        wechatOrderInfoEntity.setSellerReward(reslutRe);
+        return wechatOrderInfoEntity;
+    }
+
+    @Override
+    public void update(WeChatOrderInfoEntity wechatOrderInfoEntity) {
+         weChatOrderInfoDao.update(wechatOrderInfoEntity);
+    }
+
+    @Override
+    public void delete(Long id) {
+         weChatOrderInfoDao.delete(id);
+    }
+
+    /**
+     * 下单用户查看订单列表
+     * @param customerOpenid
+     * @return
+     */
+    @Override
+    public Page<WeChatOrderInfoEntity> selectByCustomerOpenid(String customerOpenid,String pageNum,String pageSizes) throws WxErrorException {
+        int pageNumber = 1;
+        if(!"".equals(pageNum) && null!=pageNum){
+            pageNumber = Integer.parseInt(pageNum);
+        }
+
+        if(!"".equals(pageSizes) && null!=pageSizes){
+            PageHelper.startPage(pageNumber, Integer.parseInt(pageSizes));
+        }else{
+            PageHelper.startPage(pageNumber, pageSize);
+        }
+        Page<WeChatOrderInfoEntity> orderList = weChatOrderInfoDao.selectByCustomerOpenid(customerOpenid);
+
+        return orderList;
+    }
+
+
+    private String createSign(Map<String, String> packageParams, String signKey) {
+        TreeMap sortedMap = new TreeMap(packageParams);
+        StringBuilder toSign = new StringBuilder();
+        Iterator i$ = sortedMap.keySet().iterator();
+
+        while(i$.hasNext()) {
+            String key = (String)i$.next();
+            String value = (String)packageParams.get(key);
+            if(null != value && !"".equals(value) && !"sign".equals(key) && !"key".equals(key)) {
+                toSign.append(key + "=" + value + "&");
+            }
+        }
+
+        toSign.append("key=" + signKey);
+        return DigestUtils.md5Hex(toSign.toString()).toUpperCase();
+    }
+
+    /**
+     * 下单用户查看待支付订单
+     * @param id
+     * @return
+     */
+    @Override
+    public WeChatOrderInfoEntity selectByStatus(Long id) {
+        return weChatOrderInfoDao.select(id);
+    }
+
+    /**
+     * 更改支付状态
+     * @param wechatOrderInfoEntity
+     * @return
+     */
+    @Override
+    public WeChatOrderInfoEntity updateStatus(WeChatOrderInfoEntity wechatOrderInfoEntity) {
+        wechatOrderInfoEntity.setStatus(2);//订单完成
+        wechatOrderInfoEntity.setOrderStatus(0);//已完成
+        wechatOrderInfoEntity = this.getSellerRewardOne(wechatOrderInfoEntity);
+        weChatOrderInfoDao.update(wechatOrderInfoEntity);
+        return wechatOrderInfoEntity;
+    }
+
+    /**
+     * 根据导游推荐人查询订单信息(订单明细受益)
+     * @param sellerOpenid
+     * @return
+     */
+    @Override
+    public OrderSellerOpenIdResponse selectBySellerOpenid(String sellerOpenid, String pageNum, String pageSizes) {
+        int pageNumber = 1;
+        if(!"".equals(pageNum) && null!=pageNum){
+            pageNumber = Integer.parseInt(pageNum);
+        }
+        if(!"".equals(pageSizes) && null!=pageSizes){
+            PageHelper.startPage(pageNumber, Integer.parseInt(pageSizes));
+        }else{
+            PageHelper.startPage(pageNumber, pageSize);
+        }
+        Page<WeChatOrderInfoEntity> wechatOrderInfoEntities = weChatOrderInfoDao.selectBySellerOpenid(sellerOpenid);
+        wechatOrderInfoEntities = this.getSellerReward(wechatOrderInfoEntities);
+
+        List<WeChatOrderInfoEntity> wechatOrderInfoEntitieList = weChatOrderInfoDao.selectBySellerOpenid(sellerOpenid);
+
+        OrderSellerOpenIdResponse response = this.getSellerRewardMap(wechatOrderInfoEntitieList);
+        response.setOrderList(wechatOrderInfoEntities);
+        response.setTotal(wechatOrderInfoEntities.getTotal());
+        response.setPage(wechatOrderInfoEntities.getPages());
+        return response;
+    }
+
+    /**
+     * 获取订单信息(助手端)
+     * @param wechatOrderInfoEntity
+     * @return
+     */
+    @Override
+    public Page<WeChatOrderInfoEntity> selectOrderList(WeChatOrderInfoEntity wechatOrderInfoEntity,String pageNumber) {
+        int pageNum = 1;
+        if(!"".equals(pageNumber) && null!=pageNumber){
+            pageNum = Integer.parseInt(pageNumber);
+        }
+        PageHelper.startPage(pageNum, pageSize_assistint);
+        Page<WeChatOrderInfoEntity> orderList = weChatOrderInfoDao.selectOrderList(wechatOrderInfoEntity);
+        String niceName = null;
+        try{
+            for (WeChatOrderInfoEntity orderInfo:orderList) {
+                niceName = orderInfo.getWxNick();
+                niceName = URLDecoder.decode(niceName, "utf-8");
+                orderInfo.setWxNick(niceName);
+            }
+        }catch (Exception e){
+            e.printStackTrace();;
+        }
+        return orderList;
+    }
+
+
+    /**
+     * 获取订单受益
+     * @param wechatOrderInfoEntity
+     * @return
+     */
+    public WeChatOrderInfoEntity  getSellerRewardOne(WeChatOrderInfoEntity wechatOrderInfoEntity){
+            Double totalFee = wechatOrderInfoEntity.getTotalFee();
+            Double realFee = null != wechatOrderInfoEntity.getRealFee() ? wechatOrderInfoEntity.getRealFee():0.0;
+            Double reward = null != wechatOrderInfoEntity.getReward() ? wechatOrderInfoEntity.getReward():1.0;
+            double reslutRe = 0.0;
+            if (totalFee != null && realFee != null && reward != null){
+                reslutRe = (totalFee - realFee) * reward;
+            }
+            wechatOrderInfoEntity.setSellerReward(reslutRe);
+            //添加出路手机号的逻辑
+            String phone = wechatOrderInfoEntity.getPhone();
+            if (!StringUtils.isEmpty(phone)){
+                phone = phone.replaceAll("(\\d{3})\\d{4}(\\d{4})","$1****$2");
+            }
+            wechatOrderInfoEntity.setPhone(phone);
+        return wechatOrderInfoEntity;
+    }
+
+
+    /**
+     * 获取订单受益
+     * @param wechatOrderInfoEntities
+            * @return
+     */
+    public Page<WeChatOrderInfoEntity>  getSellerReward(Page<WeChatOrderInfoEntity> wechatOrderInfoEntities){
+        String niceName = null;
+        try{
+        for (WeChatOrderInfoEntity wechatOrderInfoEntity:wechatOrderInfoEntities) {
+            Double totalFee = wechatOrderInfoEntity.getTotalFee();
+            Double realFee = null != wechatOrderInfoEntity.getRealFee() ? wechatOrderInfoEntity.getRealFee():0.0;
+            Double reward = null != wechatOrderInfoEntity.getReward() ? wechatOrderInfoEntity.getReward():1.0;
+            double reslutRe = 0.0;
+            if (totalFee != null && realFee != null && reward != null){
+                reslutRe = (totalFee - realFee) * reward;
+            }
+            wechatOrderInfoEntity.setSellerReward(reslutRe);
+            //添加出路手机号的逻辑
+            String phone = wechatOrderInfoEntity.getPhone();
+            phone = phone.replaceAll("(\\d{3})\\d{4}(\\d{4})","$1****$2");
+            wechatOrderInfoEntity.setPhone(phone);
+            //处理昵称
+            niceName = wechatOrderInfoEntity.getWxNick();
+            niceName = URLDecoder.decode(niceName, "utf-8");
+            wechatOrderInfoEntity.setWxNick(niceName);
+        }
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return wechatOrderInfoEntities;
+    }
+
+    /**
+     * 获取订单受益
+     * @param wechatOrderInfoEntities
+     * @return
+     */
+    public OrderSellerOpenIdResponse getSellerRewardMap(List<WeChatOrderInfoEntity> wechatOrderInfoEntities){
+        //Map resultMap = new HashMap<>();
+        OrderSellerOpenIdResponse response = new OrderSellerOpenIdResponse();
+        Double totalReward = 0.0;
+        for (WeChatOrderInfoEntity wechatOrderInfoEntity:wechatOrderInfoEntities) {
+            Double totalFee = wechatOrderInfoEntity.getTotalFee();
+            Double realFee = null != wechatOrderInfoEntity.getRealFee() ? wechatOrderInfoEntity.getRealFee(): 0.0;
+            Double reward = null != wechatOrderInfoEntity.getReward() ? wechatOrderInfoEntity.getReward(): 1.0;
+            double reslutRe = 0.0;
+            if (totalFee != null && realFee != null && reward != null){
+                reslutRe = (totalFee - realFee) * reward;
+            }
+            wechatOrderInfoEntity.setSellerReward(reslutRe);
+            totalReward = totalReward + reslutRe;
+        }
+        //resultMap.put("totalReward",totalReward);
+        BigDecimal bg = new BigDecimal(totalReward);
+        double totalRewardFormat = bg.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue();
+        response.setTotalReward(totalRewardFormat);
+        return response;
+    }
+
+
+    /**
+     *获取支付参数信息和生成预支付的payID
+     * @param id
+     * @return
+     */
+    public Map createPayInfo(long id, WeChatOrderInfoEntity order)  {
+        logger.info("进入获取支付信息的service 层方法...");
+        Map resultMap = new HashMap<>();
+        //WeChatOrderInfoEntity order  = weChatOrderInfoDao.select(id);
+        logger.info("获取order信息完成...");
+        //代码中Result为自定义返回对象，WxPayUnifiedOrderRequest 中还有一些参数会根据配置文件的配置自动填充，
+        // 不需要单独设置，例如：appId、partnerId、notifyURL、tradeType等参数。
+        try {
+            WxPayUnifiedOrderRequest orderRequest = new WxPayUnifiedOrderRequest();
+            //商品描述
+            orderRequest.setBody("旅游助手产品");
+            //商品订单号
+            orderRequest.setOutTradeNo(order.getOrderId());
+            //标价金额
+            orderRequest.setTotalFee(Integer.parseInt(AmountUtil.changeY2F(String.valueOf(order.getTotalFee()))));
+            //终端IP
+            orderRequest.setSpbillCreateIp(IPUtil.getV4IP());
+            //
+            orderRequest.setOpenid(order.getCustomerOpenid());
+            orderRequest.setNotifyURL("https://zhuli.igenshang.com/portal/payNotify");
+            orderRequest.setTradeType("JSAPI");
+
+            WxMpPayService wxMpPayService = wxService.getPayService();
+            logger.info("service层调用微信的下单方法...");
+            resultMap = wxMpPayService.getPayInfo(orderRequest);
+            logger.info("service层调用微信的下单成功...");
+
+        }catch (Exception e){
+            resultMap.put("fail","获取支付失败，请稍后重试！");
+            logger.error("获取微信信息支付失败！订单号：{},原因:{}", order.getOrderId(), e.getMessage());
+            e.printStackTrace();
+        }
+
+        return resultMap;
+    }
+
+    @Override
+    public void updateStatusByOrderId(WeChatOrderInfoEntity wechatOrderInfoEntity) {
+        weChatOrderInfoDao.updateStatusByOrderId(wechatOrderInfoEntity);
+    }
+
+    @Override
+    public WeChatOrderInfoEntity findOrderInfoByOrderId(String orderId) {
+        return weChatOrderInfoDao.selectOrderInfoByOrderId(orderId);
+    }
+
+    @Override
+    public WeChatOrderInfoEntity updateOrderStatusToPay(String orderId) {
+        WeChatOrderInfoEntity wxOrderInfo = weChatOrderInfoDao.selectOrderInfoByOrderId(orderId);
+        if(wxOrderInfo.getStatus()!=1){
+            WeChatOrderInfoEntity wechatOrderInfoEntity = new WeChatOrderInfoEntity();
+            wechatOrderInfoEntity.setStatus(1);
+            wechatOrderInfoEntity.setOrderId(orderId);
+            weChatOrderInfoDao.updateStatusByOrderId(wechatOrderInfoEntity);
+        }
+        return wxOrderInfo;
+    }
+
+    /**
+     * 获取待处理订单列表
+     * @param wechatOrderInfoEntity
+     * @param pageNumber
+     * @return
+     */
+    @Override
+    public Page<WeChatOrderInfoEntity> selectTODOOrderList(WeChatOrderInfoEntity wechatOrderInfoEntity, String pageNumber) {
+        int pageNum = 1;
+        if(!"".equals(pageNumber) && null!=pageNumber){
+            pageNum = Integer.parseInt(pageNumber);
+        }
+        PageHelper.startPage(pageNum, pageSize_assistint);
+        Page<WeChatOrderInfoEntity> orderList = weChatOrderInfoDao.selectTODOOrderList(wechatOrderInfoEntity);
+        return orderList;
+    }
+
+    /**
+     * 退款操作
+     * @param orderInfoEntity
+     * @param refundFee
+     */
+    @Override
+    public void refund(WeChatOrderInfoEntity orderInfoEntity, Double refundFee) {
+        logger.info("组装退款请求参数");
+        WxMpPayService wxMpPayService = wxService.getPayService();
+        WxPayRefundRequest wxPayRefundRequest = new WxPayRefundRequest();
+        //组织退款请求的参数
+        wxPayRefundRequest.setAppid( wxMpConfigStorage.getAppId());
+        wxPayRefundRequest.setMchId(wxMpConfigStorage.getPartnerId());
+        String nonceStr = String.valueOf(System.currentTimeMillis());
+        wxPayRefundRequest.setNonceStr(nonceStr);
+
+        //商户订单号
+        wxPayRefundRequest.setOutTradeNo(orderInfoEntity.getOrderId());
+        //商户退款单号
+        String refundNo = UuidUtil.getUuidStr();
+        wxPayRefundRequest.setOutRefundNo(refundNo);
+        wxPayRefundRequest.setTotalFee(Integer.parseInt(AmountUtil.changeY2F(String.valueOf(orderInfoEntity.getTotalFee()))));
+        wxPayRefundRequest.setRefundFee(Integer.parseInt(AmountUtil.changeY2F(String.valueOf(refundFee))));
+       //TODO 采用商户ID 或者坐席ID
+        if(null == orderInfoEntity.getExten()){
+            wxPayRefundRequest.setOpUserId(wxMpConfigStorage.getPartnerId());
+        }else{
+            wxPayRefundRequest.setOpUserId(orderInfoEntity.getExten());
+        }
+        logger.info("生成Sign");
+        String sign = this.getSign(wxPayRefundRequest);
+        wxPayRefundRequest.setSign(sign);
+        logger.info("组装退款请求参数完成");
+
+        //获取签名的File
+        logger.info("开始获取签名文件");
+        //退款返回实体
+        WxPayRefundResult wxPayRefundResult = new WxPayRefundResult();
+        File signFile = null;
+        //TODO 配置证书
+        ClassPathResource classPathResource = new ClassPathResource("apiclient_cert.p12");
+        try{
+            InputStream inputStream = classPathResource.getInputStream();
+            FileUtils.copyInputStreamToFile(inputStream, signFile);
+            inputStream.close();
+            logger.info("调用微信退款接口");
+            //调用微信退款的接口
+            wxPayRefundResult = wxMpPayService.refund(wxPayRefundRequest,signFile);
+        }catch (Exception e){
+            logger.info("调用微信退款几口异常：" + e.getMessage());
+        }
+       if( wxPayRefundResult.getErrCode().equals(HttpStatus.SC_OK)){
+           logger.info("修改订单表订单状态");
+           // 修改咱们系统订单状态
+           orderInfoEntity.setStatus(3);
+           weChatOrderInfoDao.update(orderInfoEntity);
+           logger.info("记录退款记录");
+           // 添加退款记录到退款记录表
+           refundInfoService.createRefundInfo(orderInfoEntity,wxPayRefundResult,refundFee);
+
+
+
+      }
+
+    }
+
+
+    /**
+     * 生成Sign
+     * @return
+     */
+    public String getSign(WxPayRefundRequest wxPayRefundRequest) {
+        Map<String,String> map =  WxPaySignUtil.objectToMap(wxPayRefundRequest);
+        Map<String, String> tmap = WxPaySignUtil.order(map);
+        if(tmap.containsKey("sign")){
+            tmap.remove("sign");
+        }
+        String signStr = WxPaySignUtil.mapJoin(tmap, false, false);
+        signStr = signStr + "&key=" + wxMpConfigStorage.getPartnerKey();
+        String sign = MD5.MD5Encode(signStr.toString());
+        return sign.toUpperCase();
+    }
+
+}

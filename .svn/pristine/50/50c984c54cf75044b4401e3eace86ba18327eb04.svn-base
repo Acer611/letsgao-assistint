@@ -1,0 +1,136 @@
+package com.umessage.letsgo.assistant.service.impl;
+
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
+import com.umessage.letsgo.assistant.dao.WechatOrderInfoDao;
+import com.umessage.letsgo.assistant.model.WechatOrderInfoEntity;
+import com.umessage.letsgo.assistant.service.IWechatOrderInfoService;
+import com.umessage.letsgo.assistant.utils.UuidUtil;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+/**
+ * Created by ZhaoYidong on 2016/12/15.
+ */
+@Service
+public class WechatOrderInfoServiceImpl implements IWechatOrderInfoService{
+
+    //手机端每页展示多少条
+    private final int pageSize = 3;
+    //助手端每页展示多少条
+    private final int pageSize_assistint = 10;
+
+
+    @Autowired
+    private WechatOrderInfoDao wechatOrderInfoDao;
+
+    @Override
+    public void insert(WechatOrderInfoEntity wechatOrderInfoEntity) {
+        wechatOrderInfoEntity.setOrderId(UuidUtil.getUuidStr());
+        wechatOrderInfoEntity.setCreateTime(new Date());
+        wechatOrderInfoEntity.setIsdel(0);
+        wechatOrderInfoDao.insert(wechatOrderInfoEntity);
+    }
+
+    @Override
+    public WechatOrderInfoEntity select(Long id) {
+        return wechatOrderInfoDao.select(id);
+    }
+
+    @Override
+    public void update(WechatOrderInfoEntity wechatOrderInfoEntity) {
+         wechatOrderInfoDao.update(wechatOrderInfoEntity);
+    }
+
+    @Override
+    public void delete(Long id) {
+         wechatOrderInfoDao.delete(id);
+    }
+
+    /**
+     * 下单用户查看订单列表
+     * @param customerOpenid
+     * @return
+     */
+    @Override
+    public Map selectByCustomerOpenid(String customerOpenid,String flag,String pageNum) {
+        Map resultMap = new HashMap<>();
+        int pageNumber = 1;
+        if(!"".equals(pageNum) && null!=pageNum){
+            pageNumber = Integer.parseInt(pageNum);
+        }
+        if(null!=flag){
+            PageHelper.startPage(pageNumber, pageSize_assistint);
+        }
+        else{
+            PageHelper.startPage(pageNumber, pageSize);
+        }
+
+        Page<Long> pageOrderList = wechatOrderInfoDao.selectByCustomerOpenidPages(customerOpenid);
+        List orderList = wechatOrderInfoDao.selectByCustomerOpenid(customerOpenid);
+        resultMap.put("orderList",orderList);
+        resultMap.put("totla",pageOrderList.getTotal());
+        resultMap.put("page",pageOrderList.getPages());
+        return resultMap;
+    }
+
+    /**
+     * 下单用户查看待支付订单
+     * @param customerOpenid
+     * @return
+     */
+    @Override
+    public List<WechatOrderInfoEntity> selectByStatus(String customerOpenid) {
+        return wechatOrderInfoDao.selectByStatus(customerOpenid);
+    }
+
+    /**
+     * 更改支付状态
+     * @param id
+     * @return
+     */
+    @Override
+    public void updateStatus(Long id) {
+        WechatOrderInfoEntity wechatOrderInfoEntity = wechatOrderInfoDao.select(id);
+        wechatOrderInfoEntity.setStatus(1);//已支付
+        wechatOrderInfoDao.update(wechatOrderInfoEntity);
+    }
+
+    /**
+     * 根据导游推荐人查询订单信息
+     * @param sellerOpenid
+     * @return
+     */
+    @Override
+    public List<WechatOrderInfoEntity> selectBySellerOpenid(String sellerOpenid) {
+        List<WechatOrderInfoEntity> wechatOrderInfoEntities = wechatOrderInfoDao.selectBySellerOpenid(sellerOpenid);
+        return wechatOrderInfoEntities;
+    }
+
+    /**
+     * 获取订单信息(助手端)
+     * @param wechatOrderInfoEntity
+     * @return
+     */
+    @Override
+    public Map selectOrderList(WechatOrderInfoEntity wechatOrderInfoEntity,String pageNumber) {
+        int pageNum = 1;
+        if(!"".equals(pageNumber) && null!=pageNumber){
+            pageNum = Integer.parseInt(pageNumber);
+        }
+        PageHelper.startPage(pageNum, pageSize_assistint);
+
+        Page<Long> pageOrderList = wechatOrderInfoDao.selectOrderListPages(wechatOrderInfoEntity);
+        Map resultMap = new HashMap<>();
+        List orderList = wechatOrderInfoDao.selectOrderList(wechatOrderInfoEntity);
+        resultMap.put("orderList",orderList);
+        resultMap.put("totla",pageOrderList.getTotal());
+        resultMap.put("page",pageOrderList.getPages());
+        return resultMap;
+    }
+}

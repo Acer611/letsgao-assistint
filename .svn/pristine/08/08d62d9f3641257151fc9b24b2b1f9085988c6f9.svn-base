@@ -1,0 +1,61 @@
+package com.umessage.letsgo.assistant.service;
+
+import com.umessage.letsgo.assistant.common.utils.WxPayOrderNotifyResult;
+import com.umessage.letsgo.assistant.model.po.PayInfoEntity;
+import com.umessage.letsgo.assistant.model.po.WeChatOrderInfoEntity;
+import com.umessage.letsgo.assistant.model.vo.response.WxPayOrderNotifyResponse;
+
+import java.util.*;
+/**
+ * 支付记录接口
+ * Created by gaofei on 2016/12/30.
+ */
+public interface IPayInfoService {
+
+    /**
+     * 生成支付记录
+     * @param payInfoEntity
+     * @return
+     */
+    public PayInfoEntity createPaInfo(PayInfoEntity payInfoEntity);
+
+    /**
+     * 修改支付记录
+     * @param payInfoEntity
+     * @return
+     */
+    public PayInfoEntity mofifyPayInfo(PayInfoEntity payInfoEntity);
+
+
+    /**
+     * 根据OopenID 获取支付记录
+     * @param openId
+     * @return
+     */
+    public List<PayInfoEntity> getAllPayInfoEntityByOpenID(String openId);
+
+    /**
+     * 生成支付记录的参数拼接方法
+     * @param wechatOrderInfoEntities
+     */
+    void generatePaInfo(WeChatOrderInfoEntity wechatOrderInfoEntities);
+
+    /**
+     * 根据orderId 获取支付信息
+     * @param orderId
+     * @return
+     */
+    public PayInfoEntity getPayInfoByOrderId(String orderId);
+
+    /**
+     * 生成修改支付记录的参数拼接方法
+     * @param WxPayOrderNotifyResult
+     */
+    void generateUpdateDate(WxPayOrderNotifyResult WxPayOrderNotifyResult);
+
+    /**
+     * 根据orderId 修改支付记录信息
+     * @param payInfoEntity
+     */
+    void modifyByOrderId(PayInfoEntity payInfoEntity);
+}

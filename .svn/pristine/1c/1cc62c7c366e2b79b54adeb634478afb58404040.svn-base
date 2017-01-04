@@ -1,0 +1,149 @@
+package com.umessage.letsgo.assistant.service.impl;
+
+import com.umessage.letsgo.assistant.model.WeChatOrderInfoEntity;
+import com.umessage.letsgo.assistant.service.ITemplateMessageService;
+import com.umessage.letsgo.assistant.service.IWeChatSendMessageService;
+import com.umessage.letsgo.assistant.utils.TemplateData;
+import com.umessage.letsgo.assistant.utils.TemplateMessageRequest;
+import org.apache.commons.lang.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.HashMap;
+import java.util.Map;
+
+/**
+ * Created by ZhaoYidong on 2016/12/20.
+ */
+@Service
+public class WeChatSendMessageServiceImpl implements IWeChatSendMessageService {
+
+    @Autowired
+    private ITemplateMessageService templateMessageService;
+
+
+    /**
+     * 我的二维码
+     * @param openid
+     */
+    @Override
+    public void sendQrCodeTemplateMessage(String openid) {
+        if (!StringUtils.isEmpty(openid)) {
+            TemplateMessageRequest request = new TemplateMessageRequest();
+            request.setOpenid(openid);//openid
+            request.setUrl("");//跳转路径
+            Map<String, TemplateData> map = new HashMap<>();//模板内容
+
+            TemplateData first = new TemplateData();
+            first.setValue("您好！请查看二维码。"+"\n");
+            map.put("first", first);
+
+            TemplateData remark = new TemplateData();
+            remark.setValue("\n"+"点击查看二维码。");
+            map.put("remark", remark);
+
+            request.setData(map);
+            templateMessageService.sendQrCodeTemplate(request);
+        }
+    }
+
+
+    /**
+     * 推送支付链接
+     * @param openid
+     */
+    @Override
+    public void sendPayUrlTemplateMessage(String openid, WeChatOrderInfoEntity orderInfoEntity) {
+        if (!StringUtils.isEmpty(openid)) {
+            TemplateMessageRequest request = new TemplateMessageRequest();
+            request.setOpenid(openid);//openid
+            request.setUrl("");//跳转路径
+            Map<String, TemplateData> map = new HashMap<>();//模板内容
+
+            TemplateData first = new TemplateData();
+            first.setValue("您好！您的订单已经下单成功。"+"\n");
+            map.put("first", first);
+
+            TemplateData keyword1 = new TemplateData();
+            keyword1.setValue(orderInfoEntity.getOrderId());
+            map.put("keyword1", keyword1);
+
+            TemplateData keyword2 = new TemplateData();
+            keyword2.setValue(this.getOrderType(orderInfoEntity));
+            map.put("keyword2", keyword2);
+
+            TemplateData keyword3 = new TemplateData();
+            keyword3.setValue(orderInfoEntity.getCount()+"个");
+            map.put("keyword3", keyword3);
+
+            TemplateData keyword4 = new TemplateData();
+            keyword4.setValue(orderInfoEntity.getTotalFee()+"元");
+            map.put("keyword4", keyword4);
+
+            TemplateData remark = new TemplateData();
+            remark.setValue("\n"+"点击支付订单。");
+            map.put("remark", remark);
+
+            request.setData(map);
+            templateMessageService.sendPayUrlTemplate(request);
+        }
+    }
+
+
+    /**
+     * 推送支付完成推送支付成功消息
+     * @param openid
+     */
+    @Override
+    public void sendPaySuccessTemplateMessage(String openid, WeChatOrderInfoEntity orderInfoEntity) {
+        if (!StringUtils.isEmpty(openid)) {
+            TemplateMessageRequest request = new TemplateMessageRequest();
+            request.setOpenid(openid);//openid
+            request.setUrl("");//跳转路径
+            Map<String, TemplateData> map = new HashMap<>();//模板内容
+
+            TemplateData first = new TemplateData();
+            first.setValue("您好！您的订单已经支付成功。"+"\n");
+            map.put("first", first);
+
+            TemplateData keyword1 = new TemplateData();
+            keyword1.setValue(orderInfoEntity.getOrderId());
+            map.put("keyword1", keyword1);
+
+            TemplateData keyword2 = new TemplateData();
+            keyword2.setValue(this.getOrderType(orderInfoEntity));
+            map.put("keyword2", keyword2);
+
+            TemplateData keyword3 = new TemplateData();
+            keyword3.setValue(orderInfoEntity.getCount()+"个");
+            map.put("keyword3", keyword3);
+
+            TemplateData keyword4 = new TemplateData();
+            keyword4.setValue(orderInfoEntity.getTotalFee()+"元");
+            map.put("keyword4", keyword4);
+
+            TemplateData remark = new TemplateData();
+            remark.setValue("\n"+"点击查看订单详情。");
+            map.put("remark", remark);
+
+            request.setData(map);
+            templateMessageService.sendPaySuccessTemplate(request);
+        }
+    }
+
+
+    private String getOrderType(WeChatOrderInfoEntity orderInfoEntity){
+        Integer orderType = orderInfoEntity.getOrderType();
+        String orderTypeName = "";
+        if (orderType == 1){
+            orderTypeName = "机票";
+        }else if (orderType == 2){
+            orderTypeName = "酒店";
+        }else if (orderType == 3){
+            orderTypeName = "签证";
+        }else if (orderType == 4){
+            orderTypeName = "门票";
+        }
+        return  orderTypeName;
+    }
+}

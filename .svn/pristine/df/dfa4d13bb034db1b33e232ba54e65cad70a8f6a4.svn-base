@@ -1,0 +1,34 @@
+package com.umessage.letsgo.assistant.service;
+
+import com.umessage.letsgo.assistant.model.po.PayInfoEntity;
+
+/**
+ * Created by gaofei on 2016/12/15.
+ */
+public interface IPayInfoService {
+    /**
+     * 插入支付记录
+     * @param payInfoEntity
+     * @return
+     */
+    void insertPayInfo(PayInfoEntity payInfoEntity);
+
+    /**
+     * 查询支付记录
+     * @param id
+     */
+    PayInfoEntity selectById(Long id);
+
+    /**
+     * 根据id 更新
+     * @param payInfoEntity
+     */
+    void updateByID(PayInfoEntity payInfoEntity);
+
+    /**
+     * 根据id 删除
+     * @param id
+     */
+    void delete(Long id);
+
+}

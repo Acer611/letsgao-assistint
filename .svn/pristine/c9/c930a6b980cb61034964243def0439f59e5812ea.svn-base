@@ -1,0 +1,41 @@
+package com.umessage.letsgo.assistant.wechat.handler;
+
+import com.umessage.letsgo.assistant.model.WeChatInfoEntity;
+import com.umessage.letsgo.assistant.service.IWeChatInfoService;
+import me.chanjar.weixin.common.exception.WxErrorException;
+import me.chanjar.weixin.common.session.WxSessionManager;
+import me.chanjar.weixin.mp.api.WxMpService;
+import me.chanjar.weixin.mp.bean.message.WxMpXmlMessage;
+import me.chanjar.weixin.mp.bean.message.WxMpXmlOutMessage;
+import me.chanjar.weixin.mp.bean.result.WxMpQrCodeTicket;
+import org.springframework.stereotype.Component;
+
+import javax.annotation.Resource;
+import java.util.Map;
+
+/**
+ * 
+ * @author Binary Wang
+ *
+ */
+@Component
+public class NullHandler extends AbstractHandler {
+
+    @Resource
+    private IWeChatInfoService weChatInfoService;
+
+    @Override
+    public WxMpXmlOutMessage handle(WxMpXmlMessage wxMessage,
+            Map<String, Object> context, WxMpService wxMpService,
+            WxSessionManager sessionManager) throws WxErrorException {
+        String openId = wxMessage.getFromUser();
+        WeChatInfoEntity weChatInfo =  weChatInfoService.findWecahtUserByOpenID(openId);
+        WxMpQrCodeTicket wxMpQrCodeTicket = wxMpService.getQrcodeService().qrCodeCreateLastTicket(String.valueOf(weChatInfo.getID()));
+        String ticketUrl = wxMpQrCodeTicket.getUrl();
+
+        weChatInfoService.updateTickURLByOpenID(ticketUrl,openId);
+
+        return null;
+    }
+
+}

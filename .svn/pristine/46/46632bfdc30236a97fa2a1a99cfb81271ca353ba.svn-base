@@ -1,0 +1,36 @@
+package com.umessage.letsgo.assistant.service;
+
+import com.umessage.letsgo.assistant.model.WechatOrderInfoEntity;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.Map;
+
+/**
+ * Created by ZhaoYidong on 2016/12/15.
+ */
+@Service
+public interface IWechatOrderInfoService {
+    void insert(WechatOrderInfoEntity wechatOrderInfoEntity);
+
+    WechatOrderInfoEntity select(Long id);
+
+    void update(WechatOrderInfoEntity wechatOrderInfoEntity);
+
+    void delete(Long id);
+
+    Map selectByCustomerOpenid(String customerOpenid,String pageNum);
+
+    List<WechatOrderInfoEntity> selectByStatus(String customerOpenid);
+
+    void updateStatus(Long id);
+
+    Map selectBySellerOpenid(String sellerOpenid);
+
+    /**
+     * 获取订单信息(助手端)
+     * @param wechatOrderInfoEntity
+     * @return
+     */
+   Map selectOrderList(WechatOrderInfoEntity wechatOrderInfoEntity, String pageNumber);
+}

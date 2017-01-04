@@ -1,0 +1,41 @@
+
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="utf-8">
+	  
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <meta name="description" content="">
+      <title>账户明细</title>
+	  <link rel="stylesheet" href="/css/mobile.css">
+	
+    </head>
+    <body> 
+	
+		<div class="detailTop">
+			<div class="yue"><p>账户余额：</p><!--<p><a href="#" class="cash">提现</a></p>--></div>
+			<div>￥$resultMap.get("totalReward")</div>
+		</div>
+		<ul class="detailList">
+	##foreach( $product in $resultMap.keySet())
+	#foreach( $productdetail in ${resultMap.get("orderList")})
+			<li>
+			<div>
+		#if(${productdetail.orderType}==1)
+				<p class="air">订机票</p>
+		#elseif($productdetail.orderType==2)
+        <p class="hotelbg">订酒店</p>
+		#elseif($productdetail.orderType==3)
+            <p class="vbg">签证办理</p>
+		#elseif($productdetail.orderType==4)
+            <p class="jdbg">景点门票</p>
+				#end
+				<p class="timer">$!date.format('yyyy-MM-dd HH:mm:ss',$!{productdetail.createTime})</p></div>
+			<div><p>来源：$!{productdetail.sellerOpenid}</p><p class="decimal"> +$!{productdetail.sellerReward}</p></div>
+		</li>
+		#end
+		##end
+
+		</ul>
+    </body>
+    </html>

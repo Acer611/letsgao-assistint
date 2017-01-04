@@ -1,0 +1,73 @@
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0, minimum-scale=1.0,user-scalable=no">
+        <meta name="description" content="最贴心的价格，最体贴的服务，旅游助理24小时在线提供旅游产品预订购买服务！">
+      <title>我是$!{wechatInfo.nickname}，这是我的旅游助理</title>
+	  <link rel="stylesheet" href="/css/cdse.css">
+        <script src="/js/zepto.min.js"></script>
+        <script src="https://res.wx.qq.com/open/js/jweixin-1.0.0.js"></script>
+
+	</head>
+    <body> 
+	<div class="assistant">
+		<div class="s_headtop">
+			<div class="headRev">
+				<p>我是$!{wechatInfo.nickname}</p>
+				<p>这是我的旅游助理</p>
+			</div>
+			<div class="headImg"><img src="$!{wechatInfo.headImgUrl}"/></div>
+		</div>
+		<div class="s_headcenter"></div>
+		<div class="erweima"><img src="$!{wechatInfo.ticket}" width="100%"/></div>
+		<div class="jieshao">
+			<p>识别二维码加关注</p> 
+			<p>留言您的需求</p> 
+			<p>助理立即为您办理</p>
+		</div>
+	</div>
+    <script>
+        $(function(){
+            $(".assistant").height($(window).height());
+        })
+    wx.config({
+    debug: false, // 开启调试模式,调用的所有api的返回值会在客户端alert出来，若要查看传入的参数，可以在pc端打开，参数信息会通过log打出，仅在pc端时才会打印。
+    appId: '$!{jsapiSignature.appid}', // 必填，公众号的唯一标识
+    timestamp:$!{jsapiSignature.timestamp} , // 必填，生成签名的时间戳
+    nonceStr: '$!{jsapiSignature.noncestr}', // 必填，生成签名的随机串
+    signature: '$!{jsapiSignature.signature}',// 必填，签名，见附录1
+    jsApiList: ['checkJsApi','onMenuShareTimeline','onMenuShareAppMessage','onMenuShareQQ','onMenuShareWeibo','onMenuShareQZone'] // 必填，需要使用的JS接口列表，所有JS接口列表见附录2
+    });
+    wx.ready(function () {
+        wx.onMenuShareTimeline({
+            title: '我是$!{wechatInfo.nickname}，这是我的旅游助理', // 分享标题
+            link: encodeURI('https://zhuli.igenshang.com/shareurl/findWeChatInfoUrl?openId=$!{wechatInfo.openid}'), // 分享链接
+            imgUrl: '$!{wechatInfo.headImgUrl}', // 分享图标
+            success: function () {
+                // 用户确认分享后执行的回调函数
+            },
+            cancel: function () {
+                // 用户取消分享后执行的回调函数
+            }
+        });
+        wx.onMenuShareAppMessage({
+            title: '我是$!{wechatInfo.nickname}，这是我的旅游助理', // 分享标题
+            desc: '最贴心的价格，最体贴的服务，旅游助理24小时在线提供旅游产品预订购买服务！', // 分享描述
+            link: encodeURI('https://zhuli.igenshang.com/shareurl/findWeChatInfoUrl?openId=$!{wechatInfo.openid}'), // 分享链接
+            imgUrl: '$!{wechatInfo.headImgUrl}', // 分享图标
+            type: '', // 分享类型,music、video或link，不填默认为link
+            dataUrl: '', // 如果type是music或video，则要提供数据链接，默认为空
+            success: function () {
+                // 用户确认分享后执行的回调函数
+
+            },
+            cancel: function () {
+                // 用户取消分享后执行的回调函数
+            }
+        });
+    })
+    </script>
+
+	</body>
+    </html>

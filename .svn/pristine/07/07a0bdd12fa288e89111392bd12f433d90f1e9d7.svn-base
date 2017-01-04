@@ -1,0 +1,104 @@
+package com.umessage.letsgo.assistant.service.impl;
+
+//import com.umessage.letsgo.assistant.config.WeChatTemplateURLConfiguration;
+import com.umessage.letsgo.assistant.model.po.WeChatOrderInfoEntity;
+import com.umessage.letsgo.assistant.service.ITemplateMessageService;
+import com.umessage.letsgo.assistant.service.IWeChatSendMessageService;
+import com.umessage.letsgo.assistant.model.vo.request.TemplateData;
+import com.umessage.letsgo.assistant.model.vo.request.TemplateMessageRequest;
+import org.apache.commons.lang.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+
+import java.util.HashMap;
+import java.util.Map;
+
+/**
+ * Created by ZhaoYidong on 2016/12/20.
+ */
+@Service
+public class WeChatSendMessageServiceImpl implements IWeChatSendMessageService {
+
+    @Value(value = "${WEB_BASE_URL}")
+    private String weburl;
+
+    @Value(value = "${WECHAT_BASE_URL}")
+    private String wechaturl;
+
+    @Autowired
+    private ITemplateMessageService templateMessageService;
+
+
+    /**
+     * 推送支付链接
+     * @param openid
+     */
+    @Override
+    public void sendPayUrlTemplateMessage(String openid, WeChatOrderInfoEntity orderInfoEntity) {
+        if (!StringUtils.isEmpty(openid) && orderInfoEntity != null) {
+            TemplateMessageRequest request = new TemplateMessageRequest();
+            request.setOpenid(openid);//openid
+            request.setUrl(wechaturl+"selectByStatus?id="+orderInfoEntity.getId());//跳转路径
+            Map<String, TemplateData> map = new HashMap<>();//模板内容
+
+            TemplateData first = new TemplateData();
+            first.setValue("您好！您的订单已经下单成功,请在线支付。"+"\n");
+            map.put("first", first);
+
+            //订单编号
+            TemplateData keyword1 = new TemplateData();
+            keyword1.setValue(orderInfoEntity.getOrderId());
+            map.put("keyword1", keyword1);
+
+            //支付金额
+            TemplateData keyword2 = new TemplateData();
+            keyword2.setValue(orderInfoEntity.getTotalFee()+"元");
+            map.put("keyword2", keyword2);
+
+            TemplateData remark = new TemplateData();
+            remark.setValue("\n"+"请点击详情在线付款。");
+            map.put("remark", remark);
+
+            request.setData(map);
+            templateMessageService.sendPayUrlTemplate(request);
+        }
+    }
+
+
+    /**
+     * 推送支付完成推送支付成功消息
+     * @param openid
+     */
+    @Override
+    public void sendPaySuccessTemplateMessage(String openid, WeChatOrderInfoEntity orderInfoEntity) {
+        if (!StringUtils.isEmpty(openid) && orderInfoEntity != null) {
+            TemplateMessageRequest request = new TemplateMessageRequest();
+            request.setOpenid(openid);//openid
+            request.setUrl(wechaturl+"selectByStatus?id="+orderInfoEntity.getId());//跳转路径
+            Map<String, TemplateData> map = new HashMap<>();//模板内容
+
+            TemplateData first = new TemplateData();
+            first.setValue("您好！您的订单已支付成功。"+"\n");
+            map.put("first", first);
+
+            //订单编号
+            TemplateData keyword1 = new TemplateData();
+            keyword1.setValue(orderInfoEntity.getOrderId());
+            map.put("keyword1", keyword1);
+
+            //支付金额
+            TemplateData keyword2 = new TemplateData();
+            keyword2.setValue(orderInfoEntity.getTotalFee()+"元");
+            map.put("keyword2", keyword2);
+
+            TemplateData remark = new TemplateData();
+            remark.setValue("\n"+"点击查看订单详情。");
+            map.put("remark", remark);
+
+            request.setData(map);
+            templateMessageService.sendPaySuccessTemplate(request);
+        }
+    }
+
+}

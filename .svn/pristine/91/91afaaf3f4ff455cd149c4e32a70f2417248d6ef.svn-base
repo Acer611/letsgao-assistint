@@ -1,0 +1,39 @@
+package com.umessage.letsgo.assistant.service.impl;
+
+import com.umessage.letsgo.assistant.dao.RefundInfoDao;
+import com.umessage.letsgo.assistant.model.po.RefundInfoEntity;
+import com.umessage.letsgo.assistant.service.IRefundInfoService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+/**
+ * Created by gaofei on 2016/12/30.
+ */
+
+@Service
+public class RefundInfoServiceImpl implements IRefundInfoService {
+
+    @Autowired
+    private RefundInfoDao refundInfoDao;
+
+
+    @Override
+    public void insertPayInfo(RefundInfoEntity refundInfoEntity) {
+        refundInfoDao.insert(refundInfoEntity);
+    }
+
+    @Override
+    public RefundInfoEntity selectById(Long id) {
+        return refundInfoDao.select(id);
+    }
+
+    @Override
+    public void updateByID(RefundInfoEntity refundInfoEntity) {
+        refundInfoDao.update(refundInfoEntity);
+    }
+
+    @Override
+    public void delete(Long id) {
+        refundInfoDao.delete(id);
+    }
+}

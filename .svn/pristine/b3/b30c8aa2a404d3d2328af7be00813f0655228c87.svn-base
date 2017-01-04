@@ -1,0 +1,16 @@
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="utf-8">
+ 
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <meta name="description" content="">
+      <title>订单列表</title>
+	  <link rel="stylesheet" href="/css/mobile.css">
+    </head>
+    <body> 
+		<div class="invitationbg"></div>
+		<div class="invitationjs">推荐你的朋友来使用助理服务，完成首次助理服务，额外获得20元奖金收益；</div>
+		<div class="invitationshare"><a href="javascript:;"><span>邀请</span></a></div>
+    </body>
+    </html>

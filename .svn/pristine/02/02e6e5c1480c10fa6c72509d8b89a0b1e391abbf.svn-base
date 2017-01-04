@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <title>订单列表</title>
+    <link href="http://g.alicdn.com/sj/dpl/1.5.1/css/sui.min.css" rel="stylesheet">
+    <script type="text/javascript" src="http://g.alicdn.com/sj/lib/jquery/dist/jquery.min.js"></script>
+    <script type="text/javascript" src="http://g.alicdn.com/sj/dpl/1.5.1/js/sui.min.js"></script>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<ul class="sui-nav nav-tabs tab-wraped">
+	<li class="active"><a href="#index" data-toggle="tab">
+		<h3>全部</h3>
+	</a></li>
+	<li><a href="#profile" data-toggle="tab">
+		<h3>待支付</h3>
+	</a></li>
+	<li><a href="#about" data-toggle="tab">
+		<h3>待处理</h3>
+	</a></li>
+	<li><a href="#help" data-toggle="tab">
+		<h3>已完成</h3>
+	</a></li>
+</ul>
+<div class="bs-search">
+	<form class="sui-form form-search">
+		<input class="input-xfat input-xxlarge" type="text" placeholder="请输入订单号或者手机号">
+		<button type="submit" class="sui-btn btn-xlarge btn-primary">搜索</button>
+	</form>
+</div>
+<div class="tab-content tab-wraped">
+	<div id="index" class="tab-pane active">
+#foreach( $product in $resultMap.keySet())
+#foreach( $productdetail in ${resultMap.get($product)})
+		<table class="sui-table table-bordered-simple">
+			<thead>
+			<tr>
+				<th colspan="4">
+					<span>用户：$!{productdetail.customerOpenid}</span>
+					<span class="pull-right gray">
+						<a href="javascript:void(0);" class="sui-btn btn-large btn-primary">修改</a>
+						<a href="javascript:void(0);" class="sui-btn btn-large btn-success">删除</a>
+				   </span>
+				</th>
+			</tr>
+			</thead>
+			<tbody>
+			<tr>
+				<td class="center" width="25%">
+					<ul class="unstyled">
+						<li>订单号：$!{productdetail.customerOpenid}</li>
+						<li>订单时间：$!{productdetail.createTime}</li>
+						<li>订单类型：#if($!{productdetail.orderType}==1)
+							机票订单
+	#elseif($!{productdetail.orderType}==2)
+        酒店订单
+		#elseif($!{productdetail.orderType}==3)
+							签证订单
+			#elseif($!{productdetail.orderType}==4)
+							景点门票
+						#end</li>
+					</ul>
+				</td>
+				<td class="center" width="25%">
+					<ul class="unstyled">
+						<li>联系人：$!{productdetail.customerName}</li>
+						<li>电话：$!{productdetail.phone}</li>
+					</ul>
+				</td>
+				<td class="center" width="25%">
+	#if(${productdetail.orderType}==1)
+					<ul class="unstyled">
+						<li>航班号：$!{productdetail.fltNo}</li>
+						<li>机票数量：$!{productdetail.count}</li>
+						<li>出发地：$!{productdetail.starting}</li>
+						<li>目的地：$!{productdetail.destination}</li>
+						<li>起飞日期：$!{productdetail.fltDate}</li>
+
+					</ul>
+	#elseif($productdetail.orderType==2)
+        <ul class="unstyled">
+            <li>酒店名称：上海喜来登大酒店</li>
+            <li>酒店类型：大床房</li>
+            <li>房间数量：2</li>
+            <li>入住时间：2016-09-19</li>
+            <li>离店时间：2016-09-21</li>
+
+        </ul>
+	#elseif($productdetail.orderType==3)
+        <ul class="unstyled">
+            <li>签证类型：上海喜来登大酒店</li>
+            <li>数量：2</li>
+        </ul>
+	#elseif($productdetail.orderType==4)
+        <ul class="unstyled">
+            <li>景点名称：上海喜来登大酒店</li>
+            <li>门票数量：2</li>
+        </ul>
+		#end
+				</td>
+				<td class="center"><ul class="unstyled"><li>订单状态：#if($!productdetail.orderStatus==0)
+完成
+					#elseif($!productdetail.orderStatus==1)
+                        进行中
+    #end</li><li>订单金额：$!{productdetail.totalFee}元</li></ul></td>
+
+			</tr>
+			</tbody>
+		</table>
+#end
+	#end
+	</div>
+	<div id="profile" class="tab-pane">
+		<p>Art party scenester stumptown, tumblr butcher vero sint qui sapiente accusamus tattooed echo park</p>
+	</div>
+	<div id="about" class="tab-pane">
+		<p>Scenester cred you probably haven't heard of them, vinyl craft beer blog stumptown. Pitchfork sustainable tofu synth chambray yr.</p>
+	</div>
+	<div id="help" class="tab-pane">
+		<p>help!!!help!!!help!!!help!!!help!!!help!!!help!!!help!!!help!!!help!!!help!!!</p>
+	</div>
+</div>
+<div class="pagination"></div>
+<script>
+	$('.pagination').pagination({
+		pages: 50,
+		styleClass: ['pagination-large'],
+		showCtrl: true,
+		displayPage: 6,
+		onSelect: function (num) {
+			console.log(num)  //打开控制台观察
+		}
+	})
+</script>
+</body>
+</html>

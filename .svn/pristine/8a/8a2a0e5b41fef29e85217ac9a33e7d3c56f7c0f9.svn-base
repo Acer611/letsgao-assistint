@@ -1,0 +1,214 @@
+#set($pageTitle="订单列表")
+#*#set($styleUrls=["/static/css/style.css"])*#
+<link rel="stylesheet" type="text/css" href="/css/style.css">
+#set($scriptUrls=["http://g.alicdn.com/sj/lib/jquery/dist/jquery.min.js","http://g.alicdn.com/sj/dpl/1.5.1/js/sui.min.js"])
+<ul class="sui-nav nav-tabs tab-wraped">
+	<li class="active"><a href="#index" data-toggle="tab">
+		<h3>全部</h3>
+	</a></li>
+	<li><a href="#profile" data-toggle="tab">
+		<h3>待支付</h3>
+	</a></li>
+	<li><a href="#about" data-toggle="tab">
+		<h3>待处理</h3>
+	</a></li>
+	<li><a href="#help" data-toggle="tab">
+		<h3>已完成</h3>
+	</a></li>
+</ul>
+<div class="bs-search">
+	<form class="sui-form form-search">
+		<input class="input-xfat input-xxlarge" type="text" placeholder="请输入订单号或者手机号">
+		<button type="submit" class="sui-btn btn-xlarge btn-primary">搜索</button>
+	</form>
+</div>
+<div class="tab-content tab-wraped">
+	<div id="index" class="tab-pane active">
+		<table class="sui-table table-bordered-simple">
+			<thead>
+			<tr>
+				<th colspan="4">
+					<span>用户：跟上</span>
+					<span class="pull-right gray">
+						<a href="javascript:void(0);" class="sui-btn btn-large btn-primary">修改</a>
+						<a href="javascript:void(0);" class="sui-btn btn-large btn-success">删除</a>
+				   </span>
+				</th>
+			</tr>
+			</thead>
+			<tbody>
+			<tr>
+				<td class="center" width="25%">
+					<ul class="unstyled">
+						<li>订单号：1234567890</li>
+						<li>订单时间：2016-09-06 09:45</li>
+						<li>订单类型：机票</li>
+					</ul>
+				</td>
+				<td class="center" width="25%">
+					<ul class="unstyled">
+						<li>联系人：张盛</li>
+						<li>电话：13845454578</li>
+					</ul>
+				</td>
+				<td class="center" width="25%">
+					<ul class="unstyled">
+						<li>航班号：MU3456</li>
+						<li>机票数量：2</li>
+						<li>出发地：北京</li>
+						<li>目的地：上海</li>
+						<li>起飞时间：2016-09-16</li>
+						<li>到达时间：2016-09-16</li>
+					</ul>
+				</td>
+				<td class="center"><ul class="unstyled"><li>订单状态：已支付</li><li>订单金额：2100元</li></ul></td>
+
+			</tr>
+			</tbody>
+		</table>
+
+		<table class="sui-table table-bordered-simple">
+			<thead>
+			<tr>
+				<th colspan="4">
+					<span>用户：跟上</span>
+					<span class="pull-right gray">
+						<a href="javascript:void(0);" class="sui-btn btn-large btn-primary">修改</a>
+						<a href="javascript:void(0);" class="sui-btn btn-large btn-success">删除</a>
+				   </span>
+				</th>
+			</tr>
+			</thead>
+			<tbody>
+			<tr>
+				<td class="center" width="25%">
+					<ul class="unstyled">
+						<li>订单号：1234567890</li>
+						<li>订单时间：2016-09-06 09:45</li>
+						<li>订单类型：酒店</li>
+					</ul>
+				</td>
+				<td class="center" width="25%">
+					<ul class="unstyled">
+						<li>联系人：张盛</li>
+						<li>电话：13845454578</li>
+					</ul>
+				</td>
+				<td class="center" width="25%">
+					<ul class="unstyled">
+						<li>酒店名称：上海喜来登大酒店</li>
+						<li>酒店类型：大床房</li>
+						<li>房间数量：2</li>
+						<li>入住时间：2016-09-19</li>
+						<li>离店时间：2016-09-21</li>
+
+					</ul>
+				</td>
+				<td class="center"><ul class="unstyled"><li>订单状态：已支付</li><li>订单金额：2100元</li></ul></td>
+
+			</tr>
+			</tbody>
+		</table>
+
+		<table class="sui-table table-bordered-simple">
+			<thead>
+			<tr>
+				<th colspan="4">
+					<span>用户：跟上</span>
+					<span class="pull-right gray">
+						<a href="javascript:void(0);" class="sui-btn btn-large btn-primary">修改</a>
+						<a href="javascript:void(0);" class="sui-btn btn-large btn-success">删除</a>
+				   </span>
+				</th>
+			</tr>
+			</thead>
+			<tbody>
+			<tr>
+				<td class="center" width="25%">
+					<ul class="unstyled">
+						<li>订单号：1234567890</li>
+						<li>订单时间：2016-09-06 09:45</li>
+						<li>订单类型：景点门票</li>
+					</ul>
+				</td>
+				<td class="center" width="25%">
+					<ul class="unstyled">
+						<li>联系人：张盛</li>
+						<li>电话：13845454578</li>
+					</ul>
+				</td>
+				<td class="center" width="25%">
+					<ul class="unstyled">
+						<li>景点名称：上海喜来登大酒店</li>
+						<li>门票数量：2</li>
+					</ul>
+				</td>
+				<td class="center"><ul class="unstyled"><li>订单状态：已支付</li><li>订单金额：2100元</li></ul></td>
+
+			</tr>
+			</tbody>
+		</table>
+
+		<table class="sui-table table-bordered-simple">
+			<thead>
+			<tr>
+				<th colspan="4">
+					<span>用户：跟上</span>
+					<span class="pull-right gray">
+						<a href="javascript:void(0);" class="sui-btn btn-large btn-primary">修改</a>
+						<a href="javascript:void(0);" class="sui-btn btn-large btn-success">删除</a>
+				   </span>
+				</th>
+			</tr>
+			</thead>
+			<tbody>
+			<tr>
+				<td class="center" width="25%">
+					<ul class="unstyled">
+						<li>订单号：1234567890</li>
+						<li>订单时间：2016-09-06 09:45</li>
+						<li>订单类型：景点门票</li>
+					</ul>
+				</td>
+				<td class="center" width="25%">
+					<ul class="unstyled">
+						<li>联系人：张盛</li>
+						<li>电话：13845454578</li>
+					</ul>
+				</td>
+				<td class="center" width="25%">
+					<ul class="unstyled">
+						<li>景点名称：上海喜来登大酒店</li>
+						<li>门票数量：2</li>
+					</ul>
+				</td>
+				<td class="center"><ul class="unstyled"><li>订单状态：已支付</li><li>订单金额：2100元</li></ul></td>
+
+			</tr>
+			</tbody>
+		</table>
+	</div>
+	<div id="profile" class="tab-pane">
+		<p>Art party scenester stumptown, tumblr butcher vero sint qui sapiente accusamus tattooed echo park</p>
+	</div>
+	<div id="about" class="tab-pane">
+		<p>Scenester cred you probably haven't heard of them, vinyl craft beer blog stumptown. Pitchfork sustainable tofu synth chambray yr.</p>
+	</div>
+	<div id="help" class="tab-pane">
+		<p>help!!!help!!!help!!!help!!!help!!!help!!!help!!!help!!!help!!!help!!!help!!!</p>
+	</div>
+</div>
+<div class="pagination"></div>
+#define($scriptBlock)
+<script>
+	$('.pagination').pagination({
+		pages: 50,
+		styleClass: ['pagination-large'],
+		showCtrl: true,
+		displayPage: 6,
+		onSelect: function (num) {
+			console.log(num)  //打开控制台观察
+		}
+	})
+</script>
+#end

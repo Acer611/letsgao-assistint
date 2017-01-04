@@ -1,0 +1,43 @@
+package com.umessage.letsgo.assistant.service;
+
+import com.umessage.letsgo.assistant.model.po.RefundInfoEntity;
+import com.umessage.letsgo.assistant.model.po.WeChatOrderInfoEntity;
+import me.chanjar.weixin.mp.bean.pay.result.WxPayRefundResult;
+
+/**
+ * Created by gaofei on 2016/12/15.
+ */
+public interface IRefundInfoService {
+    /**
+     * 插入记录
+     * @param refundInfoEntity
+     * @return
+     */
+    void insertPayInfo(RefundInfoEntity refundInfoEntity);
+
+    /**
+     * 查询记录
+     * @param id
+     */
+    RefundInfoEntity selectById(Long id);
+
+    /**
+     * 根据id 更新
+     * @param refundInfoEntity
+     */
+    void updateByID(RefundInfoEntity refundInfoEntity);
+
+    /**
+     * 根据id 删除
+     * @param id
+     */
+    void delete(Long id);
+
+    /**
+     * 生成退款记录
+     * @param orderInfoEntity
+     * @param wxPayRefundResult
+     * @param refundFee
+     */
+    void createRefundInfo(WeChatOrderInfoEntity orderInfoEntity, WxPayRefundResult wxPayRefundResult, Double refundFee);
+}

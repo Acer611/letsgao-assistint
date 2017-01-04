@@ -1,0 +1,55 @@
+package com.umessage.letsgo.assistant.dao;
+
+import com.umessage.letsgo.assistant.model.WechatOrderInfoEntity;
+import org.apache.ibatis.annotations.*;
+
+/**
+ * Created by ZhaoYidong on 2016/12/15.
+ */
+@Mapper
+public interface WechatOrderInfoDao {
+    @Insert("insert into wechat_order_info(order_id,proverder,real_order_id,customer_openid,order_type,good_id,count,customer_name,phone,address,create_time,update_time,total_fee,hotel_name,check_in_time,check_out_time,room_type,flt_no,flt_date,starting,destination,visa_place,visa_type,scenic_spots,status,order_status,seller_openid,reward,remark,real_fee) values(#{orderId},#{proverder},#{realOrderId},#{customerOpenid},#{orderType},#{goodId},#{count},#{customerName},#{phone},#{address},#{createTime},#{updateTime},#{totalFee},#{hotelName},#{checkInTime},#{checkOutTime},#{roomType},#{fltNo},#{fltDate},#{starting},#{destination},#{visaPlace},#{visaType},#{scenicSpots},#{status},#{orderStatus},#{sellerOpenid},#{reward},#{remark},#{realFee})")
+    public int insert(@Param("wechatOrderInfoEntity") WechatOrderInfoEntity wechatOrderInfoEntity);
+
+    @Select("SELECT * FROM wechat_order_info WHERE id = #{id}")
+    @Results(value ={
+            @Result(id=true, property="id",column="id"),
+            @Result(property="orderId",column="order_id"),
+            @Result(property="proverder",column="proverder"),
+            @Result(property="realOrderId",column="real_order_id"),
+            @Result(property="customerOpenid",column="customer_openid"),
+            @Result(property="orderType",column="order_type"),
+            @Result(property="goodId",column="good_id"),
+            @Result(property="count",column="count"),
+            @Result(property="customerName",column="customer_name"),
+            @Result(property="phone",column="phone"),
+            @Result(property="address",column="address"),
+            @Result(property="createTime",column="create_time"),
+            @Result(property="updateTime",column="update_time"),
+            @Result(property="totalFee",column="total_fee"),
+            @Result(property="hotelName",column="hotel_name"),
+            @Result(property="checkInTime",column="check_in_time"),
+            @Result(property="checkOutTime",column="check_out_time"),
+            @Result(property="roomType",column="room_type"),
+            @Result(property="fltNo",column="flt_no"),
+            @Result(property="fltDate",column="flt_date"),
+            @Result(property="starting",column="starting"),
+            @Result(property="destination",column="destination"),
+            @Result(property="visaPlace",column="visa_place"),
+            @Result(property="visaType",column="visa_type"),
+            @Result(property="scenicSpots",column="scenic_spots"),
+            @Result(property="status",column="status"),
+            @Result(property="orderStatus",column="order_status"),
+            @Result(property="sellerOpenid",column="seller_openid"),
+            @Result(property="reward",column="reward"),
+            @Result(property="remark",column="remark"),
+            @Result(property="realFee",column="real_fee")
+    })
+    public WechatOrderInfoEntity select(@Param("id") Long id);
+
+    @Update("update wechat_order_info set order_id = #{orderId}, proverder = #{proverder}, real_order_id = #{realOrderId}, customer_openid = #{customerOpenid}, order_type = #{orderType}, good_id = #{goodId}, count = #{count}, customer_name = #{customerName}, phone = #{phone}, address = #{address}, create_time = #{createTime}, update_time = #{updateTime}, total_fee = #{totalFee}, hotel_name = #{hotelName}, check_in_time = #{checkInTime}, check_out_time = #{checkOutTime}, room_type = #{roomType}, flt_no = #{fltNo}, flt_date = #{fltDate}, starting = #{starting}, destination = #{destination}, visa_place = #{visaPlace}, visa_type = #{visaType}, scenic_spots = #{scenicSpots}, status = #{status}, order_status = #{orderStatus}, seller_openid = #{sellerOpenid}, reward = #{reward}, remark = #{remark}, real_fee = #{realFee} where id = #{id}")
+    public int update(WechatOrderInfoEntity wechatOrderInfoEntity);
+
+    @Delete("delete from wechat_order_info where id=#{id}")
+    public int delete(Integer id);
+}

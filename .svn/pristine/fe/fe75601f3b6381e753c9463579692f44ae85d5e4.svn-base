@@ -1,0 +1,52 @@
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="utf-8">
+	  
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <meta name="description" content="">
+      <title>订单列表</title>
+	  <link rel="stylesheet" href="/css/mobile.css">
+	
+    </head>
+    <body> 
+		<ul class="orderList">
+		<li>
+			<div class="list_top"><p>订单号：12156687325</p> <p><a href="javascript:;" class="btnLabel">已出票</a></p></div>
+			<ul class="list_center">
+			<li><p>机票订单：</p><p>兰州-北京</p></li>
+			<li><p>日期：</p><p>2016-08-09</p></li>
+			<li><p>下单时间：</p><p>2016-08-09</p></li>
+			</ul>
+			<p class="list_bottom">金额：<span>&yen;58</span></p>
+		</li>
+		<li>
+			<div class="list_top"><p>订单号：12156687325</p> <p><a href="javascript:;" class="btnLabel">已出票</a></p></div>
+			<ul class="list_center">
+			<li><p>机票订单：</p><p>兰州-北京</p></li>
+			<li><p>日期：</p><p>2016-08-09</p></li>
+			<li><p>下单时间：</p><p>2016-08-09</p></li>
+			</ul>
+			<p class="list_bottom">金额：<span>&yen;58</span></p>
+		</li>
+		<li>
+			<div class="list_top"><p>订单号：12156687325</p> <p><a href="javascript:;" class="btnLabel">已出票</a></p></div>
+			<ul class="list_center">
+			<li><p>机票订单：</p><p>兰州-北京</p></li>
+			<li><p>日期：</p><p>2016-08-09</p></li>
+			<li><p>下单时间：</p><p>2016-08-09</p></li>
+			</ul>
+			<p class="list_bottom">金额：<span>&yen;58</span></p>
+		</li>
+		<li>
+			<div class="list_top"><p>订单号：12156687325</p> <p><a href="javascript:;" class="btnLabel">已出票</a></p></div>
+			<ul class="list_center">
+			<li><p>机票订单：</p><p>兰州-北京</p></li>
+			<li><p>日期：</p><p>2016-08-09</p></li>
+			<li><p>下单时间：</p><p>2016-08-09</p></li>
+			</ul>
+			<p class="list_bottom">金额：<span>&yen;58</span></p>
+		</li>
+		</ul>
+    </body>
+    </html>

@@ -1,0 +1,12 @@
+a{text-decoration: none;}
+a:hover{text-decoration: none;}
+
+.error{background: url(../images/error.png) 0 0 no-repeat;width:2.859375rem;height:3.625rem;margin:3.03125rem auto 0;background-size:100% auto;}
+.error2{background: url(../images/erroricon.png) 0 0 no-repeat;width:7.4rem;height:6.25rem;margin:2.85rem auto 0;background-size:100% auto;}
+.errorCon{font-size:16px;color:#777;text-align:center;}
+[data-dpr="2"] .errorCon{font-size:32px;}
+[data-dpr="3"] .errorCon{font-size:48px;}
+.errorTit{margin-top:0.28125rem;margin-bottom:0.15625rem}
+.errorCon .resit{display:block;width:3.125rem;height:1.25rem;line-height: 1.25rem;color:#fff;font-size:18px;text-align:center;background-color: #1fbad1;border-radius: 0.15625rem;margin:0.84375rem auto;}
+[data-dpr="2"] .errorCon .resit{font-size:36px;}
+[data-dpr="3"] .errorCon .resit{font-size:54px;}

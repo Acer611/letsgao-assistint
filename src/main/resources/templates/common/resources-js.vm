@@ -1,0 +1,2 @@
+<!-- zepto 2.1.4 -->
+<script src="$!{STATIC_URL}/static/js/app.js"></script>

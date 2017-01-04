@@ -1,0 +1,8 @@
+#set($pageTitle="404")
+#set($layout="/common/layout/layout.vm")
+#set($styleUrls=["$!{STATIC_URL}/resources/css/style.css"])
+<div class="errorCon">
+<div class="error"></div>
+<div class="errorTit">404 你懂的！</div>
+<div>#if($!message)$!message#else 哎呀……您访问的页面不存在。 #end</div>
+</div>

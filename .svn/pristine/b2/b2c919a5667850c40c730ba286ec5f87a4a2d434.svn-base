@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="utf-8">
+        <meta name="format-detection" content="telephone = no"/>
+        <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0, minimum-scale=1.0,user-scalable=no">
+      <meta name="description" content="">
+      <title>账户明细</title>
+	  <link rel="stylesheet" href="/css/mobile.css">
+        <link rel="stylesheet" href="/css/iScroll.css">
+        <script src="/js/zepto.mint.js"></script>
+        <script src="https://res.wx.qq.com/open/js/jweixin-1.0.0.js"></script>
+        <script src="/js/iscroll-probe.js"></script>
+        <style>
+            <style>
+            #wrapper {
+                position: absolute;
+                z-index: 1;
+                top:0px;
+                bottom:0px;
+                left: 0;
+                width: 100%;
+                background: #cf3f4e;
+                overflow: hidden;
+            }
+
+            #scroller {
+                position: absolute;
+                z-index: 1;
+
+            }
+
+            #scroller ul {
+                list-style: none;
+
+                position: relative;
+            }
+            /**
+ *
+ * 下拉样式 Pull down styles
+ *
+ */
+            #pullDown, #pullUp {
+                background:#fff;
+                height:40px;
+                line-height:40px;
+                padding:5px 10px;
+                font-weight:bold;
+                font-size:14px;
+                color:#333;
+                text-align: center;
+            }
+
+
+            #pullUp{
+                display:none;
+            }
+
+            #pullUp.flip{display:block}
+
+            #pullUp.loding{display:block;}
+        </style>
+	</head>
+    <body>
+    <div id="wrapper">
+        <div id="scroller">
+			<div class="detailTop" id="detail1">
+				<div class="yue"><p>账户余额：</p><!--<p><a href="#" class="cash">提现</a></p>--></div>
+				<div>&yen;$resultMap.get("totalReward")</div>
+			</div>
+			<ul class="detailList" id="list">
+		#foreach( $productdetail in ${resultMap.get("orderList")})
+				<li>
+				<div>
+			#if(${productdetail.orderType}==1)
+					<p class="air">订机票</p>
+			#elseif($productdetail.orderType==2)
+			<p class="hotelbg">订酒店</p>
+			#elseif($productdetail.orderType==3)
+				<p class="vbg">签证办理</p>
+			#elseif($productdetail.orderType==4)
+				<p class="jdbg">景点门票</p>
+					#end
+					<p class="timer">$!date.format('yyyy-MM-dd HH:mm:ss',$!{productdetail.createTime})</p></div>
+				<div><p>来源：$!{productdetail.wxNick}  $!{productdetail.phone} </p><p class="decimal"> +$!{productdetail.sellerReward}</p></div>
+			</li>
+			#end
+			</ul>
+            <div id="pullUp">
+                <span class="pullUpIcon"></span><span class="pullUpLabel">上拉加载更多...</span>
+            </div>
+			</div>
+		</div>
+	<script>
+        var	myScroll1 = new IScroll('#detail1',{
+            checkDOMChanges:true,
+            scrollY:true
+        });
+        myScroll1.on("scrollStart",function(){
+            myScroll1.refresh();
+        });
+        var dataStr={
+            pageNumber:1,
+            pageSize:getQueryString("pageSize")
+        };
+        var page=1;
+        function close(){
+            $.mobile.loading('hide');
+        }
+        //页面加载完首先执行onload
+        var ifs=true;
+        var page=1;
+        var mapItem=[];
+        var tall=0;
+        function sstz(){
+            $.ajax({
+                type:"get",
+                url:'/wechat/orderinfo/selectBySellerOpenidPages',
+                data:dataStr,
+                dataType:"json",
+                success:callback
+            });
+
+        }
+        function callback(data){
+            var obj=data.orderList;
+            var tree="";
+            page=data.page;
+            $.each(obj,function(i,item){
+                mapItem.push(i);
+            })
+            ifs=true;
+
+        }
+        function getQueryString(name) {
+            var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)", "i");
+            var r = window.location.search.substr(1).match(reg);
+            if (r != null) {
+                return (r[2]);
+            }
+            return null;
+        }
+        //一下就是关于iscroll下拉上拉数据的处理，
+
+        var myScroll,
+                pullDownEl, pullDownOffset,
+                pullUpEl, pullUpOffset,
+                generatedCount = 1;
+
+
+
+        /**
+         * 滚动翻页 （自定义实现此方法）
+         * myScroll.refresh();		// 数据加载完成后，调用界面更新方法
+         */
+        function pullUpAction () {//下拉翻页加载数据
+            setTimeout(function () {	// <-- Simulate network congestion, remove setTimeout from production!
+                var el, li, i;
+                el = document.getElementById('list');
+                var tree="";
+
+                $.ajax({
+                    type:"get",
+                    url:'/wechat/orderinfo/selectBySellerOpenidPages',
+                    data:{
+                        pageNumber: ++generatedCount,
+                        pageSize:getQueryString("pageSize")
+                    },
+                    dataType:"json",
+                    success:function(data){
+                        var obj=data.orderList;
+                        if(!$.isEmptyObject(obj)&&page>=generatedCount) {
+                                $.each(obj, function (m, items) {
+                                    if (mapItem.indexOf(i) >= 0) {
+                                        tall = 1;
+                                        // break
+                                    } else {
+                                        tall = 0;
+                                        mapItem.push(i);
+                                    }
+                                    if (tall != 1) {
+
+
+                                    }
+									var orderType=items.orderType;
+									if(orderType==1){
+										var charts='订机票';
+									}else if(orderType==2){
+                                        var charts='订酒店';
+									}else if(orderType==3){
+                                        var charts='签证办理';
+                                    }else if(orderType==4){
+                                        var charts='景点门票';
+                                    }
+                                    var time=getLocalTime(items.createTime);
+								var html='<li>\
+                                    <div>\
+                                    <p class="hotelbg">'+charts+'</p>\
+                                            <p class="timer">'+time+'</p></div>\
+                                    <div><p>来源：'+items..wxNick+' '+items..phone+'</p><p class="decimal"> +'+items.sellerReward+'</p></div>\
+                                            </li>';
+                                    $("#list").append(html)
+
+                                })
+                            myScroll.refresh();
+                        }else{
+                            pullUpEl.querySelector('.pullUpLabel').innerHTML = '当前栏目数据已加载完';
+                            setTimeout(function () {
+                                $('#pullUp').hide();
+                            },1000);
+                        }
+
+                    }
+                });
+
+
+
+                //	myScroll.refresh();		// 数据加载完成后，调用界面更新方法 Remember to refresh when contents are loaded (ie: on ajax completion)
+            }, 1000);	// <-- Simulate network congestion, remove setTimeout from production!
+        }
+
+        /**
+         * 一下就是初始化iScroll控件，贴的源代码上来，基本没有做任何操作，本来在iscroll.js里面添加了一段代码，但是在本次效果中没有任何效果所以屏蔽掉了
+         */
+        function loaded() {
+            //pullDownEl = document.getElementById('pullDown');
+            // pullDownOffset = pullDownEl.offsetHeight;
+            pullUpEl = document.getElementById('pullUp');
+            pullUpOffset = pullUpEl.offsetHeight;
+
+            myScroll = new IScroll('#wrapper', {
+                //scrollbarClass: 'myScrollbar', /* 重要样式 */
+                //useTransition: false, /* 此属性不知用意，本人从true改为false */
+                // topOffset: pullDownOffset,
+                probeType: 2,
+                mouseWheel: true,
+                scrollbars: false,
+                bounce:true
+                // onScrollEnd:
+            });
+
+            myScroll.on('refresh', function () {
+                if (pullUpEl.className.match('loading')) {
+                    pullUpEl.className = '';
+                    pullUpEl.querySelector('.pullUpLabel').innerHTML = '上拉加载更多...';
+                }
+            });
+            myScroll.on('scroll', function () {
+                if (this.y < (this.maxScrollY - 5) && !pullUpEl.className.match('flip')) {
+                    pullUpEl.className = 'flip';
+                    pullUpEl.querySelector('.pullUpLabel').innerHTML = '松手开始更新...';
+                    this.maxScrollY = this.maxScrollY;
+                } else if (this.y > (this.maxScrollY + 5) && pullUpEl.className.match('flip')) {
+                    pullUpEl.className = '';
+                    pullUpEl.querySelector('.pullUpLabel').innerHTML = '上拉加载更多...';
+                    //this.maxScrollY = pullUpOffset;
+                }
+            });
+            myScroll.on('scrollEnd', function () {
+                if (pullUpEl.className.match('flip')) {
+                    pullUpEl.className = 'loading';
+                    pullUpEl.querySelector('.pullUpLabel').innerHTML = '加载中...';
+                    pullUpAction();	// Execute custom function (ajax call?)
+                }
+            });
+            setTimeout(function () { document.getElementById('wrapper').style.left = '0'; }, 800);
+        }
+
+        document.addEventListener('touchmove', function (e) {
+            e.preventDefault();
+        }, false);
+        window.onload=function(){
+            sstz();
+        }
+        document.addEventListener('DOMContentLoaded', loaded, false);
+
+
+        function getLocalTime(nS) {
+            return new Date(parseInt(nS)).toLocaleString().replace(/\//g, "-").replace(/上午|下午/g, " ");
+        }
+
+	</script>
+    </body>
+    </html>

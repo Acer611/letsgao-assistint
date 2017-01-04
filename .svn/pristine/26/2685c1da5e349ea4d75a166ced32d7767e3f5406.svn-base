@@ -1,0 +1,18 @@
+package com.umessage.letsgo.assistant.service;
+
+import com.umessage.letsgo.assistant.common.utils.TemplateMessageRequest;
+import org.springframework.stereotype.Service;
+
+/**
+ * Created by ZhaoYidong on 2016/12/20.
+ */
+@Service
+public interface ITemplateMessageService {
+
+    void sendQrCodeTemplate(TemplateMessageRequest request);
+
+    void sendPayUrlTemplate(TemplateMessageRequest request);
+
+    void sendPaySuccessTemplate(TemplateMessageRequest request);
+
+}

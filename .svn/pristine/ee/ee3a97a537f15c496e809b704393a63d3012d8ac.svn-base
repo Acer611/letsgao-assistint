@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <title>订单列表</title>
+    <link href="http://g.alicdn.com/sj/dpl/1.5.1/css/sui.min.css" rel="stylesheet">
+    <script type="text/javascript" src="http://g.alicdn.com/sj/lib/jquery/dist/jquery.min.js"></script>
+    <script type="text/javascript" src="http://g.alicdn.com/sj/dpl/1.5.1/js/sui.min.js"></script>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<ul class="sui-nav nav-tabs tab-wraped">
+	<li #if($status!=0&&$status!=1&&$status!=2)class="active"#end><a href="/wechat/orderinfo/getOrderList?pageNumber=1">
+		<h3>全部</h3>
+	</a></li>
+	<li #if($status==0)class="active"#end><a href="/wechat/orderinfo/getOrderList?status=0&pageNumber=1">
+		<h3>待支付</h3>
+	</a></li>
+	<li #if($status==1)class="active"#end><a href="/wechat/orderinfo/getOrderList?status=1&pageNumber=1">
+		<h3>待处理</h3>
+	</a></li>
+	<li #if($status==2)class="active"#end><a href="/wechat/orderinfo/getOrderList?status=2&pageNumber=1">
+		<h3>已完成</h3>
+	</a></li>
+</ul>
+<div class="bs-search">
+	<form class="sui-form form-search" action="/wechat/orderinfo/getOrderList">
+		<input class="input-xfat input-xxlarge" type="text" name="keyWords" value="$!{keyWords}" placeholder="请输入订单号或者手机号">
+		<button type="submit" class="sui-btn btn-xlarge btn-primary">搜索</button>
+	</form>
+</div>
+<div class="tab-content tab-wraped">
+	<div id="index" class="tab-pane active">
+#foreach( $product in $resultMap.keySet())
+#foreach( $productdetail in ${resultMap.get($product)})
+		<table class="sui-table table-bordered-simple">
+			<thead>
+			<tr>
+				<th colspan="4">
+					<span>用户：$!{productdetail.customerOpenid}</span>
+					<span class="pull-right gray">
+						<a href="javascript:void(0);" class="sui-btn btn-large btn-primary">修改</a>
+						<a href="javascript:void(0);" class="sui-btn btn-large btn-success">删除</a>
+				   </span>
+				</th>
+			</tr>
+			</thead>
+			<tbody>
+			<tr>
+				<td class="center" width="25%">
+					<ul class="unstyled">
+						<li>订单号：$!{productdetail.orderId}</li>
+						<li>订单时间：$!date.format('yyyy-MM-dd HH:mm:ss',$!{productdetail.createTime})</li>
+						<li>订单类型：#if($!{productdetail.orderType}==1)
+							机票订单
+	#elseif($!{productdetail.orderType}==2)
+        酒店订单
+		#elseif($!{productdetail.orderType}==3)
+							签证订单
+			#elseif($!{productdetail.orderType}==4)
+							景点门票
+						#end</li>
+					</ul>
+				</td>
+				<td class="center" width="25%">
+					<ul class="unstyled">
+						<li>联系人：$!{productdetail.customerName}</li>
+						<li>电话：$!{productdetail.phone}</li>
+					</ul>
+				</td>
+				<td class="center" width="25%">
+	#if(${productdetail.orderType}==1)
+					<ul class="unstyled">
+						<li>航班号：$!{productdetail.fltNo}</li>
+
+						<li>出发地：$!{productdetail.starting}</li>
+						<li>目的地：$!{productdetail.destination}</li>
+						<li>起飞日期：$!date.format('yyyy-MM-dd HH:mm:ss',$!{productdetail.fltDate})</li>
+                        <li>机票数量：$!{productdetail.count}</li>
+					</ul>
+	#elseif($productdetail.orderType==2)
+        <ul class="unstyled">
+            <li>酒店名称：$!{productdetail.hotelName}</li>
+            <li>酒店类型：$!{productdetail.roomType}</li>
+            <li>房间数量：$!{productdetail.count}</li>
+            <li>入住时间：$!date.format('yyyy-MM-dd HH:mm:ss',$!{productdetail.checkInTime})</li>
+            <li>离店时间：$!date.format('yyyy-MM-dd HH:mm:ss',$!{productdetail.checkOutTime})</li>
+
+        </ul>
+	#elseif($productdetail.orderType==3)
+        <ul class="unstyled">
+            <li>签证类型：$!{productdetail.visaType}</li>
+            <li>数量：$!{productdetail.count}</li>
+        </ul>
+	#elseif($productdetail.orderType==4)
+        <ul class="unstyled">
+            <li>景点名称：$!{productdetail.scenicSpots}</li>
+            <li>门票数量：$!{productdetail.count}</li>
+        </ul>
+		#end
+				</td>
+				<td class="center"><ul class="unstyled"><li>订单状态：#if($!productdetail.orderStatus==0)
+完成
+					#elseif($!productdetail.orderStatus==1)
+                        进行中
+    #end</li><li>订单金额：$!{productdetail.totalFee}元</li></ul></td>
+
+			</tr>
+			</tbody>
+		</table>
+#end
+	#end
+	</div>
+
+</div>
+<div class="pagination"></div>
+<script>
+	$('.pagination').pagination({
+		pages: 50,
+		styleClass: ['pagination-large'],
+        currentPage:"$!{pageNumber}",
+		showCtrl: true,
+		displayPage: 6,
+		onSelect: function (num) {
+			console.log(num)  //打开控制台观察
+		}
+	})
+</script>
+</body>
+</html>

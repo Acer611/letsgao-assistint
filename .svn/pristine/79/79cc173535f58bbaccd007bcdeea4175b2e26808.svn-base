@@ -1,0 +1,36 @@
+package com.umessage.letsgo.assistant.service.impl;
+
+import com.umessage.letsgo.assistant.dao.WechatOrderInfoDao;
+import com.umessage.letsgo.assistant.model.WechatOrderInfoEntity;
+import com.umessage.letsgo.assistant.service.IWechatOrderInfoService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+/**
+ * Created by ZhaoYidong on 2016/12/15.
+ */
+@Service
+public class WechatOrderInfoServiceImpl implements IWechatOrderInfoService{
+    @Autowired
+    private WechatOrderInfoDao wechatOrderInfoDao;
+
+    @Override
+    public int insert(WechatOrderInfoEntity wechatOrderInfoEntity) {
+        return wechatOrderInfoDao.insert(wechatOrderInfoEntity);
+    }
+
+    @Override
+    public WechatOrderInfoEntity select(Long id) {
+        return wechatOrderInfoDao.select(id);
+    }
+
+    @Override
+    public int update(WechatOrderInfoEntity wechatOrderInfoEntity) {
+        return wechatOrderInfoDao.update(wechatOrderInfoEntity);
+    }
+
+    @Override
+    public Integer delete(Integer id) {
+        return wechatOrderInfoDao.delete(id);
+    }
+}

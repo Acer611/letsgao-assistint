@@ -1,0 +1,36 @@
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="utf-8">
+	  
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <meta name="description" content="">
+      <title>账户明细</title>
+	  <link rel="stylesheet" href="style/mobile.css">
+	
+    </head>
+    <body> 
+	
+		<div class="detailTop">
+			<div class="yue"><p>账户余额：</p><p><a href="#" class="cash">提现</a></p></div>
+			<div>￥1888</div>
+		</div>
+		<ul class="detailList"><li>
+			<div><p class="air">订机票</p> <p class="timer">2016-09-08</p></div>
+			<div><p>来源：18855276734</p><p class="decimal"> +20</p></div>
+		</li>
+		<li>
+			<div><p class="hotelbg">订酒店</p> <p class="timer">2016-09-08</p></div>
+			<div><p>来源：18855276734</p><p class="decimal"> +20</p></div>
+		</li>
+		<li>
+			<div><p class="jdbg">景点门票</p> <p class="timer">2016-09-08</p></div>
+			<div><p>来源：18855276734</p><p class="decimal"> +20</p></div>
+		</li>
+		<li>
+			<div><p class="vbg">签证办理</p> <p class="timer">2016-09-08</p></div>
+			<div><p>来源：18855276734</p><p class="decimal"> +20</p></div>
+		</li>
+		</ul>
+    </body>
+    </html>

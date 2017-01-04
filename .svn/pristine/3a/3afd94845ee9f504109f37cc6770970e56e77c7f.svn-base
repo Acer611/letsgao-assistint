@@ -1,0 +1,303 @@
+package com.umessage.letsgo.assistant.controller;
+
+import com.umessage.letsgo.assistant.common.exception.BusinessException;
+import com.umessage.letsgo.assistant.model.WeChatInfoEntity;
+import com.umessage.letsgo.assistant.model.WeChatOrderInfoEntity;
+import com.umessage.letsgo.assistant.service.IWeChatInfoService;
+import com.umessage.letsgo.assistant.service.IWeChatOrderInfoService;
+import com.umessage.letsgo.assistant.service.IWeChatSendMessageService;
+import me.chanjar.weixin.common.bean.result.WxError;
+import me.chanjar.weixin.common.exception.WxErrorException;
+import me.chanjar.weixin.mp.api.WxMpPayService;
+import me.chanjar.weixin.mp.api.WxMpService;
+import me.chanjar.weixin.mp.bean.pay.result.WxPayOrderCloseResult;
+import me.chanjar.weixin.mp.bean.pay.result.WxPayOrderQueryResult;
+import me.chanjar.weixin.mp.bean.result.WxMpUser;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import javax.servlet.http.HttpServletRequest;
+import java.util.HashMap;
+import java.util.Map;
+
+/**
+ * 订单操作的基本方法
+ * Created by gaofei on 2016/12/22.
+ */
+@Controller
+@RequestMapping("/order/operation")
+public class OrderOperationController {
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
+    @Autowired
+    private IWeChatOrderInfoService wechatOrderInfoService;
+    @Autowired
+    private IWeChatSendMessageService weChatSendMessageService;
+    @Autowired
+    private IWeChatInfoService weChatInfoService;
+    @Autowired
+    private WxMpService wxService;
+    @Autowired
+    protected WxMpService wxMpService;
+
+
+
+    /**
+     * 去保存订单页面
+     * @return
+     */
+    @RequestMapping("/toInsertPage")
+    public String toInsertPage(HttpServletRequest request, Model model){
+        logger.info("进入跳转下单页面的方法");
+        String openid = request.getParameter("qimoClientId");
+        logger.info("用户的openId 是" + openid);
+        model.addAttribute("opdeId",openid);
+        return "customer/ordersave";
+    }
+
+
+    /**
+     * 生成订单
+     * @param
+     * @return
+     */
+    @RequestMapping("/insert")
+    public String insert(HttpServletRequest request,WeChatOrderInfoEntity orderInfoEntity) throws BusinessException{
+        logger.info("进入下单的方法");
+        Map<String,Object> map = new HashMap<>();
+        String openId = request.getParameter("opdeId");
+        logger.info("当前用户的openID 是：" + openId );
+        WeChatInfoEntity weChatInfoEntity =  weChatInfoService.findWecahtUserByOpenID(openId);
+        if (weChatInfoEntity != null){
+        logger.info("获取到当前用户的信息：" + weChatInfoEntity );
+            WeChatInfoEntity parendInfoEntity =  weChatInfoService.findWecahtUserByID(weChatInfoEntity.getParentid());
+            orderInfoEntity.setSellerOpenid(parendInfoEntity.getOpenid());
+            orderInfoEntity.setCustomerOpenid(openId);
+        }
+        try {
+            // 获取微信用户基本信息
+            WxMpUser userWxInfo = wxMpService.getUserService()
+                    .userInfo(openId, null);
+            String nickname = "";
+            if (userWxInfo!=null){
+                nickname = userWxInfo.getNickname();
+            }
+            wechatOrderInfoService.insert(orderInfoEntity,nickname);
+            //TODO 推送支付链接模板消息
+            weChatSendMessageService.sendPayUrlTemplateMessage("openid",orderInfoEntity);
+            map.put("result",0);
+            map.put("message","添加成功");
+        }catch (Exception e){
+            System.out.println(e.getMessage());
+            map.put("result",-1);
+            map.put("message","添加失败");
+        }
+        return "redirect:/order/operation/getOrderList?pageNumber=1&openId="+openId;
+    }
+
+
+    /**
+     * 去修改订单页面
+     * @return
+     */
+    @RequestMapping("/toUpdatePage")
+    public String toUpdatePage(Long id, Model model){
+        WeChatOrderInfoEntity orderInfoEntity = wechatOrderInfoService.select(id);
+        model.addAttribute("orderInfoEntity",orderInfoEntity);
+        return "customer/ordersave";
+    }
+
+
+    /**
+     * 更新订单
+     * @param
+     * @return
+     */
+    @RequestMapping(value = "/update",method = RequestMethod.POST)
+    public String update(WeChatOrderInfoEntity orderInfoEntity, HttpServletRequest request) throws BusinessException{
+        Map<String,Object> map = new HashMap<>();
+        /*
+        SimpleDateFormat sdf =   new SimpleDateFormat( "yyyy-MM-dd" );
+        String checkInTimes = request.getParameter("checkInTimes");
+        */
+        String openId = request.getParameter("opdeId");
+        try {
+            wechatOrderInfoService.update(orderInfoEntity);
+            map.put("result",0);
+            map.put("message","更新成功");
+        }catch (Exception e){
+            System.out.println(e.getMessage());
+            map.put("result",-1);
+            map.put("message","更新失败");
+        }
+        return "redirect:/order/operation/getOrderList?pageNumber=1&openId="+openId;
+    }
+
+    /**
+     * 取消订单
+     * @param id
+     * @return
+     */
+    @RequestMapping("/delete")
+    @ResponseBody
+    public Map<String,Object> delete(Long id) throws BusinessException{
+        Map<String,Object> map = new HashMap<>();
+        int i = 1/0;
+        try {
+            //wechatOrderInfoService.delete(id);
+            map.put("result",0);
+            map.put("message","删除成功");
+        }catch (BusinessException e){
+            System.out.println(e.getCode());
+            System.out.println(e.getTargetUrl());
+            map.put("result",-1);
+            map.put("message","删除失败");
+            map.put("url",e.getTargetUrl());
+            map.put("code",e.getCode());
+        }
+        return map;
+    }
+    /**
+     * 获取订单列表（助手端）
+     * 当前搜索为完全匹配不支持模糊查询功能
+     * @param request
+     * @param model
+     * @return
+     */
+    @RequestMapping("/getOrderList")
+    public String  getOrderList(HttpServletRequest request, Model model) throws BusinessException{
+        //request.getSession().setAttribute("key","11");
+        logger.info("进入助手端获取订单列表方法");
+        String status = request.getParameter("status");
+        String keyWords = request.getParameter("keyWords");
+        String openId = request.getParameter("openId");
+        String pageNumber = request.getParameter("pageNumber");
+        WeChatOrderInfoEntity wechatOrderInfoEntity = new WeChatOrderInfoEntity();
+        if(null != status && !"".equals(status)){
+            wechatOrderInfoEntity.setStatus(Integer.parseInt(status));
+        }
+        if(null != keyWords && !"".equals(keyWords)){
+            wechatOrderInfoEntity.setKeyWords(keyWords);
+        }
+
+        if(null != openId && !"".equals(openId)){
+            wechatOrderInfoEntity.setCustomerOpenid(openId);
+        }
+        logger.info("要查询的订单状态和关键字分别是:" + status + " , " + keyWords);
+        Map resultMap = wechatOrderInfoService.selectOrderList(wechatOrderInfoEntity,pageNumber);
+        model.addAttribute("status",status);
+        model.addAttribute("keyWords",keyWords);
+        model.addAttribute("pageNumber",pageNumber);
+        model.addAttribute("resultMap",resultMap);
+        //TODO 助手端的订单列表页面
+        return  "customer/orderlist";
+    }
+
+
+    /**
+     * 查看订单详情（助手端）
+     * @param id
+     * @param model
+     * @return
+     */
+    @RequestMapping("/selectOrderInfoDetail")
+    public String selectOrderInfoDetail(HttpServletRequest request,Long id, Model model){
+        Object key = request.getSession(false).getAttribute("key");
+        WeChatOrderInfoEntity orderInfoEntity = wechatOrderInfoService.select(id);
+        model.addAttribute("orderInfoEntity",orderInfoEntity);
+        return "";
+    }
+
+/*
+    */
+/**
+     * 获取支付参数信息和生成预支付的payID
+     * @param request
+     * @param model
+     * @return
+     *//*
+
+    @RequestMapping("/getPayInfo")
+    @ResponseBody
+    public Map getPayInfo(HttpServletRequest request, Model model){
+        logger.info("进入获取支付信息和生成与支付payID的方法");
+        //orderId 为ID字段
+        String orderId = request.getParameter("orderId");
+        logger.info("当前orderId 为" + orderId );
+        Map resultMap = wechatOrderInfoService.createPayInfo(orderId);
+        logger.info("获取支付信息和生成与支付payID完成");
+        // 更新pay_id 字段和支付状态字段
+        String packageInfo = resultMap.get("package").toString();
+        String payid = packageInfo.substring(packageInfo.indexOf("=")+1,packageInfo.length());
+        WeChatOrderInfoEntity wechatOrderInfoEntity = new WeChatOrderInfoEntity();
+        wechatOrderInfoEntity.setId(Long.parseLong(orderId));
+        wechatOrderInfoEntity.setPayId(payid);
+        wechatOrderInfoEntity.setStatus(0);
+        logger.info("更新订单表中的支付状态和payId 字段");
+        wechatOrderInfoService.update(wechatOrderInfoEntity);
+        model.addAttribute("resultMap",resultMap);
+        return resultMap;
+    }
+*/
+
+
+    /**
+     * 查询支付结果
+     * @param request
+     * @param model
+     * @return
+     */
+    @RequestMapping("/queryOrderInfo")
+    public String queryOrderInfo(HttpServletRequest request,Model model) throws WxErrorException {
+        logger.info("进入获取查看支付结果方法");
+        String orderId = request.getParameter("orderID");
+        WxMpPayService wxMpPayService = wxService.getPayService();
+        try{
+            WxPayOrderQueryResult wxPayOrderQueryResult = wxMpPayService.queryOrder(null,orderId);
+            logger.info("获取订单支付信息完成");
+            //判断支付状态是否成功
+            if("SUCCESS".equalsIgnoreCase(wxPayOrderQueryResult.getTradeState())) {
+                //关闭订单
+                WxPayOrderCloseResult wxPayOrderCloseResult = wxMpPayService.closeOrder(orderId);
+                logger.info("关闭订单完成");
+                //检查orderinfo表中的支付状态是否改为1 ，防止后台系统因为、网络、服务器等出现异常，最终未接收到支付通知为改变众泰
+                logger.info("更新订单信息表中的支付状态");
+                wechatOrderInfoService.updateOrderStatusToPay(orderId);
+            }else{
+                if(wxPayOrderQueryResult.getErrCode().equals("ORDERNOTEXIST")){
+                    //查询系统中不存在此交易订单号
+                    //throw WxErrorException()
+                    return "查询系统中不存在此交易订单号";
+                }else if(wxPayOrderQueryResult.getErrCode().equals("SYSTEMERROR")){
+                    logger.info("第一次获取订单信息失败，尝试二次获取订单信息");
+                    //后台系统返回错误,系统异常，请再调用发起查询
+                    wxPayOrderQueryResult = wxMpPayService.queryOrder(null,orderId);
+                    if("SUCCESS".equalsIgnoreCase(wxPayOrderQueryResult.getTradeState())) {
+                        //关闭订单
+                        WxPayOrderCloseResult wxPayOrderCloseResult = wxMpPayService.closeOrder(orderId);
+                        logger.info("关闭订单完成");
+                        wechatOrderInfoService.updateOrderStatusToPay(orderId);
+                        logger.info("更新订单信息表中的支付状态完成");
+                    }
+                }else{
+                    return "查询微信订单错误";
+                }
+            }
+        }catch (Exception e){
+            WxError wxError = new WxError();
+            wxError.setErrorMsg(e.getMessage().toString());
+            throw new WxErrorException(wxError);
+
+        }
+        return null;
+    }
+
+
+
+}

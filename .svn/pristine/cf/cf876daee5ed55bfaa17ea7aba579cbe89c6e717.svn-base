@@ -1,0 +1,8 @@
+#set($pageTitle="403")
+#set($layout="/common/layout/layout.vm")
+#set($styleUrls=["$!{STATIC_URL}/resources/css/style.css"])
+<div class="errorCon">
+<div class="error"></div>
+<div class="errorTit">403 你懂的！</div>
+<div>#if($!message)$!message#else 服务器拒绝执行您的请求。 #end</div>
+</div>

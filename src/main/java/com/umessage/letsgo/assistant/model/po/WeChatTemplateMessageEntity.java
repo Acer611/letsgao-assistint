@@ -1,0 +1,75 @@
+package com.umessage.letsgo.assistant.model.po;
+
+import java.io.Serializable;
+import java.util.Date;
+
+/**
+ * Created by lizhen on 2016/11/23.
+ */
+public class WeChatTemplateMessageEntity implements Serializable {
+
+    private Long id;
+
+    //微信用户openID
+    private String openid;
+
+    //模板ID
+    private String templateId;
+
+    //模板数据
+    private String templateData;
+
+    //创建时间
+    private Date createTime;
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getOpenid() {
+        return openid;
+    }
+
+    public void setOpenid(String openid) {
+        this.openid = openid;
+    }
+
+    public String getTemplateId() {
+        return templateId;
+    }
+
+    public void setTemplateId(String templateId) {
+        this.templateId = templateId;
+    }
+
+    public String getTemplateData() {
+        return templateData;
+    }
+
+    public void setTemplateData(String templateData) {
+        this.templateData = templateData;
+    }
+
+    public Date getCreateTime() {
+        return createTime;
+    }
+
+    public void setCreateTime(Date createTime) {
+        this.createTime = createTime;
+    }
+
+    @Override
+    public String toString() {
+        return "WxTemplateMessageEntity{" +
+                "id=" + id +
+                ", openid='" + openid + '\'' +
+                ", templateId='" + templateId + '\'' +
+                ", templateData='" + templateData + '\'' +
+                ", createTime=" + createTime +
+                '}';
+    }
+}

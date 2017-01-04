@@ -1,0 +1,60 @@
+package com.umessage.letsgo.assistant.wechat.handler;
+
+import com.umessage.letsgo.assistant.model.WeChatInfo;
+import com.umessage.letsgo.assistant.service.IWeChatInfoService;
+import me.chanjar.weixin.common.exception.WxErrorException;
+import me.chanjar.weixin.common.session.WxSessionManager;
+import me.chanjar.weixin.mp.api.WxMpService;
+import me.chanjar.weixin.mp.bean.message.WxMpXmlMessage;
+import me.chanjar.weixin.mp.bean.message.WxMpXmlOutMessage;
+import me.chanjar.weixin.mp.bean.result.WxMpUser;
+import org.springframework.stereotype.Component;
+
+import javax.annotation.Resource;
+import java.util.Map;
+
+/**
+ * 
+ * @author Binary Wang
+ *
+ */
+@Component
+public abstract class ScanHandler extends AbstractHandler {
+
+    @Resource
+    private IWeChatInfoService wechatInfoService;
+
+
+    @Override
+    public WxMpXmlOutMessage handle(WxMpXmlMessage wxMessage,
+                                    Map<String, Object> context, WxMpService wxMpService,
+                                    WxSessionManager sessionManager) throws WxErrorException {
+        String openId = wxMessage.getFromUser();
+        this.logger.info("扫码用户 OPENID: " + wxMessage.getFromUser());
+
+        WxMpUser userWxInfo = wxMpService.getUserService().userInfo(wxMessage.getFromUser());
+
+        String pid = null;
+        if(!"" .equals(wxMessage.getEventKey()) || null != wxMessage.getTicket()){
+            pid = wxMessage.getEventKey();
+            if(pid.contains("_")){
+                pid = pid.substring(pid.indexOf("_") + 1,pid.length());
+            }
+        }
+        if (userWxInfo != null) {
+            //检查用户是否存在
+            WeChatInfo wechatInfo = wechatInfoService.findWecahtUserByOpenID(userWxInfo.getOpenId());
+            if(null== wechatInfo){
+                wechatInfoService.createWechatuser(userWxInfo,pid);
+                //TODO 给用户打标签
+                if(null==pid){
+                    //打导游的标签
+                }else{
+                    //打消费者的标签
+                }
+            }
+
+        }
+        return null;
+    }
+}

@@ -1,0 +1,11 @@
+package com.umessage.letsgo.assistant.service.impl;
+
+import org.springframework.stereotype.Service;
+
+/**
+ * Created by gaofei on 2016/12/15.
+ */
+
+@Service
+public class WechatInfoServiceImpl {
+}

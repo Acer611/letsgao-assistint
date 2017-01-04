@@ -1,0 +1,34 @@
+package com.umessage.letsgo.assistant.wechat.handler;
+
+import com.umessage.letsgo.assistant.service.IWeChatInfoService;
+import me.chanjar.weixin.common.session.WxSessionManager;
+import me.chanjar.weixin.mp.api.WxMpService;
+import me.chanjar.weixin.mp.bean.message.WxMpXmlMessage;
+import me.chanjar.weixin.mp.bean.message.WxMpXmlOutMessage;
+import me.chanjar.weixin.mp.bean.message.WxMpXmlOutTextMessage;
+import org.springframework.stereotype.Component;
+
+import javax.annotation.Resource;
+import java.util.Map;
+
+/**
+ * @author Binary Wang
+ */
+@Component
+public class UnsubscribeHandler extends AbstractHandler {
+
+    @Resource
+    private IWeChatInfoService wechatInfoService;
+    @Override
+    public WxMpXmlOutMessage handle(WxMpXmlMessage wxMessage,
+                                    Map<String, Object> context, WxMpService wxMpService,
+                                    WxSessionManager sessionManager) {
+        WxMpXmlOutTextMessage m = new WxMpXmlOutTextMessage();
+        String openId = wxMessage.getFromUser();
+        this.logger.info("取消关注用户 OPENID: " + openId);
+        //取消关注
+        wechatInfoService.updateByStatus(1,openId);
+        return m;
+    }
+
+}

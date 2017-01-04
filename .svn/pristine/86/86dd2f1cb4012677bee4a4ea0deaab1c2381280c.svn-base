@@ -1,0 +1,43 @@
+package com.umessage.letsgo.assistant.config;
+
+import com.umessage.letsgo.assistant.LetsgoAssistantApplication;
+import org.apache.catalina.connector.Connector;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.context.embedded.EmbeddedServletContainerFactory;
+import org.springframework.boot.context.embedded.tomcat.TomcatEmbeddedServletContainerFactory;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.util.SocketUtils;
+
+import java.io.File;
+
+/**
+ * Created by gaofei on 2016/12/21.
+ */
+@Configuration
+@EnableConfigurationProperties(TomCatHttpsProperties.class)
+public class TomCatConfiguration {
+
+
+  /*  @Bean
+    public Integer port() {
+        return SocketUtils.findAvailableTcpPort();
+    }*/
+
+    @Bean
+    @ConditionalOnMissingBean
+    public EmbeddedServletContainerFactory servletContainer(TomCatHttpsProperties properties) {
+        TomcatEmbeddedServletContainerFactory tomcat = new TomcatEmbeddedServletContainerFactory();
+        tomcat.addAdditionalTomcatConnectors(createSslConnector(properties));
+        return tomcat;
+    }
+
+    private Connector createSslConnector(TomCatHttpsProperties properties) {
+        //Connector connector = new Connector();
+        Connector connector = new Connector("org.apache.coyote.http11.Http11NioProtocol");
+        connector.setPort(properties.getPort() );
+        properties.configureConnector(connector);
+        return connector;
+    }
+}

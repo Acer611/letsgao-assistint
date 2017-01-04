@@ -1,0 +1,30 @@
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="utf-8">
+	    <script src="/js/flexible_css.js"></script>
+    <script src="/js/flexible.js"></script>
+      <meta name="description" content="">
+      <title>旅游助理</title>
+	  <link rel="stylesheet" href="/css/ass.css">
+    </head>
+    <body> 
+	<div class="assistant">
+		<div class="s_headtop">
+			<div class="headRev">
+				<p>我是$!{wechatInfo.nickname}</p>
+				<p>这是我的旅游助理</p>
+			</div>
+			<div class="headImg"><img src="$!{wechatInfo.headImgUrl}"/></div>
+		</div>
+		<div class="s_headcenter"></div>
+		<div class="erweima"><img src="$!{wechatInfo.ticketUrl}" width=""/></div>
+		<div class="jieshao">
+			<p>识别二维码加关注</p> 
+			<p>留言您的需求</p> 
+			<p>助理立即为您办理</p>
+		</div>
+	</div>
+	
+    </body>
+    </html>

@@ -1,0 +1,106 @@
+package com.umessage.letsgo.assistant;
+
+import com.umessage.letsgo.assistant.wechat.security.*;
+import me.chanjar.weixin.mp.api.WxMpService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.security.SecurityProperties;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.builders.WebSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+
+import java.util.HashMap;
+import java.util.Map;
+
+
+/**
+ * Created by zhajl on 16/12/15.
+ */
+
+@Configuration
+//@EnableWebSecurity
+@Order(SecurityProperties.ACCESS_OVERRIDE_ORDER)
+public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
+
+    @Autowired
+    private WxMpService wxMpService;
+
+    @Autowired
+    private CustomUserAuthenticationProvider customUserAuthenticationProvider;
+
+    @Autowired
+    private UserAccountUserDetailsService userAccountUserDetailsService;
+
+    @Override
+    protected void configure(HttpSecurity http) throws Exception {
+        http.authorizeRequests()
+                //.antMatchers("/portal", "/static").permitAll()
+                .antMatchers("/wechat/**").hasAuthority("ROLE_WX_USER")
+                //.anyRequest().fullyAuthenticated()
+                .and()
+                .addFilterBefore(wxAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
+                .authenticationProvider(customUserAuthenticationProvider)
+                //.antMatcher("/splat.dispatch")
+                .antMatcher("/wechat/**")
+                .exceptionHandling().authenticationEntryPoint(multiAuthenticationPageEntryPoint());
+    }
+
+    @Override
+    public void configure(WebSecurity web) throws Exception {
+        web.ignoring()
+                .antMatchers("/portal", "/static");
+    }
+
+    @Autowired
+    public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
+        auth.authenticationProvider(customUserAuthenticationProvider);
+    }
+
+    @Bean
+    public TargetUrlAuthenticationSuccessHandler authenticationSuccessHandler(){
+        TargetUrlAuthenticationSuccessHandler targetUrlAuthenticationSuccessHandler =
+                new TargetUrlAuthenticationSuccessHandler();
+        targetUrlAuthenticationSuccessHandler.setTargetUrlParameter("targetUrl");
+        return targetUrlAuthenticationSuccessHandler;
+    }
+
+    public ReferUrlAuthenticationFailureHandler authenticationFailureHandler(){
+        ReferUrlAuthenticationFailureHandler referUrlAuthenticationFailureHandler =
+                new ReferUrlAuthenticationFailureHandler();
+        Map<String, String> failureUrlMap = new HashMap<>();
+        failureUrlMap.put("com.umessage.letsgo.assistant.wechat.security.exception.UserNotFoundAuthenticationException"
+                , "/auth_error?error_type\\=USER_NOT_FOUND");
+        referUrlAuthenticationFailureHandler.setExceptionMappings(failureUrlMap);
+        return referUrlAuthenticationFailureHandler;
+    }
+
+    @Bean
+    public WXAuthenticationFilter wxAuthenticationFilter() throws Exception {
+        WXAuthenticationFilter wxAuthenticationFilter = new WXAuthenticationFilter();
+        wxAuthenticationFilter.setWxMpService(wxMpService);
+        wxAuthenticationFilter.setAuthenticationSuccessHandler(authenticationSuccessHandler());
+        wxAuthenticationFilter.setAuthenticationFailureHandler(authenticationFailureHandler());
+        wxAuthenticationFilter.setAuthenticationManager(authenticationManager());
+        return wxAuthenticationFilter;
+    }
+
+    @Bean
+    public MultiAuthenticationPageEntryPoint multiAuthenticationPageEntryPoint(){
+        MultiAuthenticationPageEntryPoint multiAuthenticationPageEntryPoint =
+                new MultiAuthenticationPageEntryPoint();
+
+        Map<String, String> loginPageDetails = new HashMap<>();
+        loginPageDetails.put("/wechat/", "/splat.dispatch");
+        loginPageDetails.put("default", "/login");
+
+        multiAuthenticationPageEntryPoint.setLoginPageDetails(loginPageDetails);
+        multiAuthenticationPageEntryPoint.setWxMpService(wxMpService);
+        return multiAuthenticationPageEntryPoint;
+    }
+
+}

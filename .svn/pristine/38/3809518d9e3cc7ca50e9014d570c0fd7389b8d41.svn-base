@@ -1,0 +1,65 @@
+package com.umessage.letsgo.assistant.controller;
+
+import com.umessage.letsgo.assistant.model.po.WeChatInfoEntity;
+import com.umessage.letsgo.assistant.service.IPayInfoService;
+import com.umessage.letsgo.assistant.service.IWeChatInfoService;
+import me.chanjar.weixin.common.exception.WxErrorException;
+import me.chanjar.weixin.mp.api.WxMpService;
+import me.chanjar.weixin.mp.bean.result.WxMpQrCodeTicket;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+
+import java.io.File;
+
+/**
+ * Created by gaofei on 2016/12/23.
+ */
+
+
+@Controller
+@RequestMapping("/tools")
+public class GenerateAssistintTicket {
+
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    @Autowired
+    private WxMpService wxService;
+    @Autowired
+    private IWeChatInfoService weChatInfoService;
+    @Autowired
+    private IPayInfoService payInfoService;
+
+    /**
+     * 此方法只在系统部署后执行一次
+     * 生成初始的100推广的二位码
+     * @return
+     * @throws WxErrorException
+     */
+    @RequestMapping("/generateTicket")
+    public String generateTicket() throws WxErrorException {
+        logger.info("开始生成100个推广二维码");
+        for (int i = 1; i <=100 ; i++) {
+            WxMpQrCodeTicket wxMpQrCodeTicket = wxService.getQrcodeService().qrCodeCreateLastTicket(String.valueOf(i));
+            WeChatInfoEntity weChatInfo =  new WeChatInfoEntity();
+            weChatInfo.setTicket(wxMpQrCodeTicket.getTicket());
+            weChatInfo.setTicketUrl(wxMpQrCodeTicket.getUrl());
+            weChatInfoService.createAssisTicket(weChatInfo);
+            logger.info("第" + i + "个二维码生成完成");
+        }
+        return "";
+    }
+
+   /* public String generatePictuerTicket(){
+       File picture =  wxService.getQrcodeService().q
+        return "";
+    }*/
+
+    @RequestMapping("/test")
+    public String test() {
+        payInfoService.generatePaInfo(null);
+        //payInfoService.generateUpdateDate(null);
+        return "";
+    }
+}

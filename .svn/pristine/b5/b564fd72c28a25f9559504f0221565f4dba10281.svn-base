@@ -1,0 +1,102 @@
+package com.umessage.letsgo.assistant.service.impl;
+
+import com.umessage.letsgo.assistant.common.utils.*;
+import com.umessage.letsgo.assistant.dao.RewardWithdrawDao;
+import com.umessage.letsgo.assistant.model.po.RewardWithdrawEntity;
+import com.umessage.letsgo.assistant.model.vo.request.WxWithDrawRequest;
+import com.umessage.letsgo.assistant.service.IRewardWithdrawService;
+import me.chanjar.weixin.mp.api.WxMpConfigStorage;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.Map;
+
+/**
+ * Created by gaofei on 2016/12/30.
+ */
+
+@Service
+public class RewardWithdrawServiceImpl implements IRewardWithdrawService {
+
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
+    @Autowired
+    private RewardWithdrawDao rewardWithdrawDao;
+    @Autowired
+    protected WxMpConfigStorage wxMpConfigStorage;
+
+
+
+    @Override
+    public void insert(RewardWithdrawEntity rewardWithdrawEntity) {
+        rewardWithdrawDao.insert(rewardWithdrawEntity);
+    }
+
+    @Override
+    public void update(RewardWithdrawEntity rewardWithdrawEntity) {
+        rewardWithdrawDao.update(rewardWithdrawEntity);
+    }
+
+    @Override
+    public RewardWithdrawEntity select(Long id) {
+       return rewardWithdrawDao.select(id);
+    }
+
+    @Override
+    public List<RewardWithdrawEntity> selectByOpenId(String openId) {
+        return rewardWithdrawDao.selectByOpenId(openId);
+    }
+
+    @Override
+    public void withDraw(Double amount,String openId) {
+        logger.info("提现的service层操作");
+        WxWithDrawRequest wxWithDrawRequest =  new WxWithDrawRequest();
+        //组织提现请求的参数
+        //公众账号appid 变量名 mch_appid
+        //String appId =  wxMpConfigStorage.getAppId();
+        wxWithDrawRequest.setMch_appid(wxMpConfigStorage.getAppId());
+        //商户号 变量名 mchid
+        //String mcChid = wxMpConfigStorage.getPartnerId();
+        wxWithDrawRequest.setMchid(wxMpConfigStorage.getPartnerId());
+        //随机字符串 变量名 nonce_str
+        String nonceStr = String.valueOf(System.currentTimeMillis());
+        wxWithDrawRequest.setNonce_str(nonceStr);
+        //商户订单号 变量名 partner_trade_no
+        String partenerNo = UuidUtil.getUuidStr();
+        wxWithDrawRequest.setPartner_trade_no(partenerNo);
+        wxWithDrawRequest.setOpenid(openId);
+        wxWithDrawRequest.setCheck_name("NO_CHECK");
+        int amountFen =  Integer.parseInt(AmountUtil.changeY2F(String.valueOf(amount)));
+        wxWithDrawRequest.setAmount(amountFen);
+        wxWithDrawRequest.setDesc("提现");
+        String ip = IPUtil.getV4IP();
+        wxWithDrawRequest.setSpbill_create_ip(ip);
+        logger.info("生成Sign");
+        //签名 变量名 sign
+        String sign = this.generateSign(wxWithDrawRequest);
+        wxWithDrawRequest.setSign(sign);
+
+
+
+
+    }
+
+    /**
+     * 生成Sign
+     * @return
+     */
+    public String generateSign(WxWithDrawRequest wxWithDrawRequest) {
+        Map<String,String> map =  WxPaySignUtil.objectToMap(wxWithDrawRequest);
+        Map<String, String> tmap = WxPaySignUtil.order(map);
+        if(tmap.containsKey("sign")){
+            tmap.remove("sign");
+        }
+        String signStr = WxPaySignUtil.mapJoin(tmap, false, false);
+        signStr = signStr + "&key=" + wxMpConfigStorage.getPartnerKey();
+        String sign = MD5.MD5Encode(signStr.toString());
+        return sign.toUpperCase();
+    }
+}

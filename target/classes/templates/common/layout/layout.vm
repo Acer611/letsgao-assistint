@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+    <meta name="format-detection" content="telephone=no"/>
+    <meta http-equiv="x-rim-auto-match" content="none"/>
+
+    #parse("/common/resources-css.vm")
+    #foreach($styleUrl in $styleUrls)
+		<link rel="stylesheet" href="$styleUrl" type="text/css"/>
+    #end
+	<title>#if($pageTitle)$pageTitle#else跟上#end</title>
+</head>
+<body>
+    $screen_content
+	#parse("/common/resources-js.vm")
+	
+    #foreach($scriptUrl in $scriptUrls)
+    	<script type="text/javascript" src="$scriptUrl"></script>
+    #end
+    $!scriptBlock
+</body>
+</html>

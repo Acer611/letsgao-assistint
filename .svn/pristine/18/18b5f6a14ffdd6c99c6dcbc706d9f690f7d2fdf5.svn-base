@@ -1,0 +1,431 @@
+package com.umessage.letsgo.assistant.dao.provider;
+
+import com.umessage.letsgo.assistant.model.po.WeChatOrderInfoEntity;
+import org.apache.commons.lang.StringUtils;
+import org.apache.ibatis.jdbc.SQL;
+/**
+ * Created by lizhen on 2016/12/16.
+ */
+public class WeChatOrderInfoSqlProvider {
+
+    public String insertOrderInfoSql(WeChatOrderInfoEntity orderInfoEntity) {
+        return new SQL(){
+            {
+                INSERT_INTO("wechat_order_info");
+                    VALUES("order_id","#{orderInfoEntity.orderId}");
+                    VALUES("proverder","#{orderInfoEntity.proverder}");
+                    VALUES("real_order_id","#{orderInfoEntity.realOrderId}");
+                    VALUES("customer_openid","#{orderInfoEntity.customerOpenid}");
+                    VALUES("order_type","#{orderInfoEntity.orderType}");
+                    VALUES("good_id","#{orderInfoEntity.goodId}");
+                    VALUES("count","#{orderInfoEntity.count}");
+                    VALUES("customer_name","#{orderInfoEntity.customerName}");
+                    VALUES("phone","#{orderInfoEntity.phone}");
+                    VALUES("address","#{orderInfoEntity.address}");
+                    VALUES("create_time","#{orderInfoEntity.createTime}");
+                    VALUES("update_time","#{orderInfoEntity.updateTime}");
+                    VALUES("total_fee","#{orderInfoEntity.totalFee}");
+                    VALUES("hotel_name","#{orderInfoEntity.hotelName}");
+                    VALUES("check_in_time","#{orderInfoEntity.checkInTime}");
+                    VALUES("check_out_time","#{orderInfoEntity.checkOutTime}");
+                    VALUES("room_type","#{orderInfoEntity.roomType}");
+                    VALUES("flt_no","#{orderInfoEntity.fltNo}");
+                    VALUES("flt_date","#{orderInfoEntity.fltDate}");
+                    VALUES("`starting`","#{orderInfoEntity.starting}");
+                    VALUES("destination","#{orderInfoEntity.destination}");
+                    VALUES("visa_place","#{orderInfoEntity.visaPlace}");
+                    VALUES("visa_type","#{orderInfoEntity.visaType}");
+                    VALUES("scenic_spots","#{orderInfoEntity.scenicSpots}");
+                    VALUES("`status`","#{orderInfoEntity.status}");
+                    VALUES("order_status","#{orderInfoEntity.orderStatus}");
+                    VALUES("seller_openid","#{orderInfoEntity.sellerOpenid}");
+                    VALUES("reward","#{orderInfoEntity.reward}");
+                    VALUES("remark","#{orderInfoEntity.remark}");
+                    VALUES("real_fee","#{orderInfoEntity.realFee}");
+                    VALUES("id_type","#{orderInfoEntity.idType}");
+                    VALUES("id_number","#{orderInfoEntity.idNumber}");
+                    VALUES("pay_id","#{orderInfoEntity.payId}");
+                    VALUES("isdel","#{orderInfoEntity.isdel}");
+                    VALUES("wx_nick","#{orderInfoEntity.wxNick}");
+            }
+        }.toString();
+    }
+
+
+    public String findOrderInfoByIdSql(Long id) {
+        return new SQL() {{
+            SELECT("id, order_id, proverder, real_order_id, customer_openid, order_type, " +
+                    "good_id, count, customer_name, phone, address, create_time, " +
+                    "update_time, total_fee, hotel_name, check_in_time, check_out_time, " +
+                    "room_type, flt_no, flt_date, `starting`, destination, visa_place, visa_type, " +
+                    "scenic_spots, `status`, order_status, seller_openid, reward, remark, real_fee, isdel,wx_nick,id_type,id_number,pay_id");
+            FROM("wechat_order_info");
+            if (id != null) {
+                WHERE("id = "+id);
+            }
+            WHERE("isdel = 0");
+        }}.toString();
+    }
+
+
+    public String updateOrderInfoByIdSql(WeChatOrderInfoEntity orderInfoEntity) {
+        return new SQL(){
+            {
+                UPDATE("wechat_order_info");
+                if(!StringUtils.isEmpty(orderInfoEntity.getOrderId())){
+                    SET("order_id=#{orderInfoEntity.orderId}");
+                }
+                if(!StringUtils.isEmpty(orderInfoEntity.getProverder())){
+                    SET("proverder=#{orderInfoEntity.proverder}");
+                }
+                if(!StringUtils.isEmpty(orderInfoEntity.getOrderId())){
+                    SET("real_order_id=#{orderInfoEntity.realOrderId}");
+                }
+                if(!StringUtils.isEmpty(orderInfoEntity.getCustomerOpenid())){
+                    SET("customer_openid=#{orderInfoEntity.customerOpenid}");
+                }
+                if(orderInfoEntity.getOrderType() != null){
+                    SET("order_type=#{orderInfoEntity.orderType}");
+                }
+                if(!StringUtils.isEmpty(orderInfoEntity.getGoodId())){
+                    SET("good_id=#{orderInfoEntity.goodId}");
+                }
+                if(orderInfoEntity.getCount() != null){
+                    SET("count=#{orderInfoEntity.count}");
+                }
+                if(!StringUtils.isEmpty(orderInfoEntity.getCustomerName())){
+                    SET("customer_name=#{orderInfoEntity.customerName}");
+                }
+                if(!StringUtils.isEmpty(orderInfoEntity.getPhone())){
+                    SET("phone=#{orderInfoEntity.phone}");
+                }
+                if(!StringUtils.isEmpty(orderInfoEntity.getAddress())){
+                    SET("address=#{orderInfoEntity.address}");
+                }
+                if(orderInfoEntity.getCreateTime() != null){
+                    SET("create_time=#{orderInfoEntity.createTime}");
+                }
+                if(orderInfoEntity.getUpdateTime() != null){
+                    SET("update_time=#{orderInfoEntity.updateTime}");
+                }
+                if(orderInfoEntity.getTotalFee() != null){
+                    SET("total_fee=#{orderInfoEntity.totalFee}");
+                }
+                if(!StringUtils.isEmpty(orderInfoEntity.getHotelName())){
+                    SET("hotel_name=#{orderInfoEntity.hotelName}");
+                }
+                if(orderInfoEntity.getCheckInTime() != null){
+                    SET("check_in_time=#{orderInfoEntity.checkInTime}");
+                }
+                if(orderInfoEntity.getCheckInTime() != null){
+                    SET("check_out_time=#{orderInfoEntity.checkOutTime}");
+                }
+                if(orderInfoEntity.getRoomType() != null){
+                    SET("room_type=#{orderInfoEntity.roomType}");
+                }
+                if(!StringUtils.isEmpty(orderInfoEntity.getFltNo())){
+                    SET("flt_no=#{orderInfoEntity.fltNo}");
+                }
+                if(orderInfoEntity.getFltDate() != null){
+                    SET("flt_date=#{orderInfoEntity.fltDate}");
+                }
+                if(!StringUtils.isEmpty(orderInfoEntity.getStarting())){
+                    SET("`starting`=#{orderInfoEntity.starting}");
+                }
+                if(!StringUtils.isEmpty(orderInfoEntity.getDestination())){
+                    SET("destination=#{orderInfoEntity.destination}");
+                }
+                if(!StringUtils.isEmpty(orderInfoEntity.getVisaPlace())){
+                    SET("visa_place=#{orderInfoEntity.visaPlace}");
+                }
+                if(!StringUtils.isEmpty(orderInfoEntity.getVisaType())){
+                    SET("visa_type=#{orderInfoEntity.visaType}");
+                }
+                if(!StringUtils.isEmpty(orderInfoEntity.getScenicSpots())){
+                    SET("scenic_spots=#{orderInfoEntity.scenicSpots}");
+                }
+                if(orderInfoEntity.getStatus() != null){
+                    SET("`status`=#{orderInfoEntity.status}");
+                }
+                if(orderInfoEntity.getOrderStatus() != null){
+                    SET("order_status=#{orderInfoEntity.orderStatus}");
+                }
+                if(!StringUtils.isEmpty(orderInfoEntity.getSellerOpenid())){
+                    SET("seller_openid=#{orderInfoEntity.sellerOpenid}");
+                }
+                if(orderInfoEntity.getReward() != null){
+                    SET("reward=#{orderInfoEntity.reward}");
+                }
+                if(!StringUtils.isEmpty(orderInfoEntity.getRemark())){
+                    SET("remark=#{orderInfoEntity.remark}");
+                }
+                if(orderInfoEntity.getRealFee() != null){
+                    SET("real_fee=#{orderInfoEntity.realFee}");
+                }
+                if(orderInfoEntity.getIsdel() != null){
+                    SET("isdel=#{orderInfoEntity.isdel}");
+                }
+                if(!StringUtils.isEmpty(orderInfoEntity.getWxNick())){
+                    SET("wx_nick=#{orderInfoEntity.wxNick}");
+                }
+                if(orderInfoEntity.getIdType() != null){
+                    SET("id_type=#{orderInfoEntity.idType}");
+                }
+                if(orderInfoEntity.getIdNumber() != null){
+                    SET("id_number=#{orderInfoEntity.idNumber}");
+                }
+                WHERE("id=#{orderInfoEntity.id}");
+            }
+        }.toString();
+    }
+
+
+    public String selectByCustomerOpenidSql(String customerOpenid) {
+        return new SQL() {{
+            SELECT("id, order_id, proverder, real_order_id, customer_openid, order_type, " +
+                    "good_id, count, customer_name, phone, address, create_time, " +
+                    "update_time, total_fee, hotel_name, check_in_time, check_out_time, " +
+                    "room_type, flt_no, flt_date, `starting`, destination, visa_place, visa_type, " +
+                    "scenic_spots, `status`, order_status, seller_openid, reward, remark, real_fee, isdel,wx_nick,id_type,id_number,pay_id");
+            FROM("wechat_order_info");
+            if (!StringUtils.isEmpty(customerOpenid)) {
+                WHERE("customer_openid = "+customerOpenid);
+            }
+            WHERE("isdel = 0");
+            ORDER_BY("create_time DESC");
+        }}.toString();
+    }
+
+
+    public String selectBySellerOpenidSql(String sellerOpenid) {
+        return new SQL() {{
+            SELECT("id, order_id, proverder, real_order_id, customer_openid, order_type, " +
+                    "good_id, count, customer_name, phone, address, create_time, " +
+                    "update_time, total_fee, hotel_name, check_in_time, check_out_time, " +
+                    "room_type, flt_no, flt_date, `starting`, destination, visa_place, visa_type, " +
+                    "scenic_spots, `status`, order_status, seller_openid, reward, remark, real_fee, isdel,wx_nick,id_type,id_number,pay_id");
+            FROM("wechat_order_info");
+            if (!StringUtils.isEmpty(sellerOpenid)) {
+                WHERE("seller_openid = "+sellerOpenid);
+            }
+            WHERE("isdel = 0");
+            ORDER_BY("create_time DESC");
+        }}.toString();
+    }
+
+    public String selectByStatusSql(String customerOpenid) {
+        return new SQL() {{
+            SELECT("id, order_id, proverder, real_order_id, customer_openid, order_type, " +
+                    "good_id, count, customer_name, phone, address, create_time, " +
+                    "update_time, total_fee, hotel_name, check_in_time, check_out_time, " +
+                    "room_type, flt_no, flt_date, `starting`, destination, visa_place, visa_type, " +
+                    "scenic_spots, `status`, order_status, seller_openid, reward, remark, real_fee, isdel,wx_nick,id_type,id_number,pay_id");
+            FROM("wechat_order_info");
+            if (!StringUtils.isEmpty(customerOpenid)) {
+                WHERE("customer_openid = "+customerOpenid);
+            }
+            WHERE("`status` = 0");
+            ORDER_BY("create_time DESC");
+        }}.toString();
+    }
+
+
+
+    /**
+     * 获取订单列表（助手端）
+     * @param wechatOrderInfoEntity
+     * @return
+     */
+    public String selectOrderList(WeChatOrderInfoEntity wechatOrderInfoEntity) {
+        return new SQL() {{
+            SELECT("id, order_id, proverder, real_order_id, customer_openid, order_type, " +
+                    "good_id, count, customer_name, phone, address, create_time, " +
+                    "update_time, total_fee, hotel_name, check_in_time, check_out_time, " +
+                    "room_type, flt_no, flt_date, `starting`, destination, visa_place, visa_type, " +
+                    "scenic_spots, `status`, order_status, seller_openid, reward, remark, real_fee, isdel,wx_nick,id_type,id_number,pay_id");
+            FROM("wechat_order_info");
+
+            if(wechatOrderInfoEntity.getStatus()!=null){
+                WHERE("`status`=#{wechatOrderInfoEntity.status}");
+            }
+            WHERE("isdel = 0");
+            if(wechatOrderInfoEntity.getCustomerOpenid()!=null){
+                WHERE("customer_openid = #{wechatOrderInfoEntity.customerOpenid}");
+            }
+            if(wechatOrderInfoEntity.getKeyWords()!=null) {
+                WHERE("phone=#{wechatOrderInfoEntity.keyWords}");
+                OR();
+                WHERE("order_id=#{wechatOrderInfoEntity.keyWords}");
+            }
+            ORDER_BY("create_time DESC");
+        }}.toString();
+    }
+
+
+    /**
+     * 获取订单列表获取分页的数据（助手端）
+     * @param wechatOrderInfoEntity
+     * @return
+     */
+    public String selectOrderListPages(WeChatOrderInfoEntity wechatOrderInfoEntity) {
+        return new SQL() {{
+            SELECT("id, order_id, proverder, real_order_id, customer_openid, order_type, " +
+                    "good_id, count, customer_name, phone, address, create_time, " +
+                    "update_time, total_fee, hotel_name, check_in_time, check_out_time, " +
+                    "room_type, flt_no, flt_date, `starting`, destination, visa_place, visa_type, " +
+                    "scenic_spots, `status`, order_status, seller_openid, reward, remark, real_fee, isdel,wx_nick,id_type,id_number,pay_id");
+            FROM("wechat_order_info");
+
+            if(wechatOrderInfoEntity.getStatus()!=null){
+                WHERE("`status`=#{wechatOrderInfoEntity.status}");
+            }
+            WHERE("isdel = 0");
+            if(wechatOrderInfoEntity.getCustomerOpenid()!=null){
+                WHERE("customer_openid = #{wechatOrderInfoEntity.customerOpenid}");
+            }
+            if(wechatOrderInfoEntity.getKeyWords()!=null) {
+                WHERE("phone=#{wechatOrderInfoEntity.keyWords}");
+                OR();
+                WHERE("order_id=#{wechatOrderInfoEntity.keyWords}");
+            }
+            ORDER_BY("create_time DESC");
+        }}.toString();
+    }
+
+    /**
+     * 根据订单id 修改支付状态
+     * @param orderInfoEntity
+     * @return
+     */
+    public String updateOrderInfoByOrderIdSql(WeChatOrderInfoEntity orderInfoEntity) {
+        return new SQL(){
+            {
+                UPDATE("wechat_order_info");
+                if(!StringUtils.isEmpty(orderInfoEntity.getOrderId())){
+                    SET("order_id=#{orderInfoEntity.orderId}");
+                }
+                if(!StringUtils.isEmpty(orderInfoEntity.getProverder())){
+                    SET("proverder=#{orderInfoEntity.proverder}");
+                }
+                if(!StringUtils.isEmpty(orderInfoEntity.getOrderId())){
+                    SET("real_order_id=#{orderInfoEntity.realOrderId}");
+                }
+                if(!StringUtils.isEmpty(orderInfoEntity.getCustomerOpenid())){
+                    SET("customer_openid=#{orderInfoEntity.customerOpenid}");
+                }
+                if(orderInfoEntity.getOrderType() != null){
+                    SET("order_type=#{orderInfoEntity.orderType}");
+                }
+                if(!StringUtils.isEmpty(orderInfoEntity.getGoodId())){
+                    SET("good_id=#{orderInfoEntity.goodId}");
+                }
+                if(orderInfoEntity.getCount() != null){
+                    SET("count=#{orderInfoEntity.count}");
+                }
+                if(!StringUtils.isEmpty(orderInfoEntity.getCustomerName())){
+                    SET("customer_name=#{orderInfoEntity.customerName}");
+                }
+                if(!StringUtils.isEmpty(orderInfoEntity.getPhone())){
+                    SET("phone=#{orderInfoEntity.phone}");
+                }
+                if(!StringUtils.isEmpty(orderInfoEntity.getAddress())){
+                    SET("address=#{orderInfoEntity.address}");
+                }
+                if(orderInfoEntity.getCreateTime() != null){
+                    SET("create_time=#{orderInfoEntity.createTime}");
+                }
+                if(orderInfoEntity.getUpdateTime() != null){
+                    SET("update_time=#{orderInfoEntity.updateTime}");
+                }
+                if(orderInfoEntity.getTotalFee() != null){
+                    SET("total_fee=#{orderInfoEntity.totalFee}");
+                }
+                if(!StringUtils.isEmpty(orderInfoEntity.getHotelName())){
+                    SET("hotel_name=#{orderInfoEntity.hotelName}");
+                }
+                if(orderInfoEntity.getCheckInTime() != null){
+                    SET("check_in_time=#{orderInfoEntity.checkInTime}");
+                }
+                if(orderInfoEntity.getCheckInTime() != null){
+                    SET("check_out_time=#{orderInfoEntity.checkOutTime}");
+                }
+                if(orderInfoEntity.getRoomType() != null){
+                    SET("room_type=#{orderInfoEntity.roomType}");
+                }
+                if(!StringUtils.isEmpty(orderInfoEntity.getFltNo())){
+                    SET("flt_no=#{orderInfoEntity.fltNo}");
+                }
+                if(orderInfoEntity.getFltDate() != null){
+                    SET("flt_date=#{orderInfoEntity.fltDate}");
+                }
+                if(!StringUtils.isEmpty(orderInfoEntity.getStarting())){
+                    SET("`starting`=#{orderInfoEntity.starting}");
+                }
+                if(!StringUtils.isEmpty(orderInfoEntity.getDestination())){
+                    SET("destination=#{orderInfoEntity.destination}");
+                }
+                if(!StringUtils.isEmpty(orderInfoEntity.getVisaPlace())){
+                    SET("visa_place=#{orderInfoEntity.visaPlace}");
+                }
+                if(!StringUtils.isEmpty(orderInfoEntity.getVisaType())){
+                    SET("visa_type=#{orderInfoEntity.visaType}");
+                }
+                if(!StringUtils.isEmpty(orderInfoEntity.getScenicSpots())){
+                    SET("scenic_spots=#{orderInfoEntity.scenicSpots}");
+                }
+                if(orderInfoEntity.getStatus() != null){
+                    SET("`status`=#{orderInfoEntity.status}");
+                }
+                if(orderInfoEntity.getOrderStatus() != null){
+                    SET("order_status=#{orderInfoEntity.orderStatus}");
+                }
+                if(!StringUtils.isEmpty(orderInfoEntity.getSellerOpenid())){
+                    SET("seller_openid=#{orderInfoEntity.sellerOpenid}");
+                }
+                if(orderInfoEntity.getReward() != null){
+                    SET("reward=#{orderInfoEntity.reward}");
+                }
+                if(!StringUtils.isEmpty(orderInfoEntity.getRemark())){
+                    SET("remark=#{orderInfoEntity.remark}");
+                }
+                if(orderInfoEntity.getRealFee() != null){
+                    SET("real_fee=#{orderInfoEntity.realFee}");
+                }
+                if(orderInfoEntity.getIsdel() != null){
+                    SET("isdel=#{orderInfoEntity.isdel}");
+                }
+                if(!StringUtils.isEmpty(orderInfoEntity.getWxNick())){
+                    SET("wx_nick=#{orderInfoEntity.wxNick}");
+                }
+                if(orderInfoEntity.getIdType() != null){
+                    SET("id_type=#{orderInfoEntity.idType}");
+                }
+                if(orderInfoEntity.getIdNumber() != null){
+                    SET("id_number=#{orderInfoEntity.idNumber}");
+                }
+                WHERE("id=#{orderInfoEntity.orderId}");
+            }
+        }.toString();
+    }
+
+    /**
+     * 根据订单id 查看订单信息
+     * @param orderId
+     * @return
+     */
+    public String selectOrderInfoByOrderId(String orderId) {
+        return new SQL() {{
+            SELECT("id, order_id, proverder, real_order_id, customer_openid, order_type, " +
+                    "good_id, count, customer_name, phone, address, create_time, " +
+                    "update_time, total_fee, hotel_name, check_in_time, check_out_time, " +
+                    "room_type, flt_no, flt_date, `starting`, destination, visa_place, visa_type, " +
+                    "scenic_spots, `status`, order_status, seller_openid, reward, remark, real_fee, isdel,wx_nick,id_type,id_number,pay_id");
+            FROM("wechat_order_info");
+            if (orderId != null) {
+                WHERE("order_id = " + orderId);
+            }
+            WHERE("isdel = 0");
+        }}.toString();
+    }
+
+}

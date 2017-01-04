@@ -1,0 +1,64 @@
+package com.umessage.letsgo.assistant.controller;
+
+import com.umessage.letsgo.assistant.common.helper.UserLoginHelper;
+import com.umessage.letsgo.assistant.model.po.WeChatInfoEntity;
+import com.umessage.letsgo.assistant.service.IRewardWithdrawService;
+import com.umessage.letsgo.assistant.service.IWeChatInfoService;
+import com.umessage.letsgo.assistant.wechat.security.WxUser;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.RequestMapping;
+
+/**
+ * 收益提现的操纵controller
+ * Created by gaofei on 2017/1/3.
+ */
+@Controller
+@RequestMapping("/wechat")
+public class RewardWithDrawController {
+
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
+    @Autowired
+    private UserLoginHelper loginHelper;
+    @Autowired
+    private IWeChatInfoService weChatInfoService;
+    @Autowired
+    private IRewardWithdrawService rewardWithdrawService;
+
+    /**
+     * 跳转到收益提现的页面
+     * @param model
+     * @return
+     */
+    @RequestMapping("/toWithDrawPage")
+    public String toWithDrawPage( Model model){
+        logger.info("跳转提现页面方法");
+        //获取可提现金额信息
+        WxUser wxUser = loginHelper.getWxUser();
+        String openId = wxUser.getUsername();
+        WeChatInfoEntity weChatInfoEntity = weChatInfoService.findWecahtUserByOpenID(openId);
+        model.addAttribute("weChatInfoEntity",weChatInfoEntity);
+        //TODO 添加提现页面的方法
+        return "";
+    }
+
+
+    /**
+     * 提现操作
+     * @param amount 退款金额
+     * @return
+     */
+    @RequestMapping("/withDraw")
+    public String withDraw(Double amount,Model model){
+        WxUser wxUser = loginHelper.getWxUser();
+        String openId = wxUser.getUsername();
+        //String openId = "oRCmvwAY72g5jpKPiRLf48kZI3QA";
+        rewardWithdrawService.withDraw(amount,openId);
+        return "" ;
+    }
+
+}

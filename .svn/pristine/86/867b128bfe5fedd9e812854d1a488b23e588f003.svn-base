@@ -1,0 +1,8 @@
+package com.umessage.letsgo.assistant.dao;
+
+/**
+ * 收益提现记录Dao
+ * Created by gaofei on 2016/12/30.
+ */
+public class RewardWithdrawDao {
+}

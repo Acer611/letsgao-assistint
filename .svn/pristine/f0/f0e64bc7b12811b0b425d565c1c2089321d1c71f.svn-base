@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta http-equiv="X-Frame-Options" content="SAMEORIGIN">
+    <title>订单列表</title>
+    <link href="https://g.alicdn.com/sj/dpl/1.5.1/css/sui.min.css" rel="stylesheet">
+    <script type="text/javascript" src="https://g.alicdn.com/sj/lib/jquery/dist/jquery.min.js"></script>
+    <script type="text/javascript" src="https://g.alicdn.com/sj/dpl/1.5.1/js/sui.min.js"></script>
+    <script type="text/javascript" src="/js/layer_mobile/layer.js"></script>
+    <link rel="stylesheet" href="/css/style.css">
+    <style>
+        .sui-nav.nav-tabs.tab-wraped > li > a{padding:2px;}
+        .sui-nav.nav-tabs.tab-wraped > li.active > a{padding-top:0px;}
+    </style>
+</head>
+<body>
+##<!--<ul class="sui-nav nav-tabs tab-wraped">
+##	<li #if($status!=0&&$status!=1&&$status!=2)class="active"#end><a href="/order/operation/getOrderList?pageNumber=1&qimoClientId=$!{openId}">
+##		<h3>全部</h3>
+##	</a></li>
+##	<li #if($status==0)class="active"#end><a href="/order/operation/getOrderList?status=0&pageNumber=1&qimoClientId=$!{openId}">
+##		<h3>待支付</h3>
+##	</a></li>
+##	<li #if($status==1)class="active"#end><a href="/order/operation/getOrderList?status=1&pageNumber=1&qimoClientId=$!{openId}">
+##		<h3>待处理</h3>
+##	</a></li>
+##	<li #if($status==2)class="active"#end><a href="/order/operation/getOrderList?status=2&pageNumber=1&qimoClientId=$!{openId}">
+##		<h3>已完成</h3>
+##	</a></li>
+##</ul>-->
+<div class="bs-search">
+	<form class="sui-form form-search sui-validate" action="/order/operation/getAllOrderList">
+		<input class="input-xfat input-xxlarge" type="text" name="keyWords"  value="$!{keyWords}" placeholder="请输入订单号或者手机号">
+        <input  type="hidden" name="pageNumber" value="1"/>
+        <button type="submit" class="sui-btn btn-xlarge btn-primary">搜索</button>
+	</form>
+</div>
+<div class="tab-content tab-wraped">
+	<div id="index" class="tab-pane active">
+#foreach( $product in $resultMap.keySet())
+#foreach( $productdetail in ${resultMap.get($product)})
+		<table class="sui-table table-bordered-simple">
+			<thead>
+			<tr>
+				<th colspan="4">
+					<span>用户：$!{productdetail.wxNick}（$!{productdetail.customerOpenid}）</span>
+        #if($!{productdetail.status}==0)
+					<span class="pull-right gray">
+						<!--<a href="/order/operation/toUpdatePage?id=$!{productdetail.id}" class="sui-btn btn-large btn-primary">修改</a>-->
+						<a href="javascript:void(0);" id="$!{productdetail.id}" class="sui-btn btn-large btn-success btnRemove">取消</a>
+				   </span>
+                    #elseif($!{productdetail.status}==1)
+                        <span class="pull-right gray">
+						<a href="javascript:void(0);" id="$!{productdetail.id}" class="sui-btn btn-large btn-primary updeteModel">更新</a>
+				   </span>
+                    #end
+				</th>
+			</tr>
+			</thead>
+			<tbody>
+			<tr>
+				<td class="center" width="35%">
+					<ul class="unstyled">
+						<li>订单号：$!{productdetail.orderId}</li>
+						<li>订单时间：$!date.format('yyyy-MM-dd HH:mm:ss',$!{productdetail.createTime})</li>
+						<li>订单类型：#if($!{productdetail.orderType}==1)
+							机票订单
+	#elseif($!{productdetail.orderType}==2)
+        酒店订单
+		#elseif($!{productdetail.orderType}==3)
+							签证订单
+			#elseif($!{productdetail.orderType}==4)
+							景点门票
+						#end</li>
+					</ul>
+				</td>
+				<td class="center" width="25%">
+					<ul class="unstyled">
+						<li>联系人：$!{productdetail.customerName}</li>
+						<li>电话：$!{productdetail.phone}</li>
+                        #if($!{productdetail.idType}&&$!{productdetail.idType}!="")
+                        <li>证件类型：$!{productdetail.idType}</li>
+                        <li>证件号码：$!{productdetail.idNumber}</li>
+                        #end
+					</ul>
+				</td>
+				<td class="center" width="25%">
+	#if(${productdetail.orderType}==1)
+					<ul class="unstyled">
+						<li>航班号：$!{productdetail.fltNo}</li>
+						<li>出发地：$!{productdetail.starting}</li>
+						<li>目的地：$!{productdetail.destination}</li>
+						<li>起飞日期：$!date.format('yyyy-MM-dd HH:mm:ss',$!{productdetail.fltDate})</li>
+                        <li>机票数量：$!{productdetail.count}</li>
+					</ul>
+	#elseif($productdetail.orderType==2)
+        <ul class="unstyled">
+            <li>酒店名称：$!{productdetail.hotelName}</li>
+            <li>酒店类型：$!{productdetail.roomType}</li>
+            <li>房间数量：$!{productdetail.count}</li>
+            <li>入住时间：$!date.format('yyyy-MM-dd',$!{productdetail.checkInTime})</li>
+            <li>离店时间：$!date.format('yyyy-MM-dd',$!{productdetail.checkOutTime})</li>
+        </ul>
+	#elseif($productdetail.orderType==3)
+        <ul class="unstyled">
+            <li>签证类型：$!{productdetail.visaType}</li>
+            <li>数量：$!{productdetail.count}</li>
+        </ul>
+	#elseif($productdetail.orderType==4)
+        <ul class="unstyled">
+            <li>景点名称：$!{productdetail.scenicSpots}</li>
+            <li>门票数量：$!{productdetail.count}</li>
+        </ul>
+		#end
+				</td>
+				<td class="center"><ul class="unstyled">
+                    <li>订单状态：
+                        #if($!productdetail.status==0)
+                        未支付
+					#elseif($!productdetail.status==1)
+                        已支付
+                        #elseif($!productdetail.status==2)
+                            已完成
+                    #end
+                    </li>
+                    #if($!{productdetail.remark}&&$!{productdetail.remark}!="")
+                        <li>备注：$!{productdetail.remark}</li>
+                    #end
+                    <li>订单金额：$!{productdetail.totalFee}元</li>
+                </ul>
+                </td>
+
+			</tr>
+			</tbody>
+		</table>
+#end
+	#end
+	</div>
+
+</div>
+<div class="pagination"></div>
+<script>
+	$('.pagination').pagination({
+		//pages: ${resultMap.get("page")},
+		styleClass: ['pagination-large'],
+        currentPage:$!{pageNumber},
+		showCtrl: false,
+        itemsCount:${resultMap.get("total")},
+        pageSize:10,
+		//displayPage: 6,
+        goToPage:2,
+		onSelect: function (num) {
+			console.log(num)  //打开控制台观察
+			window.location.href=changeURLArg(window.location.href,'pageNumber',parseInt(num));
+        }
+	})
+	$(".btnRemove").on("click",function(){
+        layer.open({type: 2,shadeClose:false});
+        $.ajax({
+            type:"get",
+            url:"/order/operation/delete",
+            data:{id:$(this).attr("id")},
+            contentType:'application/json;charset=utf-8',
+            dataType:"json",
+            success:function(data){
+                if(data.result==0){
+                    layer.closeAll();
+                    layer.open({
+                        btn: [ '确定'],
+                        content:"取消订单成功",
+                        shadeClose:false,
+                        yes: function(index){
+//                            WeixinJSBridge.invoke('closeWindow',{},function(res){
+//                                //alert(res.err_msg);
+//                            });
+                            window.location.reload();
+                        },
+                    })
+                    //window.location.href="tlt:"
+                }else{
+                    layer.closeAll();
+                    layer.open({
+                        btn: [ '确定'],
+                        content:"取消订单失败，请稍后重试",
+                        shadeClose:false
+                    })
+                }
+            },
+            error:function(){
+                layer.closeAll();
+            }
+        });
+	})
+    $(".updeteModel").on("click",function(){
+        layer.open({type: 2,shadeClose:false});
+        $.ajax({
+            type:"get",
+            url:"/order/operation/updateStatus",
+            data:{id:$(this).attr("id")},
+            contentType:'application/json;charset=utf-8',
+            dataType:"json",
+            success:function(data){
+                if(data.result==0){
+                    layer.closeAll();
+                    layer.open({
+                        btn: [ '确定'],
+                        content:"更新状态成功",
+                        shadeClose:false,
+                        yes: function(index){
+//                            WeixinJSBridge.invoke('closeWindow',{},function(res){
+//                                //alert(res.err_msg);
+//                            });
+                            window.location.reload();
+                        },
+                    })
+                    //window.location.href="tlt:"
+                }else{
+                    layer.closeAll();
+                    layer.open({
+                        btn: [ '确定'],
+                        content:"更新状态失败",
+                        shadeClose:false
+                    })
+                }
+            },
+            error:function(){
+                layer.closeAll();
+            }
+        });
+    })
+    /*
+    * url 目标url
+    * arg 需要替换的参数名称
+    * arg_val 替换后的参数的值
+    * return url 参数替换后的url
+    */
+    function changeURLArg(url,arg,arg_val){
+        var pattern=arg+'=([^&]*)';
+        var replaceText=arg+'='+arg_val;
+        if(url.match(pattern)){
+            var tmp='/('+ arg+'=)([^&]*)/gi';
+            tmp=url.replace(eval(tmp),replaceText);
+            return tmp;
+        }else{
+            if(url.match('[\?]')){
+                return url+'&'+replaceText;
+            }else{
+                return url+'?'+replaceText;
+            }
+        }
+        return url+'\n'+arg+'\n'+arg_val;
+    }
+
+</script>
+</body>
+</html>

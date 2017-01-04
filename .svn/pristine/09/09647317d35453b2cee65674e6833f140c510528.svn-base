@@ -1,0 +1,8 @@
+#set($pageTitle="500")
+#set($layout="/common/layout/layout.vm")
+#set($styleUrls=["$!{STATIC_URL}/resources/css/style.css"])
+<div class="errorCon">
+<div class="error"></div>
+<div class="errorTit">500 你懂的！</div>
+<div>#if($!message)$!message#else 服务器出错了，无法处理您的请求。 #end</div>
+</div>

@@ -1,0 +1,93 @@
+package com.umessage.letsgo.assistant.model.po;
+
+import java.io.Serializable;
+import java.sql.Timestamp;
+
+/**
+ * 支付退款记录表
+ * Created by gaofei on 2016/12/29.
+ */
+
+public class PayRefundEntity  implements Serializable {
+
+
+   /* ID                   bigint not null comment '系统id',
+    openid               varchar(256) comment '用户的openid',
+    order_id             varchar(256) comment '订单号',
+    create_time          timestamp comment '支付或退款时间',
+    fee                  double comment '支付或退款金额',
+    type                 tinyint comment '0 支付 1 退款',*/
+
+    //主键
+    private Long id;
+    // 用户的openid
+    private String openId;
+    //订单号（和订单信息表中的orderId 相关）
+    private String order_id;
+    //支付或退款金额
+    private Double fee;
+    //支付或退款时间
+    private Timestamp create_time;
+    //记录支付或退款标识 0 支付  1 退款
+    private Integer type;
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getOpenId() {
+        return openId;
+    }
+
+    public void setOpenId(String openId) {
+        this.openId = openId;
+    }
+
+    public String getOrder_id() {
+        return order_id;
+    }
+
+    public void setOrder_id(String order_id) {
+        this.order_id = order_id;
+    }
+
+    public Double getFee() {
+        return fee;
+    }
+
+    public void setFee(Double fee) {
+        this.fee = fee;
+    }
+
+    public Timestamp getCreate_time() {
+        return create_time;
+    }
+
+    public void setCreate_time(Timestamp create_time) {
+        this.create_time = create_time;
+    }
+
+    public Integer getType() {
+        return type;
+    }
+
+    public void setType(Integer type) {
+        this.type = type;
+    }
+
+    @Override
+    public String toString() {
+        return "PayRefundEntity{" +
+                "id=" + id +
+                ", openId='" + openId + '\'' +
+                ", order_id='" + order_id + '\'' +
+                ", fee=" + fee +
+                ", create_time=" + create_time +
+                ", type=" + type +
+                '}';
+    }
+}

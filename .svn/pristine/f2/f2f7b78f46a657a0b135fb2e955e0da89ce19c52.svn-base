@@ -1,0 +1,8 @@
+package com.umessage.letsgo.assistant.dao;
+
+/**
+ * 退款记录Dao
+ * Created by gaofei on 2016/12/30.
+ */
+public class RefundInfoDao {
+}

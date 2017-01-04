@@ -1,0 +1,86 @@
+package com.umessage.letsgo.assistant.service.impl;
+
+import com.umessage.letsgo.assistant.dao.WechatOrderInfoDao;
+import com.umessage.letsgo.assistant.model.WechatOrderInfoEntity;
+import com.umessage.letsgo.assistant.service.IWechatOrderInfoService;
+import com.umessage.letsgo.assistant.utils.UuidUtil;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.Date;
+import java.util.List;
+
+/**
+ * Created by ZhaoYidong on 2016/12/15.
+ */
+@Service
+public class WechatOrderInfoServiceImpl implements IWechatOrderInfoService{
+    @Autowired
+    private WechatOrderInfoDao wechatOrderInfoDao;
+
+    @Override
+    public void insert(WechatOrderInfoEntity wechatOrderInfoEntity) {
+        wechatOrderInfoEntity.setOrderId(UuidUtil.getUuidStr());
+        wechatOrderInfoEntity.setCreateTime(new Date());
+        wechatOrderInfoEntity.setIsdel(0);
+        wechatOrderInfoDao.insert(wechatOrderInfoEntity);
+    }
+
+    @Override
+    public WechatOrderInfoEntity select(Long id) {
+        return wechatOrderInfoDao.select(id);
+    }
+
+    @Override
+    public void update(WechatOrderInfoEntity wechatOrderInfoEntity) {
+         wechatOrderInfoDao.update(wechatOrderInfoEntity);
+    }
+
+    @Override
+    public void delete(Long id) {
+         wechatOrderInfoDao.delete(id);
+    }
+
+    /**
+     * 下单用户查看订单列表
+     * @param customerOpenid
+     * @return
+     */
+    @Override
+    public List<WechatOrderInfoEntity> selectByCustomerOpenid(String customerOpenid) {
+        return wechatOrderInfoDao.selectByCustomerOpenid(customerOpenid);
+    }
+
+    /**
+     * 下单用户查看待支付订单
+     * @param customerOpenid
+     * @return
+     */
+    @Override
+    public List<WechatOrderInfoEntity> selectByStatus(String customerOpenid) {
+        return wechatOrderInfoDao.selectByStatus(customerOpenid);
+    }
+
+    /**
+     * 更改支付状态
+     * @param id
+     * @return
+     */
+    @Override
+    public void updateStatus(Long id) {
+        WechatOrderInfoEntity wechatOrderInfoEntity = wechatOrderInfoDao.select(id);
+        wechatOrderInfoEntity.setStatus(1);//已支付
+        wechatOrderInfoDao.update(wechatOrderInfoEntity);
+    }
+
+    /**
+     * 根据导游推荐人查询订单信息
+     * @param sellerOpenid
+     * @return
+     */
+    @Override
+    public List<WechatOrderInfoEntity> selectBySellerOpenid(String sellerOpenid) {
+        List<WechatOrderInfoEntity> wechatOrderInfoEntities = wechatOrderInfoDao.selectBySellerOpenid(sellerOpenid);
+        return wechatOrderInfoEntities;
+    }
+}

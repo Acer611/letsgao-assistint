@@ -1,0 +1,42 @@
+/*
+package com.umessage.letsgo.assistant.config;
+
+import org.springframework.boot.context.properties.ConfigurationProperties;
+
+*/
+/**
+ * Created by gaofei on 2016/12/23.
+ *//*
+
+@ConfigurationProperties(prefix = "wechat.template.url")
+public class WeChatTemplateURLProperties {
+
+    private String qrcode;
+    private String pay;
+    private String paysuccess;
+
+    public String getQrcode() {
+        return qrcode;
+    }
+
+    public void setQrcode(String qrcode) {
+        this.qrcode = qrcode;
+    }
+
+    public String getPay() {
+        return pay;
+    }
+
+    public void setPay(String pay) {
+        this.pay = pay;
+    }
+
+    public String getPaysuccess() {
+        return paysuccess;
+    }
+
+    public void setPaysuccess(String paysuccess) {
+        this.paysuccess = paysuccess;
+    }
+}
+*/

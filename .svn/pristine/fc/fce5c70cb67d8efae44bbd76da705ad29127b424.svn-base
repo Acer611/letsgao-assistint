@@ -1,0 +1,250 @@
+package com.umessage.letsgo.assistant.service.impl;
+
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
+import com.umessage.letsgo.assistant.dao.WeChatOrderInfoDao;
+import com.umessage.letsgo.assistant.model.WeChatOrderInfoEntity;
+import com.umessage.letsgo.assistant.service.IWeChatOrderInfoService;
+import com.umessage.letsgo.assistant.utils.AmountUtil;
+import com.umessage.letsgo.assistant.utils.IPUtil;
+import com.umessage.letsgo.assistant.utils.UuidUtil;
+import me.chanjar.weixin.mp.api.WxMpPayService;
+import me.chanjar.weixin.mp.api.WxMpService;
+import me.chanjar.weixin.mp.bean.pay.request.WxPayUnifiedOrderRequest;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+/**
+ * Created by ZhaoYidong on 2016/12/15.
+ */
+@Service
+public class WeChatOrderInfoServiceImpl implements IWeChatOrderInfoService {
+
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    //手机端每页展示多少条
+    private final int pageSize = 3;
+    //助手端每页展示多少条
+    private final int pageSize_assistint = 10;
+
+
+    @Autowired
+    private WeChatOrderInfoDao weChatOrderInfoDao;
+    @Autowired
+    private WxMpService wxService;
+
+    @Override
+    public void insert(WeChatOrderInfoEntity wechatOrderInfoEntity) {
+        wechatOrderInfoEntity.setOrderId(UuidUtil.getUuidStr());
+        wechatOrderInfoEntity.setCreateTime(new Date());
+        wechatOrderInfoEntity.setIsdel(0);
+        wechatOrderInfoEntity.setOrderStatus(1);
+        wechatOrderInfoEntity.setStatus(0);
+        weChatOrderInfoDao.insert(wechatOrderInfoEntity);
+    }
+
+    @Override
+    public WeChatOrderInfoEntity select(Long id) {
+        WeChatOrderInfoEntity wechatOrderInfoEntity = weChatOrderInfoDao.select(id);
+        Double totalFee = wechatOrderInfoEntity.getTotalFee();
+        Double realFee = wechatOrderInfoEntity.getRealFee();
+        Double reward = wechatOrderInfoEntity.getReward();
+        double reslutRe = 0.0;
+        if (totalFee != null && realFee != null && reward != null){
+            reslutRe = (totalFee - realFee) * reward;
+        }
+        wechatOrderInfoEntity.setSellerReward(reslutRe);
+        return wechatOrderInfoEntity;
+    }
+
+    @Override
+    public void update(WeChatOrderInfoEntity wechatOrderInfoEntity) {
+         weChatOrderInfoDao.update(wechatOrderInfoEntity);
+    }
+
+    @Override
+    public void delete(Long id) {
+         weChatOrderInfoDao.delete(id);
+    }
+
+    /**
+     * 下单用户查看订单列表
+     * @param customerOpenid
+     * @return
+     */
+    @Override
+    public Map selectByCustomerOpenid(String customerOpenid,String pageNum) {
+        Map resultMap = new HashMap<>();
+        int pageNumber = 1;
+        if(!"".equals(pageNum) && null!=pageNum){
+            pageNumber = Integer.parseInt(pageNum);
+        }
+        PageHelper.startPage(pageNumber, pageSize);
+        Page<Long> pageOrderList = weChatOrderInfoDao.selectByCustomerOpenidPages(customerOpenid);
+        List orderList = weChatOrderInfoDao.selectByCustomerOpenid(customerOpenid);
+        orderList = this.getSellerReward(orderList);
+        resultMap.put("orderList",orderList);
+        resultMap.put("total",pageOrderList.getTotal());
+        resultMap.put("page",pageOrderList.getPages());
+        return resultMap;
+    }
+
+    /**
+     * 下单用户查看待支付订单
+     * @param customerOpenid
+     * @return
+     */
+    @Override
+    public List<WeChatOrderInfoEntity> selectByStatus(String customerOpenid) {
+        return weChatOrderInfoDao.selectByStatus(customerOpenid);
+    }
+
+    /**
+     * 更改支付状态
+     * @param id
+     * @return
+     */
+    @Override
+    public void updateStatus(Long id) {
+        WeChatOrderInfoEntity wechatOrderInfoEntity = weChatOrderInfoDao.select(id);
+        wechatOrderInfoEntity.setStatus(1);//已支付
+        weChatOrderInfoDao.update(wechatOrderInfoEntity);
+    }
+
+    /**
+     * 根据导游推荐人查询订单信息(订单明细受益)
+     * @param sellerOpenid
+     * @return
+     */
+    @Override
+    public Map selectBySellerOpenid(String sellerOpenid) {
+        List<WeChatOrderInfoEntity> wechatOrderInfoEntities = weChatOrderInfoDao.selectBySellerOpenid(sellerOpenid);
+        Map sellerRewardMap = this.getSellerRewardMap(wechatOrderInfoEntities);
+        return sellerRewardMap;
+    }
+
+    /**
+     * 获取订单信息(助手端)
+     * @param wechatOrderInfoEntity
+     * @return
+     */
+    @Override
+    public Map selectOrderList(WeChatOrderInfoEntity wechatOrderInfoEntity,String pageNumber) {
+        int pageNum = 1;
+        if(!"".equals(pageNumber) && null!=pageNumber){
+            pageNum = Integer.parseInt(pageNumber);
+        }
+        PageHelper.startPage(pageNum, pageSize_assistint);
+
+        Page<Long> pageOrderList = weChatOrderInfoDao.selectOrderListPages(wechatOrderInfoEntity);
+        Map resultMap = new HashMap<>();
+        List<WeChatOrderInfoEntity> orderList = weChatOrderInfoDao.selectOrderList(wechatOrderInfoEntity);
+        orderList = this.getSellerReward(orderList);
+        resultMap.put("orderList",orderList);
+        resultMap.put("total",pageOrderList.getTotal());
+        resultMap.put("page",pageOrderList.getPages());
+        return resultMap;
+    }
+
+    /**
+     * 获取订单受益
+     * @param wechatOrderInfoEntities
+     * @return
+     */
+    public List<WeChatOrderInfoEntity>  getSellerReward(List<WeChatOrderInfoEntity> wechatOrderInfoEntities){
+        for (WeChatOrderInfoEntity wechatOrderInfoEntity:wechatOrderInfoEntities) {
+            Double totalFee = wechatOrderInfoEntity.getTotalFee();
+            Double realFee = wechatOrderInfoEntity.getRealFee();
+            Double reward = wechatOrderInfoEntity.getReward();
+            double reslutRe = 0.0;
+            if (totalFee != null && realFee != null && reward != null){
+                reslutRe = (totalFee - realFee) * reward;
+            }
+            wechatOrderInfoEntity.setSellerReward(reslutRe);
+        }
+        return wechatOrderInfoEntities;
+    }
+
+    /**
+     * 获取订单受益
+     * @param wechatOrderInfoEntities
+     * @return
+     */
+    public Map getSellerRewardMap(List<WeChatOrderInfoEntity> wechatOrderInfoEntities){
+        Map resultMap = new HashMap<>();
+        Double totalReward = 0.0;
+        for (WeChatOrderInfoEntity wechatOrderInfoEntity:wechatOrderInfoEntities) {
+            Double totalFee = wechatOrderInfoEntity.getTotalFee();
+            Double realFee = wechatOrderInfoEntity.getRealFee();
+            Double reward = wechatOrderInfoEntity.getReward();
+            double reslutRe = 0.0;
+            if (totalFee != null && realFee != null && reward != null){
+                reslutRe = (totalFee - realFee) * reward;
+            }
+            wechatOrderInfoEntity.setSellerReward(reslutRe);
+            totalReward = totalReward + reslutRe;
+        }
+        resultMap.put("orderList",wechatOrderInfoEntities);
+        resultMap.put("totalReward",totalReward);
+        return resultMap;
+    }
+
+
+    /**
+     *获取支付参数信息和生成预支付的payID
+     * @param orderid
+     * @return
+     */
+    public Map createPayInfo(String orderid)  {
+        Map resultMap = new HashMap<>();
+        WeChatOrderInfoEntity order  = weChatOrderInfoDao.select(Long.parseLong(orderid));
+        //代码中Result为自定义返回对象，WxPayUnifiedOrderRequest 中还有一些参数会根据配置文件的配置自动填充，
+        // 不需要单独设置，例如：appId、partnerId、notifyURL、tradeType等参数。
+        try {
+            WxPayUnifiedOrderRequest orderRequest = new WxPayUnifiedOrderRequest();
+            //商户id
+            // orderRequest.setMchId();
+            //随机字符串
+           // orderRequest.setNonceStr(UuidUtil.getUuidStr());
+            //签名
+            //orderRequest.setSign();
+            //商品描述
+            orderRequest.setBody("主题");
+            //商品订单号
+            orderRequest.setOutTradeNo(order.getOrderId());
+            //标价金额
+            orderRequest.setTotalFee(Integer.parseInt(AmountUtil.changeY2F(String.valueOf(order.getTotalFee()))));
+            //终端IP
+            orderRequest.setSpbillCreateIp(IPUtil.getV4IP());
+            //
+            orderRequest.setOpenid(order.getCustomerOpenid());
+            //TODO 配置回调的URL
+            //orderRequest.setNotifyURL();
+
+            WxMpPayService wxMpPayService = wxService.getPayService();
+            resultMap = wxMpPayService.getPayInfo(orderRequest);
+        }catch (Exception e){
+            logger.error("获取微信信息支付失败！订单号：{},原因:{}", order.getOrderId(), e.getMessage());
+            e.printStackTrace();
+             resultMap.put("fail","获取支付失败，请稍后重试！");
+        }
+
+        return resultMap;
+    }
+
+    @Override
+    public void updateStatusByOrderId(WeChatOrderInfoEntity wechatOrderInfoEntity) {
+        weChatOrderInfoDao.updateStatusByOrderId(wechatOrderInfoEntity);
+    }
+
+    @Override
+    public WeChatOrderInfoEntity findOrderInfoByOrderId(String orderId) {
+        return weChatOrderInfoDao.selectOrderInfoByOrderId(orderId);
+    }
+}

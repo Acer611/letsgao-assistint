@@ -1,0 +1,236 @@
+package com.umessage.letsgo.assistant.dao;
+
+import com.umessage.letsgo.assistant.model.WechatOrderInfoEntity;
+import com.umessage.letsgo.assistant.utils.WechatOrderInfoSqlProvider;
+import org.apache.ibatis.annotations.*;
+
+import java.util.List;
+
+/**
+ * Created by ZhaoYidong on 2016/12/15.
+ */
+@Mapper
+public interface WechatOrderInfoDao {
+
+    @SelectProvider(type=WechatOrderInfoSqlProvider.class, method="insertOrderInfoSql")
+    @Options(useGeneratedKeys = true, keyProperty = "orderInfoEntity.id")
+    public void insert(@Param("orderInfoEntity") WechatOrderInfoEntity orderInfoEntity);
+
+
+    @SelectProvider(type=WechatOrderInfoSqlProvider.class, method="findOrderInfoByIdSql")
+    @Results(value ={
+            @Result(id=true, property="id",column="id"),
+            @Result(property="orderId",column="order_id"),
+            @Result(property="proverder",column="proverder"),
+            @Result(property="realOrderId",column="real_order_id"),
+            @Result(property="customerOpenid",column="customer_openid"),
+            @Result(property="orderType",column="order_type"),
+            @Result(property="goodId",column="good_id"),
+            @Result(property="count",column="count"),
+            @Result(property="customerName",column="customer_name"),
+            @Result(property="phone",column="phone"),
+            @Result(property="address",column="address"),
+            @Result(property="createTime",column="create_time"),
+            @Result(property="updateTime",column="update_time"),
+            @Result(property="totalFee",column="total_fee"),
+            @Result(property="hotelName",column="hotel_name"),
+            @Result(property="checkInTime",column="check_in_time"),
+            @Result(property="checkOutTime",column="check_out_time"),
+            @Result(property="roomType",column="room_type"),
+            @Result(property="fltNo",column="flt_no"),
+            @Result(property="fltDate",column="flt_date"),
+            @Result(property="starting",column="starting"),
+            @Result(property="destination",column="destination"),
+            @Result(property="visaPlace",column="visa_place"),
+            @Result(property="visaType",column="visa_type"),
+            @Result(property="scenicSpots",column="scenic_spots"),
+            @Result(property="status",column="status"),
+            @Result(property="orderStatus",column="order_status"),
+            @Result(property="sellerOpenid",column="seller_openid"),
+            @Result(property="reward",column="reward"),
+            @Result(property="remark",column="remark"),
+            @Result(property="realFee",column="real_fee"),
+            @Result(property="isdel",column="isdel")
+    })
+    public WechatOrderInfoEntity select(@Param("id") Long id);
+
+
+    @SelectProvider(type=WechatOrderInfoSqlProvider.class, method="updateOrderInfoByIdSql")
+    public void update(@Param("orderInfoEntity") WechatOrderInfoEntity orderInfoEntity);
+
+
+    @Update("update wechat_order_info set isdel = 1 where id=#{id}")
+    public void delete(@Param("id") Long id);
+
+
+    @Select("SELECT id,order_id,proverder,real_order_id,customer_openid," +
+            "order_type,good_id,count,customer_name,phone,address,create_time," +
+            "update_time,total_fee,hotel_name,check_in_time,check_out_time,room_type," +
+            "flt_no,flt_date,`starting`,destination,visa_place,visa_type,scenic_spots," +
+            "`status`,order_status,seller_openid,reward,remark,real_fee,isdel " +
+            "FROM wechat_order_info WHERE customer_openid = #{customerOpenid} AND isdel = 0 ORDER BY create_time DESC")
+    @Results(value ={
+            @Result(id=true, property="id",column="id"),
+            @Result(property="orderId",column="order_id"),
+            @Result(property="proverder",column="proverder"),
+            @Result(property="realOrderId",column="real_order_id"),
+            @Result(property="customerOpenid",column="customer_openid"),
+            @Result(property="orderType",column="order_type"),
+            @Result(property="goodId",column="good_id"),
+            @Result(property="count",column="count"),
+            @Result(property="customerName",column="customer_name"),
+            @Result(property="phone",column="phone"),
+            @Result(property="address",column="address"),
+            @Result(property="createTime",column="create_time"),
+            @Result(property="updateTime",column="update_time"),
+            @Result(property="totalFee",column="total_fee"),
+            @Result(property="hotelName",column="hotel_name"),
+            @Result(property="checkInTime",column="check_in_time"),
+            @Result(property="checkOutTime",column="check_out_time"),
+            @Result(property="roomType",column="room_type"),
+            @Result(property="fltNo",column="flt_no"),
+            @Result(property="fltDate",column="flt_date"),
+            @Result(property="starting",column="starting"),
+            @Result(property="destination",column="destination"),
+            @Result(property="visaPlace",column="visa_place"),
+            @Result(property="visaType",column="visa_type"),
+            @Result(property="scenicSpots",column="scenic_spots"),
+            @Result(property="status",column="status"),
+            @Result(property="orderStatus",column="order_status"),
+            @Result(property="sellerOpenid",column="seller_openid"),
+            @Result(property="reward",column="reward"),
+            @Result(property="remark",column="remark"),
+            @Result(property="realFee",column="real_fee"),
+            @Result(property="isdel",column="isdel")
+    })
+    public List<WechatOrderInfoEntity> selectByCustomerOpenid(@Param("customerOpenid") String customerOpenid);
+
+
+    @Select("SELECT id,order_id,proverder,real_order_id,customer_openid," +
+            "order_type,good_id,count,customer_name,phone,address,create_time," +
+            "update_time,total_fee,hotel_name,check_in_time,check_out_time,room_type," +
+            "flt_no,flt_date,`starting`,destination,visa_place,visa_type,scenic_spots," +
+            "`status`,order_status,seller_openid,reward,remark,real_fee,isdel " +
+            "FROM wechat_order_info WHERE seller_openid = #{sellerOpenid} AND isdel = 0 ORDER BY create_time DESC")
+    @Results(value ={
+            @Result(id=true, property="id",column="id"),
+            @Result(property="orderId",column="order_id"),
+            @Result(property="proverder",column="proverder"),
+            @Result(property="realOrderId",column="real_order_id"),
+            @Result(property="customerOpenid",column="customer_openid"),
+            @Result(property="orderType",column="order_type"),
+            @Result(property="goodId",column="good_id"),
+            @Result(property="count",column="count"),
+            @Result(property="customerName",column="customer_name"),
+            @Result(property="phone",column="phone"),
+            @Result(property="address",column="address"),
+            @Result(property="createTime",column="create_time"),
+            @Result(property="updateTime",column="update_time"),
+            @Result(property="totalFee",column="total_fee"),
+            @Result(property="hotelName",column="hotel_name"),
+            @Result(property="checkInTime",column="check_in_time"),
+            @Result(property="checkOutTime",column="check_out_time"),
+            @Result(property="roomType",column="room_type"),
+            @Result(property="fltNo",column="flt_no"),
+            @Result(property="fltDate",column="flt_date"),
+            @Result(property="starting",column="starting"),
+            @Result(property="destination",column="destination"),
+            @Result(property="visaPlace",column="visa_place"),
+            @Result(property="visaType",column="visa_type"),
+            @Result(property="scenicSpots",column="scenic_spots"),
+            @Result(property="status",column="status"),
+            @Result(property="orderStatus",column="order_status"),
+            @Result(property="sellerOpenid",column="seller_openid"),
+            @Result(property="reward",column="reward"),
+            @Result(property="remark",column="remark"),
+            @Result(property="realFee",column="real_fee"),
+            @Result(property="isdel",column="isdel")
+    })
+    public List<WechatOrderInfoEntity> selectBySellerOpenid(@Param("sellerOpenid") String sellerOpenid);
+
+
+    @Select("SELECT id,order_id,proverder,real_order_id,customer_openid," +
+            "order_type,good_id,count,customer_name,phone,address,create_time," +
+            "update_time,total_fee,hotel_name,check_in_time,check_out_time,room_type," +
+            "flt_no,flt_date,`starting`,destination,visa_place,visa_type,scenic_spots," +
+            "`status`,order_status,seller_openid,reward,remark,real_fee,isdel " +
+            "FROM wechat_order_info WHERE customer_openid = #{customerOpenid} AND `status` = 0 ORDER BY create_time DESC")
+    @Results(value ={
+            @Result(id=true, property="id",column="id"),
+            @Result(property="orderId",column="order_id"),
+            @Result(property="proverder",column="proverder"),
+            @Result(property="realOrderId",column="real_order_id"),
+            @Result(property="customerOpenid",column="customer_openid"),
+            @Result(property="orderType",column="order_type"),
+            @Result(property="goodId",column="good_id"),
+            @Result(property="count",column="count"),
+            @Result(property="customerName",column="customer_name"),
+            @Result(property="phone",column="phone"),
+            @Result(property="address",column="address"),
+            @Result(property="createTime",column="create_time"),
+            @Result(property="updateTime",column="update_time"),
+            @Result(property="totalFee",column="total_fee"),
+            @Result(property="hotelName",column="hotel_name"),
+            @Result(property="checkInTime",column="check_in_time"),
+            @Result(property="checkOutTime",column="check_out_time"),
+            @Result(property="roomType",column="room_type"),
+            @Result(property="fltNo",column="flt_no"),
+            @Result(property="fltDate",column="flt_date"),
+            @Result(property="starting",column="starting"),
+            @Result(property="destination",column="destination"),
+            @Result(property="visaPlace",column="visa_place"),
+            @Result(property="visaType",column="visa_type"),
+            @Result(property="scenicSpots",column="scenic_spots"),
+            @Result(property="status",column="status"),
+            @Result(property="orderStatus",column="order_status"),
+            @Result(property="sellerOpenid",column="seller_openid"),
+            @Result(property="reward",column="reward"),
+            @Result(property="remark",column="remark"),
+            @Result(property="realFee",column="real_fee"),
+            @Result(property="isdel",column="isdel")
+    })
+    public List<WechatOrderInfoEntity> selectByStatus(@Param("customerOpenid") String customerOpenid);
+
+    /**
+     * 获取订单列表（助手端）
+     * @param wechatOrderInfoEntity
+     * @return
+     */
+
+    @SelectProvider(type=WechatOrderInfoSqlProvider.class, method="selectOrderList")
+    @Results(value ={
+            @Result(id=true, property="id",column="id"),
+            @Result(property="orderId",column="order_id"),
+            @Result(property="proverder",column="proverder"),
+            @Result(property="realOrderId",column="real_order_id"),
+            @Result(property="customerOpenid",column="customer_openid"),
+            @Result(property="orderType",column="order_type"),
+            @Result(property="goodId",column="good_id"),
+            @Result(property="count",column="count"),
+            @Result(property="customerName",column="customer_name"),
+            @Result(property="phone",column="phone"),
+            @Result(property="address",column="address"),
+            @Result(property="createTime",column="create_time"),
+            @Result(property="updateTime",column="update_time"),
+            @Result(property="totalFee",column="total_fee"),
+            @Result(property="hotelName",column="hotel_name"),
+            @Result(property="checkInTime",column="check_in_time"),
+            @Result(property="checkOutTime",column="check_out_time"),
+            @Result(property="roomType",column="room_type"),
+            @Result(property="fltNo",column="flt_no"),
+            @Result(property="fltDate",column="flt_date"),
+            @Result(property="starting",column="starting"),
+            @Result(property="destination",column="destination"),
+            @Result(property="visaPlace",column="visa_place"),
+            @Result(property="visaType",column="visa_type"),
+            @Result(property="scenicSpots",column="scenic_spots"),
+            @Result(property="status",column="status"),
+            @Result(property="orderStatus",column="order_status"),
+            @Result(property="sellerOpenid",column="seller_openid"),
+            @Result(property="reward",column="reward"),
+            @Result(property="remark",column="remark"),
+            @Result(property="realFee",column="real_fee"),
+            @Result(property="isdel",column="isdel")
+    })
+    List<WechatOrderInfoEntity> selectOrderList(WechatOrderInfoEntity wechatOrderInfoEntity);
+}

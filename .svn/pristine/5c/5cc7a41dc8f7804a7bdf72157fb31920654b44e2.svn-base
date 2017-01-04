@@ -1,0 +1,55 @@
+package com.umessage.letsgo.assistant.dao;
+
+import com.umessage.letsgo.assistant.model.WeChatInfo;
+import org.apache.ibatis.annotations.*;
+
+/**
+ * Created by gaofei on 2016/12/15.
+ */
+@Mapper
+public interface WeChatInfoDao {
+
+
+    /**
+     * 插入微信信息
+     * @param wechatInfo
+     * @return
+     */
+    @Insert("INSERT INTO wechat_info(parentid,unionid,openid,nickname,sex,province,city,country,headImgUrl," +
+            "status,ticket_url,is_guide) VALUES(#{parentid},#{unionid},#{openid},#{nickname},#{sex},#{province}" +
+            ",#{city},#{country},#{headImgUrl},#{ticketUrl},#{isGuide})")
+    @Options(useGeneratedKeys=true, keyProperty="id")
+    int insert(WeChatInfo wechatInfo);
+
+    /**
+     * 根据openID 查找用户信息
+     * @param openid
+     * @return
+     */
+    @Select("SELECT * FROM wechat_info WHERE openid = #{openid}")
+    @Results(
+            {
+                    @Result(id = true, column = "id", property = "id"),
+                    @Result(column = "unionid", property = "unionid"),
+                    @Result(column = "openid", property = "openid"),
+                    @Result(column = "ticket_url", property = "ticketUrl"),
+                    @Result(column = "is_guide", property = "isGuide")
+            })
+    WeChatInfo findByOpenID(@Param("openid") String openid);
+
+    /**
+     * 根据openID 修改二维码信息
+     * @param wechatInfo
+     */
+    @Update("UPDATE wechat_info SET ticket_url=#{ticketUrl} WHERE openid=#{openid}")
+    void updateTicketUrlByOpenID(WeChatInfo wechatInfo);
+
+    /**
+     * 取消关注
+     * @param wechatInfo
+     */
+    @Update("UPDATE wechat_info SET status=1 WHERE openid=#{openid}")
+    void updateStatusByOpenID(WeChatInfo wechatInfo);
+
+
+}

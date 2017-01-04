@@ -1,0 +1,23 @@
+package com.umessage.letsgo.assistant.controller;
+
+import com.umessage.letsgo.assistant.model.WechatOrderInfoEntity;
+import com.umessage.letsgo.assistant.service.IWechatOrderInfoService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+
+/**
+ * Created by ZhaoYidong on 2016/12/15.
+ */
+@Controller
+public class WechatOrderInfoController {
+    @Autowired
+    private IWechatOrderInfoService wechatOrderInfoService;
+
+    @RequestMapping(value = "/hello")
+    public String index(Long id){
+        WechatOrderInfoEntity wechatOrderInfoEntity = wechatOrderInfoService.select(id);
+        return "hello";
+    }
+
+}

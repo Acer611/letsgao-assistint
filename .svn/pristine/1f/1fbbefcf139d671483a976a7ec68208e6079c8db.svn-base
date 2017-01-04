@@ -1,0 +1,64 @@
+package com.umessage.letsgo.assistant.service;
+
+import com.umessage.letsgo.assistant.model.WeChatOrderInfoEntity;
+import me.chanjar.weixin.common.exception.WxErrorException;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.Map;
+
+/**
+ * Created by ZhaoYidong on 2016/12/15.
+ */
+@Service
+public interface IWeChatOrderInfoService {
+    void insert(WeChatOrderInfoEntity wechatOrderInfoEntity);
+
+    WeChatOrderInfoEntity select(Long id);
+
+    void update(WeChatOrderInfoEntity wechatOrderInfoEntity);
+
+    void delete(Long id);
+
+    Map selectByCustomerOpenid(String customerOpenid,String pageNum,String pageSizes) throws WxErrorException;
+
+    List<WeChatOrderInfoEntity> selectByStatus(String customerOpenid);
+
+    void updateStatus(Long id);
+
+    Map selectBySellerOpenid(String sellerOpenid,String pageNum,String pageSize);
+
+    /**
+     * 获取订单信息(助手端)
+     * @param wechatOrderInfoEntity
+     * @return
+     */
+   Map selectOrderList(WeChatOrderInfoEntity wechatOrderInfoEntity, String pageNumber);
+
+
+    /**
+     * 获取支付参数信息和生成预支付的payID
+     * @param orderId
+     * @return
+     */
+    Map createPayInfo(String orderId);
+
+    /**
+     * 根据订单的ID 修改订单信息
+     * @param wechatOrderInfoEntity
+     */
+    void updateStatusByOrderId(WeChatOrderInfoEntity wechatOrderInfoEntity);
+
+    /**
+     * 根据orderID 查找订单信息
+     * @param orderId
+     * @return
+     */
+    WeChatOrderInfoEntity findOrderInfoByOrderId(String orderId);
+
+    /**
+     * 订单状态改为已支付
+     * @param orderId
+     */
+    WeChatOrderInfoEntity updateOrderStatusToPay(String orderId);
+}

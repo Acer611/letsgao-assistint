@@ -1,0 +1,343 @@
+package com.umessage.letsgo.assistant.config;
+
+import com.github.pagehelper.PageHelper;
+import com.umessage.letsgo.assistant.wechat.handler.*;
+import com.umessage.letsgo.assistant.wechat.security.*;
+import me.chanjar.weixin.common.api.WxConsts;
+import me.chanjar.weixin.mp.api.WxMpConfigStorage;
+import me.chanjar.weixin.mp.api.WxMpInMemoryConfigStorage;
+import me.chanjar.weixin.mp.api.WxMpMessageRouter;
+import me.chanjar.weixin.mp.api.WxMpService;
+import me.chanjar.weixin.mp.api.impl.WxMpServiceImpl;
+import org.apache.catalina.connector.Connector;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.autoconfigure.security.SecurityProperties;
+import org.springframework.boot.context.embedded.EmbeddedServletContainerFactory;
+import org.springframework.boot.context.embedded.tomcat.TomcatEmbeddedServletContainerFactory;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.builders.WebSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Properties;
+
+
+/**
+ * Created by gaofei on 2016/12/21.
+ */
+@Configuration
+@EnableConfigurationProperties(TomcatHttpsProperties.class)
+public class TomcatConfiguration {
+
+
+  /*  @Bean
+    public Integer port() {
+        return SocketUtils.findAvailableTcpPort();
+    }*/
+
+    @Bean
+    @ConditionalOnMissingBean
+    public EmbeddedServletContainerFactory servletContainer(TomcatHttpsProperties properties) {
+        TomcatEmbeddedServletContainerFactory tomcat = new TomcatEmbeddedServletContainerFactory();
+        tomcat.addAdditionalTomcatConnectors(createSslConnector(properties));
+        return tomcat;
+    }
+
+    private Connector createSslConnector(TomcatHttpsProperties properties) {
+        //Connector connector = new Connector();
+        Connector connector = new Connector("org.apache.coyote.http11.Http11NioProtocol");
+        connector.setPort(properties.getPort() );
+        properties.configureConnector(connector);
+        return connector;
+    }
+
+    /**
+     * Created by gaofei on 2016/12/19.
+     */
+    @Configuration
+    public static class MyBatisConfiguration {
+        private static final Logger logger =  LoggerFactory.getLogger(MyBatisConfiguration.class);
+
+        @Bean
+        public PageHelper pageHelper() {
+            logger.info("注册MyBatis分页插件PageHelper");
+            PageHelper pageHelper = new PageHelper();
+            Properties p = new Properties();
+            p.setProperty("offsetAsPageNum", "true");
+            p.setProperty("rowBoundsWithCount", "true");
+            p.setProperty("reasonable", "true");
+            pageHelper.setProperties(p);
+            return pageHelper;
+        }
+    }
+
+    /**
+     * Created by zhajl on 16/12/15.
+     */
+
+    @Configuration
+    //@EnableWebSecurity
+    @Order(SecurityProperties.ACCESS_OVERRIDE_ORDER)
+    public static class WebSecurityConfig extends WebSecurityConfigurerAdapter {
+
+        @Autowired
+        private WxMpService wxMpService;
+
+        @Autowired
+        private CustomUserAuthenticationProvider customUserAuthenticationProvider;
+
+        @Autowired
+        private UserAccountUserDetailsService userAccountUserDetailsService;
+
+        @Override
+        protected void configure(HttpSecurity http) throws Exception {
+            http.authorizeRequests()
+                    //.antMatchers("/portal", "/static").permitAll()
+                    .antMatchers("/wechat/**").hasAuthority("ROLE_WX_USER")
+                    .anyRequest().authenticated()
+                    //.anyRequest().fullyAuthenticated()
+                    .and()
+                    .addFilterBefore(wxAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
+                    .exceptionHandling()
+                    .authenticationEntryPoint(multiAuthenticationPageEntryPoint());
+
+        }
+
+        @Override
+        public void configure(WebSecurity web) throws Exception {
+            web.ignoring()
+                    .antMatchers("/portal/**", "/error", "/auth_error", "/login_page", "/order/**","/static");
+        }
+
+        @Autowired
+        @Override
+        protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+            auth.authenticationProvider(customUserAuthenticationProvider);
+        }
+
+        /*
+        @Autowired
+        public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
+            auth.authenticationProvider(customUserAuthenticationProvider);
+        }
+        */
+
+        @Bean
+        public TargetUrlAuthenticationSuccessHandler authenticationSuccessHandler(){
+            TargetUrlAuthenticationSuccessHandler targetUrlAuthenticationSuccessHandler =
+                    new TargetUrlAuthenticationSuccessHandler();
+            targetUrlAuthenticationSuccessHandler.setTargetUrlParameter("targetUrl");
+            return targetUrlAuthenticationSuccessHandler;
+        }
+
+        public ReferUrlAuthenticationFailureHandler authenticationFailureHandler(){
+            ReferUrlAuthenticationFailureHandler referUrlAuthenticationFailureHandler =
+                    new ReferUrlAuthenticationFailureHandler();
+            Map<String, String> failureUrlMap = new HashMap<>();
+            failureUrlMap.put("com.umessage.letsgo.assistant.wechat.security.exception.UserNotFoundAuthenticationException"
+                    , "/auth_error?error_type\\=USER_NOT_FOUND");
+            referUrlAuthenticationFailureHandler.setExceptionMappings(failureUrlMap);
+            return referUrlAuthenticationFailureHandler;
+        }
+
+        @Bean
+        public WXAuthenticationFilter wxAuthenticationFilter() throws Exception {
+            WXAuthenticationFilter wxAuthenticationFilter = new WXAuthenticationFilter();
+            wxAuthenticationFilter.setWxMpService(wxMpService);
+            wxAuthenticationFilter.setAuthenticationSuccessHandler(authenticationSuccessHandler());
+            wxAuthenticationFilter.setAuthenticationFailureHandler(authenticationFailureHandler());
+            wxAuthenticationFilter.setAuthenticationManager(authenticationManager());
+            return wxAuthenticationFilter;
+        }
+
+        @Bean
+        public MultiAuthenticationPageEntryPoint multiAuthenticationPageEntryPoint(){
+            MultiAuthenticationPageEntryPoint multiAuthenticationPageEntryPoint =
+                    new MultiAuthenticationPageEntryPoint();
+
+            Map<String, String> loginPageDetails = new HashMap<>();
+            loginPageDetails.put("/wechat/", "/splat.dispatch");
+            loginPageDetails.put("default", "/login");
+
+            multiAuthenticationPageEntryPoint.setLoginPageDetails(loginPageDetails);
+            multiAuthenticationPageEntryPoint.setWxMpService(wxMpService);
+            return multiAuthenticationPageEntryPoint;
+        }
+
+    }
+
+    /**
+     * wechat mp configuration
+     *
+     * @author Binary Wang
+     */
+    @Configuration
+    @ConditionalOnClass(WxMpService.class)
+    @EnableConfigurationProperties(TomcatHttpsProperties.WeChatMpProperties.class)
+    public static class WeChatMpConfiguration {
+        @Autowired
+        private TomcatHttpsProperties.WeChatMpProperties properties;
+
+        @Autowired
+        private LocationHandler locationHandler;
+
+        @Autowired
+        private MenuHandler menuHandler;
+
+        @Autowired
+        private MsgHandler msgHandler;
+
+        @Autowired
+        protected LogHandler logHandler;
+
+        @Autowired
+        protected NullHandler nullHandler;
+
+        @Autowired
+        protected KfSessionHandler kfSessionHandler;
+
+        @Autowired
+        protected StoreCheckNotifyHandler storeCheckNotifyHandler;
+
+        @Autowired
+        private UnsubscribeHandler unsubscribeHandler;
+
+        @Autowired
+        private SubscribeHandler subscribeHandler;
+
+        @Autowired
+        protected ViewHandler viewHandler;
+
+        @Bean
+        @ConditionalOnMissingBean
+        public WxMpConfigStorage configStorage() {
+            WxMpInMemoryConfigStorage configStorage = new WxMpInMemoryConfigStorage();
+            configStorage.setAppId(this.properties.getAppId());
+            configStorage.setSecret(this.properties.getSecret());
+            configStorage.setToken(this.properties.getToken());
+            configStorage.setAesKey(this.properties.getAesKey());
+            configStorage.setPartnerId(this.properties.getPartnerId());
+            configStorage.setPartnerKey(this.properties.getPartnerKey());
+            return configStorage;
+        }
+
+        @Bean
+        @ConditionalOnMissingBean
+        public WxMpService wxMpService(WxMpConfigStorage configStorage) {
+            WxMpService wxMpService = new WxMpServiceImpl();
+            wxMpService.setWxMpConfigStorage(configStorage);
+            return wxMpService;
+        }
+
+        @Bean
+        public WxMpMessageRouter router(WxMpService wxMpService) {
+            final WxMpMessageRouter newRouter = new WxMpMessageRouter(wxMpService);
+
+            // 记录所有事件的日志 （异步执行）
+            newRouter.rule().handler(this.logHandler).next();
+
+            // 接收客服会话管理事件
+            /*newRouter.rule().async(false).msgType(WxConsts.XML_MSG_EVENT)
+                    .event(WxConsts.EVT_KF_CREATE_SESSION)
+                    .handler(this.kfSessionHandler).end();
+            newRouter.rule().async(false).msgType(WxConsts.XML_MSG_EVENT)
+                    .event(WxConsts.EVT_KF_CLOSE_SESSION).handler(this.kfSessionHandler)
+                    .end();
+            newRouter.rule().async(false).msgType(WxConsts.XML_MSG_EVENT)
+                    .event(WxConsts.EVT_KF_SWITCH_SESSION)
+                    .handler(this.kfSessionHandler).end();*/
+
+            // 门店审核事件
+            newRouter.rule().async(false).msgType(WxConsts.XML_MSG_EVENT)
+                    .event(WxConsts.EVT_POI_CHECK_NOTIFY)
+                    .handler(this.storeCheckNotifyHandler).end();
+
+            // 自定义菜单事件
+            newRouter.rule().async(false).msgType(WxConsts.XML_MSG_EVENT)
+                    .event(WxConsts.BUTTON_CLICK).handler(this.getMenuHandler()).end();
+
+            // 点击菜单连接事件
+            newRouter.rule().async(false).msgType(WxConsts.XML_MSG_EVENT)
+                    .event(WxConsts.BUTTON_VIEW).handler(this.nullHandler).end();
+
+            // 关注事件
+            newRouter.rule().async(false).msgType(WxConsts.XML_MSG_EVENT)
+                    .event(WxConsts.EVT_SUBSCRIBE).handler(this.getSubscribeHandler())
+                    .end();
+
+            // 取消关注事件
+            newRouter.rule().async(false).msgType(WxConsts.XML_MSG_EVENT)
+                    .event(WxConsts.EVT_UNSUBSCRIBE)
+                    .handler(this.getUnsubscribeHandler()).end();
+
+            // 上报地理位置事件
+            newRouter.rule().async(false).msgType(WxConsts.XML_MSG_EVENT)
+                    .event(WxConsts.EVT_LOCATION).handler(this.getLocationHandler())
+                    .end();
+
+            // 接收地理位置消息
+            newRouter.rule().async(false).msgType(WxConsts.XML_MSG_LOCATION)
+                    .handler(this.getLocationHandler()).end();
+
+            // 扫码事件
+            newRouter.rule().async(false).msgType(WxConsts.XML_MSG_EVENT)
+                    .event(WxConsts.EVT_SCAN).handler(this.getScanHandler()).end();
+
+
+            // 上报地理位置事件
+            newRouter.rule().async(false).msgType(WxConsts.XML_MSG_EVENT)
+                    .event(WxConsts.EVT_VIEW).handler(this.getViewHandler())
+                    .end();
+            // 默认
+            //newRouter.rule().async(false).handler(this.getMsgHandler()).end();
+
+            return newRouter;
+        }
+
+
+
+        protected MenuHandler getMenuHandler() {
+            return this.menuHandler;
+        }
+
+        protected SubscribeHandler getSubscribeHandler() {
+            return this.subscribeHandler;
+        }
+
+        protected UnsubscribeHandler getUnsubscribeHandler() {
+            return this.unsubscribeHandler;
+        }
+
+        protected AbstractHandler getLocationHandler() {
+            return this.locationHandler;
+        }
+
+        protected MsgHandler getMsgHandler() {
+            return this.msgHandler;
+        }
+
+        protected AbstractHandler getScanHandler() {
+            return null;
+        }
+
+        protected ViewHandler getViewHandler() {
+            return this.viewHandler;
+        }
+
+        protected NullHandler getNullHandler() {
+            return this.nullHandler;
+        }
+
+    }
+}

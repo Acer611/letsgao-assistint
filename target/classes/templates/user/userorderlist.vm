@@ -1,0 +1,345 @@
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="utf-8">
+        <meta name="format-detection" content="telephone = no"/>
+        <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0, minimum-scale=1.0,user-scalable=no">
+        <meta name="description" content="">
+		<meta http-equiv="X-Frame-Options" content="SAMEORIGIN">
+      <title>订单列表</title>
+      <link rel="stylesheet" href="/css/mobile.css">
+        <link rel="stylesheet" href="/css/iScroll.css">
+        <script src="/js/zepto.min.js"></script>
+        <script src="https://res.wx.qq.com/open/js/jweixin-1.0.0.js"></script>
+        <script src="/js/iscroll-probe.js"></script>
+        <style>
+            <style>
+            #wrapper {
+                position: absolute;
+                z-index: 1;
+                top:0px;
+                bottom:0px;
+                left: 0;
+                width: 100%;
+                background: #cf3f4e;
+                overflow: hidden;
+            }
+
+            #scroller {
+                position: absolute;
+                z-index: 1;
+
+            }
+
+            #scroller ul {
+                list-style: none;
+
+                position: relative;
+            }
+            /**
+ *
+ * 下拉样式 Pull down styles
+ *
+ */
+            #pullDown, #pullUp {
+                background:#fff;
+                height:40px;
+                line-height:40px;
+                padding:5px 10px;
+                font-weight:bold;
+                font-size:14px;
+                color:#333;
+                text-align: center;
+            }
+
+
+            #pullUp{
+                display:none;
+            }
+
+            #pullUp.flip{display:block}
+
+            #pullUp.loding{display:block;}
+        </style>
+    </head>
+    <body>
+    <div id="wrapper">
+        <div id="scroller">
+            <div class="" id="detail1">
+
+
+		<ul class="orderList" id="list">
+            #if($resultMap.orderList.size()<=0)
+                <li style="text-align:center;">暂无订单</li>
+                #else
+
+
+            #foreach( $product in $resultMap.keySet())
+				#foreach( $productdetail in ${resultMap.get($product)})
+		<li>
+            <a href="/wechat/orderinfo/selectByStatus?id=$!{productdetail.id}">
+                <div class="list_top"><p>订单号：$!{productdetail.orderId}</p> <p>
+                    #if($productdetail.status==0)
+                    <span class="btnLabel">
+                        待支付
+                        </span>
+                    #elseif($productdetail.status==1)
+                    <span class="jtnLabel">
+                        待处理
+                        </span>
+                    #elseif($productdetail.status==2)
+                    <span class="wBtnLabel">
+                        已完成
+                        </span>
+                    #end
+                </p></div>
+                <ul class="list_center">
+##                    #if(${productdetail.orderType}==1)
+##                        <li><p>机票订单：</p><p>$!{productdetail.starting}-$!{productdetail.destination}</p></li>
+##                        <li><p>日期：</p><p>$!date.format('yyyy-MM-dd',$!{productdetail.fltDate})</p></li>
+##                        #elseif($productdetail.orderType==2)
+##                            <li><p>酒店订单：</p><p>$!{productdetail.hotelName}</p></li>
+##                            <li><p>日期：</p><p>$!date.format('yyyy-MM-dd',$!{productdetail.checkInTime})</p></li>
+##                    #elseif($productdetail.orderType==3)
+##                        <li><p>签证国家：</p><p>$!{productdetail.visaPlace}</p></li>
+##                    #elseif($productdetail.orderType==4)
+##                        <li><p>景点名称：</p><p>$!{productdetail.scenicSpots}</p></li>
+##                    #end
+                <li><p>订单标题：</p><p>$!{productdetail.orderTitle}</p></li>
+
+                <li><p>下单时间：</p><p>$!date.format('yyyy-MM-dd HH:mm:ss',$!{productdetail.createTime})</p></li>
+                </ul>
+                <div class="linkIcon"></div>
+                <p class="list_bottom">金额：<span>&yen;$!{productdetail.totalFee}</span></p>
+				</a>
+		</li>
+                #end
+					#end
+#end
+
+		</ul>
+            <div id="pullUp">
+                <span class="pullUpIcon"></span><span class="pullUpLabel">上拉加载更多...</span>
+            </div>
+            </div>
+            </div>
+        </div>
+        <script>
+            var	myScroll1 = new IScroll('#detail1',{
+                checkDOMChanges:true,
+                scrollY:true
+            });
+            myScroll1.on("scrollStart",function(){
+                myScroll1.refresh();
+            });
+            var dataStr={
+                pageNumber:1,
+                pageSize:getQueryString("pageSize")
+            };
+            var page=1;
+            function close(){
+                $.mobile.loading('hide');
+            }
+            //页面加载完首先执行onload
+            var ifs=true;
+            var page=1;
+            var mapItem=[];
+            var tall=0;
+            function sstz(){
+                $.ajax({
+                    type:"get",
+                    url:'/wechat/orderinfo/selectByCustomerOpenidPages',
+                    data:dataStr,
+                    dataType:"json",
+                    success:callback
+                });
+
+            }
+            function callback(data){
+                var obj=data.orderList;
+                var tree="";
+                page=data.page;
+                $.each(obj,function(i,item){
+                    mapItem.push(i);
+                })
+                ifs=true;
+
+            }
+            function getQueryString(name) {
+                var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)", "i");
+                var r = window.location.search.substr(1).match(reg);
+                if (r != null) {
+                    return (r[2]);
+                }
+                return null;
+            }
+            //一下就是关于iscroll下拉上拉数据的处理，
+
+            var myScroll,
+                    pullDownEl, pullDownOffset,
+                    pullUpEl, pullUpOffset,
+                    generatedCount = 1;
+
+
+
+            /**
+             * 滚动翻页 （自定义实现此方法）
+             * myScroll.refresh();		// 数据加载完成后，调用界面更新方法
+             */
+            function pullUpAction () {//下拉翻页加载数据
+                setTimeout(function () {	// <-- Simulate network congestion, remove setTimeout from production!
+                    var el, li, i;
+                    el = document.getElementById('list');
+                    var tree="";
+
+                    $.ajax({
+                        type:"get",
+                        url:'/wechat/orderinfo/selectByCustomerOpenidPages',
+                        data:{
+                            pageNumber: ++generatedCount,
+                            pageSize:getQueryString("pageSize")
+                        },
+                        dataType:"json",
+                        success:function(data){
+                            var obj=data.orderList;
+                            if(!$.isEmptyObject(obj)&&page>=generatedCount) {
+                                $.each(obj, function (m, items) {
+                                    if (mapItem.indexOf(i) >= 0) {
+                                        tall = 1;
+                                        // break
+                                    } else {
+                                        tall = 0;
+                                        mapItem.push(i);
+                                    }
+                                    if (tall != 1) {
+
+
+                                    }
+                                    var orderType=items.orderType;
+                                    var status =  items.status;
+//                                    if(orderType==1){
+//                                        var charts=' <li><p>机票订单：</p><p>'+items.starting+'-'+items.destination+'</p></li>\
+//                                                <li><p>日期：</p><p>'+getLocalTimenew(items.fltDate)+'</p></li>';
+//                                    }else if(orderType==2){
+//                                        var charts=' <li><p>酒店订单：</p><p>'+items.hotelName+'</p></li>\
+//                                                <li><p>日期：</p><p>'+getLocalTimenew(items.checkInTime)+'</p></li>';
+//                                    }else if(orderType==3){
+//                                        var charts='  <li><p>签证国家：</p><p>'+items.visaPlace+'</p></li>';
+//                                    }else if(orderType==4){
+//                                        var charts='<li><p>景点名称：</p><p>'+items.scenicSpots+'</p></li>';
+//                                    }
+                                    if(status==0){
+                                        var chartsPay='<span class="btnLabel">待支付</span>';
+                                    }
+                                    else if(status==1)
+                                    {
+                                        var chartsPay='<span class="jtnLabel">待处理</span>';
+                                    }
+                                    else if(status==2)
+                                    {
+                                        var chartsPay='<span class="wBtnLabel">已完成</span>';
+                                    }
+                                    var time=getLocalTime(items.createTime);
+//                                    var time=getLocalTime(items.createTime);
+//                                    var html='<li>\
+//                                    <div>\
+//                                    <p class="hotelbg">'+charts+'</p>\
+//                                            <p class="timer">'+time+'</p></div>\
+//                                    <div><p>来源：1</p><p class="decimal"> +'+items.sellerReward+'</p></div>\
+//                                            </li>';
+//                                    $("#list").append(html)
+
+
+                                   var html=' <li>\
+                                    <a href="/wechat/orderinfo/selectByStatus?id='+items.id+'">\
+                                    <div class="list_top"><p>订单号：'+items.orderId+'</p> <p>'+chartsPay+'</p></div>\
+                                <ul class="list_center"><li><p>订单标题：</p><p>'+items..orderTitle+'</p></li><li><p>下单时间：</p><p>'+time+'</p></li>\
+                                    </ul>\
+                                    <p class="list_bottom">金额：<span>&yen;'+items.totalFee+'</span></p>\
+                                    </a>\
+                                    </li>';
+                                    $("#list").append(html)
+                                })
+                                myScroll.refresh();
+                            }else{
+                                pullUpEl.querySelector('.pullUpLabel').innerHTML = '当前栏目数据已加载完';
+                                setTimeout(function () {
+                                    $('#pullUp').hide();
+                                },1000);
+                            }
+
+                        }
+                    });
+
+
+
+                    //	myScroll.refresh();		// 数据加载完成后，调用界面更新方法 Remember to refresh when contents are loaded (ie: on ajax completion)
+                }, 1000);	// <-- Simulate network congestion, remove setTimeout from production!
+            }
+
+            /**
+             * 一下就是初始化iScroll控件，贴的源代码上来，基本没有做任何操作，本来在iscroll.js里面添加了一段代码，但是在本次效果中没有任何效果所以屏蔽掉了
+             */
+            function loaded() {
+                //pullDownEl = document.getElementById('pullDown');
+                // pullDownOffset = pullDownEl.offsetHeight;
+                pullUpEl = document.getElementById('pullUp');
+                pullUpOffset = pullUpEl.offsetHeight;
+
+                myScroll = new IScroll('#wrapper', {
+                    //scrollbarClass: 'myScrollbar', /* 重要样式 */
+                    //useTransition: false, /* 此属性不知用意，本人从true改为false */
+                    // topOffset: pullDownOffset,
+                    probeType: 2,
+                    mouseWheel: true,
+                    scrollbars: false,
+                    bounce:true
+                    // onScrollEnd:
+                });
+
+                myScroll.on('refresh', function () {
+                    if (pullUpEl.className.match('loading')) {
+                        pullUpEl.className = '';
+                        pullUpEl.querySelector('.pullUpLabel').innerHTML = '上拉加载更多...';
+                    }
+                });
+                myScroll.on('scroll', function () {
+                    if (this.y < (this.maxScrollY - 5) && !pullUpEl.className.match('flip')) {
+                        pullUpEl.className = 'flip';
+                        pullUpEl.querySelector('.pullUpLabel').innerHTML = '松手开始更新...';
+                        this.maxScrollY = this.maxScrollY;
+                    } else if (this.y > (this.maxScrollY + 5) && pullUpEl.className.match('flip')) {
+                        pullUpEl.className = '';
+                        pullUpEl.querySelector('.pullUpLabel').innerHTML = '上拉加载更多...';
+                        //this.maxScrollY = pullUpOffset;
+                    }
+                });
+                myScroll.on('scrollEnd', function () {
+                    if (pullUpEl.className.match('flip')) {
+                        pullUpEl.className = 'loading';
+                        pullUpEl.querySelector('.pullUpLabel').innerHTML = '加载中...';
+                        pullUpAction();	// Execute custom function (ajax call?)
+                    }
+                });
+                setTimeout(function () { document.getElementById('wrapper').style.left = '0'; }, 800);
+            }
+
+            document.addEventListener('touchmove', function (e) {
+                e.preventDefault();
+            }, false);
+            window.onload=function(){
+                sstz();
+            }
+            document.addEventListener('DOMContentLoaded', loaded, false);
+
+
+            function getLocalTimenew(nS) {
+                return new Date(parseInt(nS)).toLocaleString().replace(/\//g, "-").replace(/上午|下午/g, " ").split(" ")[0];
+            }
+            function getLocalTime(nS) {
+                return new Date(parseInt(nS)).toLocaleString().replace(/\//g, "-").replace(/上午|下午/g, " ");
+            }
+
+        </script>
+    </body>
+    </html>

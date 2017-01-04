@@ -1,0 +1,129 @@
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="utf-8">
+        <meta name="format-detection" content="telephone = no"/>
+        <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0, minimum-scale=1.0,user-scalable=no">
+      <meta name="description" content="">
+      <title>订单详情</title>
+	  <link rel="stylesheet" href="/css/mobile.css">
+        <script src="/js/zepto.mint.js"></script>
+        <script src="https://res.wx.qq.com/open/js/jweixin-1.0.0.js"></script>
+    </head>
+    <body> 
+	<div class="headbg"></div>
+	#if($!{wechatOrderInfoEntities.orderType}==1)
+    <div class="bgcontop">
+        <ul><li>航班号 </li><li>$!{wechatOrderInfoEntities.fltNo}</li></ul>
+        <div class="decur">
+            <div><p>$!{wechatOrderInfoEntities.starting} </p><p>起飞</p>   </div>
+            <div class="centerBg"></div>
+            <div><p>$!{wechatOrderInfoEntities.destination}</p><p>抵达</p></div>
+        </div>
+    </div>
+		#elseif($!{wechatOrderInfoEntities.orderType}==2)
+        <div class="bgcontop">
+            <ul><li>入住酒店：${wechatOrderInfoEntities.hotelName}</li></ul>
+            <div class="decur">
+                <div><p>入住  </p><p>$!date.format('yyyy-MM-dd',$!{wechatOrderInfoEntities.checkInTime})</p>   </div>
+                <div class="centerBghotel"></div>
+                <div><p>离店 </p><p>$!date.format('yyyy-MM-dd',$!{wechatOrderInfoEntities.checkOutTime})</p></div>
+            </div>
+        </div>
+		#elseif($!{wechatOrderInfoEntities.orderType}==3)
+    <div class="bgcontop">
+        <ul class="center"><li class=" visabg">签证国家：$!{wechatOrderInfoEntities.visaPlace}</li></ul>
+
+    </div>
+		#elseif($!{wechatOrderInfoEntities.orderType}==4)
+    <div class="bgcontop">
+        <ul class="center"><li class=" scebg">景点：$!{wechatOrderInfoEntities.scenicSpots}</li></ul>
+
+    </div>
+	#end
+
+	<div class="bgcon">
+		<ul class="wei_f">
+			<li><div>订单号：</div><div>${wechatOrderInfoEntities.orderId}</div></li>
+			<li><div>下单时间：</div><div>$!date.format('yyyy-MM-dd HH:mm:ss',${wechatOrderInfoEntities.createTime})</div></li>
+	#if($!{wechatOrderInfoEntities.orderType}==1)
+			<li><div>乘机人：</div>
+				<div>
+                    <p>
+                        $!{wechatOrderInfoEntities.customerName}
+                        #if($!{orderInfoEntity.idType}&&$!{orderInfoEntity.idType}!="")
+                        ，$!{orderInfoEntity.idType}：$!{orderInfoEntity.idNumber}
+                        #end</p>
+##                    <p>李四，$!{orderInfoEntity.idType}：$!{orderInfoEntity.idNumber}</p>
+				 </div>
+			 </li>
+	#elseif($!{wechatOrderInfoEntities.orderType}==2)
+        <li><div>入住人：</div>
+            <div>
+                <p>$!{wechatOrderInfoEntities.customerName}</p>
+##                    ，$!{orderInfoEntity.idType}：$!{orderInfoEntity.idNumber}<p>
+##                <p>李四，$!{orderInfoEntity.idType}：$!{orderInfoEntity.idNumber}</p>
+            </div>
+        </li>
+        <li><div>房间类型：</div><div>$!{wechatOrderInfoEntities.roomType}</div></li>
+	#elseif($!{wechatOrderInfoEntities.orderType}==3)
+        <li><div>签证类型：</div><div>$!{wechatOrderInfoEntities.visaType}</div></li>
+		#end
+			 <li><div>数量：</div><div>$!{wechatOrderInfoEntities.count}</div></li>
+			 <li><div>联系电话：</div><div>$!{wechatOrderInfoEntities.phone}</div></li>
+            #if(${wechatOrderInfoEntities.remark}&&${wechatOrderInfoEntities.remark}!="")
+            <li><div>备注：</div><div>$!{wechatOrderInfoEntities.remark}</div></li>
+            #end
+		 </ul>
+		<div class="total">订单总额：<span class="money">$!{wechatOrderInfoEntities.totalFee}元</span></div>
+    #if($wechatOrderInfoEntities.status==0)
+		 <div class="btnPay"><a href="javascript:;" id="wcPay">立即支付</a></div>
+        #end
+	</div>
+    <script>
+        wx.config({
+            debug: true, // 开启调试模式,调用的所有api的返回值会在客户端alert出来，若要查看传入的参数，可以在pc端打开，参数信息会通过log打出，仅在pc端时才会打印。
+            appId: '$!{jsapiSignature.appid}', // 必填，公众号的唯一标识
+            timestamp:$!{jsapiSignature.timestamp} , // 必填，生成签名的时间戳
+            nonceStr: '$!{jsapiSignature.noncestr}', // 必填，生成签名的随机串
+            signature: '$!{jsapiSignature.signature}',// 必填，签名，见附录1
+            jsApiList: ["onMenuShareTimeline","onMenuShareAppMessage","onMenuShareQQ","onMenuShareWeibo","onMenuShareQZone","chooseWXPay"] // 必填，需要使用的JS接口列表，所有JS接口列表见附录2
+        });
+
+$("#wcPay").click(function(){
+##    WeixinJSBridge.invoke('getBrandWCPayRequest',{
+##                    "appId" : "$!{wechatOrderInfoEntities.appId}",     //公众号名称，由商户传入
+##                "timeStamp":$!{wechatOrderInfoEntities.timeStamp},         //时间戳，自1970年以来的秒数
+##                "nonceStr" : "$!{wechatOrderInfoEntities.nonceStr}", //随机串
+##                "package" : "$!{wechatOrderInfoEntities.packageInfo}",
+##                "signType" : "$!{wechatOrderInfoEntities.signType}",         //微信签名方式：
+##                "paySign" : "$!{wechatOrderInfoEntities.paySign}" //微信签名
+##            },
+##            function(res){
+##                //支付成功或失败前台判断
+##                if(res.err_msg=='get_brand_wcpay_request:ok'){
+##                    alert('恭喜您，支付成功!');
+##                }else{
+##                    alert('支付失败'+res.err_msg);//这里一直返回getBrandWCPayRequest提示fail_invalid appid
+##                }
+##            });
+    wx.ready(function () {
+        wx.chooseWXPay({
+            timestamp: $!{wechatOrderInfoEntities.timeStamp}, // 支付签名时间戳，注意微信jssdk中的所有使用timestamp字段均为小写。但最新版的支付后台生成签名使用的timeStamp字段名需大写其中的S字符
+            nonceStr: "$!{wechatOrderInfoEntities.nonceStr}", // 支付签名随机串，不长于 32 位
+            package:"$!{wechatOrderInfoEntities.packageInfo}", // 统一支付接口返回的prepay_id参数值，提交格式如：prepay_id=***）
+            signType: "$!{wechatOrderInfoEntities.signType}", // 签名方式，默认为'SHA1'，使用新版支付需传入'MD5'
+            paySign: "$!{wechatOrderInfoEntities.paySign}", // 支付签名
+            success: function (res) {
+                // 支付成功后的回调函数
+                alert('恭喜您，支付成功!');
+            },
+            fail：function(res){
+                alert('支付失败'+res.err_msg);//这里一直返回getBrandWCPayRequest提示fail_invalid appid
+            }
+        });
+    })
+})
+    </script>
+    </body>
+    </html>

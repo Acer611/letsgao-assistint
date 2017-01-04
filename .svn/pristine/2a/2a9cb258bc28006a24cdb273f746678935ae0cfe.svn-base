@@ -1,0 +1,56 @@
+package com.umessage.letsgo.assistant.dao;
+
+import com.umessage.letsgo.assistant.model.WechatOrderInfoEntity;
+import org.apache.ibatis.annotations.*;
+import org.apache.ibatis.type.JdbcType;
+
+/**
+ * Created by ZhaoYidong on 2016/12/15.
+ */
+@Mapper
+public interface WechatOrderInfoDao {
+    @Insert("insert into wechat_order_info(order_id,proverder,real_order_id,customer_openid,order_type,good_id,count,customer_name,phone,address,create_time,update_time,total_fee,hotel_name,check_in_time,check_out_time,room_type,flt_no,flt_date,starting,destination,visa_place,visa_type,scenic_spots,status,order_status,seller_openid,reward,remark,real_fee) values(#{orderId},#{proverder},#{realOrderId},#{customerOpenid},#{orderType},#{goodId},#{count},#{customerName},#{phone},#{address},#{createTime},#{updateTime},#{totalFee},#{hotelName},#{checkInTime},#{checkOutTime},#{roomType},#{fltNo},#{fltDate},#{starting},#{destination},#{visaPlace},#{visaType},#{scenicSpots},#{status},#{orderStatus},#{sellerOpenid},#{reward},#{remark},#{realFee})")
+    public int insert(@Param("wechatOrderInfoEntity") WechatOrderInfoEntity wechatOrderInfoEntity);
+
+    @Select("SELECT * FROM wechat_order_info WHERE id = #{id}")
+    @Results(value ={
+            @Result(id=true, property="id",column="id",javaType=Long.class,jdbcType= JdbcType.BIGINT),
+            @Result(property="orderId",column="order_id",javaType=String.class,jdbcType=JdbcType.VARCHAR),
+            @Result(property="proverder",column="proverder",javaType=String.class,jdbcType=JdbcType.VARCHAR),
+            @Result(property="realOrderId",column="real_order_id",javaType=String.class,jdbcType=JdbcType.VARCHAR),
+            @Result(property="customerOpenid",column="customer_openid",javaType=String.class,jdbcType=JdbcType.VARCHAR),
+            @Result(property="orderType",column="order_type",javaType=String.class,jdbcType=JdbcType.VARCHAR),
+            @Result(property="goodId",column="good_id",javaType=String.class,jdbcType=JdbcType.VARCHAR),
+            @Result(property="count",column="count",javaType=String.class,jdbcType=JdbcType.VARCHAR),
+            @Result(property="customerName",column="customer_name",javaType=String.class,jdbcType=JdbcType.VARCHAR),
+            @Result(property="phone",column="phone",javaType=String.class,jdbcType=JdbcType.VARCHAR),
+            @Result(property="address",column="address",javaType=String.class,jdbcType=JdbcType.VARCHAR),
+            @Result(property="createTime",column="create_time",javaType=String.class,jdbcType=JdbcType.VARCHAR),
+            @Result(property="updateTime",column="update_time",javaType=String.class,jdbcType=JdbcType.VARCHAR),
+            @Result(property="totalFee",column="total_fee",javaType=String.class,jdbcType=JdbcType.VARCHAR),
+            @Result(property="hotelName",column="hotel_name",javaType=String.class,jdbcType=JdbcType.VARCHAR),
+            @Result(property="checkInTime",column="check_in_time",javaType=String.class,jdbcType=JdbcType.VARCHAR),
+            @Result(property="checkOutTime",column="check_out_time",javaType=String.class,jdbcType=JdbcType.VARCHAR),
+            @Result(property="roomType",column="room_type",javaType=String.class,jdbcType=JdbcType.VARCHAR),
+            @Result(property="fltNo",column="flt_no",javaType=String.class,jdbcType=JdbcType.VARCHAR),
+            @Result(property="fltDate",column="flt_date",javaType=String.class,jdbcType=JdbcType.VARCHAR),
+            @Result(property="starting",column="starting",javaType=String.class,jdbcType=JdbcType.VARCHAR),
+            @Result(property="destination",column="destination",javaType=String.class,jdbcType=JdbcType.VARCHAR),
+            @Result(property="visaPlace",column="visa_place",javaType=String.class,jdbcType=JdbcType.VARCHAR),
+            @Result(property="visaType",column="visa_type",javaType=String.class,jdbcType=JdbcType.VARCHAR),
+            @Result(property="scenicSpots",column="scenic_spots",javaType=String.class,jdbcType=JdbcType.VARCHAR),
+            @Result(property="status",column="status",javaType=String.class,jdbcType=JdbcType.VARCHAR),
+            @Result(property="orderStatus",column="order_status",javaType=String.class,jdbcType=JdbcType.VARCHAR),
+            @Result(property="sellerOpenid",column="seller_openid",javaType=String.class,jdbcType=JdbcType.VARCHAR),
+            @Result(property="reward",column="reward",javaType=String.class,jdbcType=JdbcType.VARCHAR),
+            @Result(property="remark",column="remark",javaType=String.class,jdbcType=JdbcType.VARCHAR),
+            @Result(property="realFee",column="real_fee",javaType=String.class,jdbcType=JdbcType.VARCHAR)
+    })
+    public WechatOrderInfoEntity select(@Param("id") Long id);
+
+    @Update("update wechat_order_info set order_id = #{orderId}, proverder = #{proverder}, real_order_id = #{realOrderId}, customer_openid = #{customerOpenid}, order_type = #{orderType}, good_id = #{goodId}, count = #{count}, customer_name = #{customerName}, phone = #{phone}, address = #{address}, create_time = #{createTime}, update_time = #{updateTime}, total_fee = #{totalFee}, hotel_name = #{hotelName}, check_in_time = #{checkInTime}, check_out_time = #{checkOutTime}, room_type = #{roomType}, flt_no = #{fltNo}, flt_date = #{fltDate}, starting = #{starting}, destination = #{destination}, visa_place = #{visaPlace}, visa_type = #{visaType}, scenic_spots = #{scenicSpots}, status = #{status}, order_status = #{orderStatus}, seller_openid = #{sellerOpenid}, reward = #{reward}, remark = #{remark}, real_fee = #{realFee} where id = #{id}")
+    public int update(WechatOrderInfoEntity wechatOrderInfoEntity);
+
+    @Delete("delete from wechat_order_info where id=#{id}")
+    public int delete(Integer id);
+}

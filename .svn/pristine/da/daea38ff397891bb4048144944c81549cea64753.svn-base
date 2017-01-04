@@ -1,0 +1,9 @@
+package com.umessage.letsgo.assistant.service;
+
+/**
+ * Created by gaofei on 2016/12/15.
+ */
+public interface IWechatInfoService {
+
+
+}
