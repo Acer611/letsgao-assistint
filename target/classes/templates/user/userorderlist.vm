@@ -7,7 +7,7 @@
         <meta name="description" content="">
 		<meta http-equiv="X-Frame-Options" content="SAMEORIGIN">
       <title>订单列表</title>
-      <link rel="stylesheet" href="/css/mobile.css">
+      <link rel="stylesheet" href="/css/mobile.css?t=1.1">
         <link rel="stylesheet" href="/css/iScroll.css">
         <script src="/js/zepto.min.js"></script>
         <script src="https://res.wx.qq.com/open/js/jweixin-1.0.0.js"></script>
@@ -123,9 +123,6 @@
 
                     </p>
                 </li>
-                #if($productdetail.status==3)
-                    <li><p>退款金额：</p><p>$!{productdetail.refundFee}</p></li>
-                #end
                 <li><p>下单时间：</p><p>$!date.format('yyyy-MM-dd HH:mm:ss',$!{productdetail.createTime})</p></li>
                 </ul>
                 <div class="linkIcon"></div>
@@ -249,7 +246,7 @@
 //                                    }
                                    var charts= items.orderTitle;
                                     var qw="";
-                                    if(charts.length()>8){
+                                    if(charts.length>8){
                                         charts=charts.substring(0,8)+"..."
                                     }else {
                                         charts=charts;
@@ -269,10 +266,10 @@
                                     {
                                         var chartsPay='<span class="wBtnLabel">已退款</span>';
                                     }
-                                    if(status==3)
-                                    {
-                                        qw=' <li><p>退款金额：</p><p>'+items.refundFee+'</p></li>';
-                                    }
+//                                    if(status==3)
+//                                    {
+//                                        qw=' <li><p>退款金额：</p><p>'+items.refundFee+'</p></li>';
+//                                    }
                                     var time=getLocalTime(items.createTime);
 //                                    var time=getLocalTime(items.createTime);
 //                                    var html='<li>\

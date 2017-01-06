@@ -99,8 +99,9 @@ overflow: hidden;
 border-top-right-radius:9px;
 border-bottom-right-radius:0;
 border-bottom-left-radius:0;color:#fff;margin:0;padding:.5em .5em;display: flex;}
-.list_top p{flex:1;}
-.list_top p:nth-child(2){text-align:right;}
+.list_top p{flex:3;}
+.list_top p:nth-child(1){text-align:left;word-break: break-all;}
+.list_top p:nth-child(2){text-align:right;flex:1;}
 .orderList>li>div.list_top{margin:0;}
 .list_center{background-color:#4d5b9f;color:#fff;padding:.5em;}
 .list_center>li{display: flex;}

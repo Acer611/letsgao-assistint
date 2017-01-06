@@ -203,7 +203,7 @@
 //                                        var charts='景点门票';
 //                                    }
                                 var charts= items.orderTitle;
-                                if(charts.length()>10){
+                                if(charts.length>10){
                                     charts=charts.substring(0,10)+"..."
                                 }else {
                                     charts=charts;

@@ -99,8 +99,9 @@ overflow: hidden;
 border-top-right-radius:9px;
 border-bottom-right-radius:0;
 border-bottom-left-radius:0;color:#fff;margin:0;padding:.5em .5em;display: flex;}
-.list_top p{flex:1;}
-.list_top p:nth-child(2){text-align:right;}
+.list_top p{flex:3;}
+.list_top p:nth-child(1){text-align:left;word-break: break-all;}
+.list_top p:nth-child(2){text-align:right;flex:1;}
 .orderList>li>div.list_top{margin:0;}
 .list_center{background-color:#4d5b9f;color:#fff;padding:.5em;}
 .list_center>li{display: flex;}
@@ -139,18 +140,14 @@ border-bottom-left-radius:9px;color:#fff;text-align: right;padding:0.5em;}
 #hotelMsg  ul li p{color:#333333;vertical-align: middle;display:inline-block;}
 #hotelMsg  ul li{font-size:14px;margin-top:0.46875rem;}
 #overlay2{display:none;background-color: rgba(0,0,0,.5);width:100%;height:100%;position:fixed;left:0;top:0;z-index:999;}
-@media screen and (min-width:300px) and (max-width:320px){#hotelMsg  .contentareaa{height:320px;}}
-@media screen and (min-width:321px) and (max-width:375px){#hotelMsg  .contentareaa{height:400px;}}
-@media screen and (min-width:376px) and (max-width:414px){#hotelMsg  .contentareaa{height:450px;}}
-@media screen and (min-width:415px) and (max-width:639px){#hotelMsg  .contentareaa{height:500px;}}
-@media screen and (min-width:640px) and (max-width:719px){#hotelMsg  .contentareaa{height:550px;}}
-@media screen and (min-width:720px) and (max-width:749px){#hotelMsg  .contentareaa{height:600px;}}
+@media screen and (min-width:300px) and (max-width:320px){#hotelMsg  .contentareaa{height:300px;}}
+@media screen and (min-width:321px) and (max-width:375px){#hotelMsg  .contentareaa{height:380px;}}
+@media screen and (min-width:376px) and (max-width:414px){#hotelMsg  .contentareaa{height:430px;}}
+@media screen and (min-width:415px) and (max-width:639px){#hotelMsg  .contentareaa{height:480px;}}
+@media screen and (min-width:640px) and (max-width:719px){#hotelMsg  .contentareaa{height:520px;}}
+@media screen and (min-width:720px) and (max-width:749px){#hotelMsg  .contentareaa{height:580px;}}
 @media screen and (min-width:750px) and (max-width:799px){#hotelMsg  .contentareaa{height:600px;}}
 
 .contentOrder{
   color:#87fdf6;
-  border:none;
-  -webkit-tap-highlight-color: rgba(0,0,0,0);
-  -webkit-tap-highlight-color:transparent;
-  outline:none;
 }

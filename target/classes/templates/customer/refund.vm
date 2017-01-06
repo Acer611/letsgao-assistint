@@ -35,7 +35,7 @@
 				  <div class="control-group">
 					<label class="control-label"><strong class="sui-text-danger">*</strong>退款手续费：</label>
 					<div class="controls">
-					  <input class="input-xlarge" data-rules='required|number|gt=0|priceltrule=$!{orderInfoEntity.totalFee}' name="refundFee" type="text">
+					  <input class="input-xlarge" data-rules='required|number|priceltrule=$!{orderInfoEntity.totalFee}' name="refundFee" type="text">
 					</div>
 				  </div>
 			
@@ -47,12 +47,21 @@
 			<div class="controls">
 			  <button type="submit" class="sui-btn btn-primary">确定</button>
 			  <button type="reset" class="sui-btn">重置</button>
+                <button type="button" class="sui-btn" id="refan">返回</button>
 			</div>
 		  </div>
 		</form>
 		</div>
     <script>
         $(function(){
+            $("#refan").on("click",function(){
+                if(getQueryString("type")=="all"){
+                    window.location.href = "/order/operation/getAllOrderList?pageNumber=1";
+                }else{
+                    window.location.href = "/order/operation/getCurrentUserOrderList?pageNumber=1&openId=$!{orderInfoEntity.customerOpenid}";
+
+                }
+            })
             //表单提交
             var options_scenic = {
                 beforeSubmit: function(){

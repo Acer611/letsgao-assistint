@@ -32,6 +32,7 @@ import java.io.IOException;
 import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -68,11 +69,14 @@ public class OrderOperationController {
         logger.info("进入跳转下单页面的方法");
         String openid = request.getParameter("qimoClientId");
         String exten = request.getParameter("exten");
-      /*  String token = request.getParameter("token");
+        String token = request.getParameter("token");
         String tokenId = request.getParameter("tokenId");
+        logger.info("获取的token 和tokenID 为" + token + "," + tokenId);
         //校验token
-        boolean flag = this.httpClientTools(token, tokenId);
-        request.getSession().setAttribute("token", flag);*/
+        boolean isSafe = this.checkPathIsSafe(token, tokenId, request);
+        if (isSafe==false){
+            return "checkpath";
+        }
         logger.info("用户的openId 是" + openid);
         model.addAttribute("opdeId",openid);
         model.addAttribute("exten",exten);
@@ -90,6 +94,12 @@ public class OrderOperationController {
     public Map<String, Object> insert(HttpServletRequest request,WeChatOrderInfoEntity orderInfoEntity) throws BusinessException{
         logger.info("进入下单的方法");
         Map<String,Object> map = new HashMap<>();
+        //校验token
+        boolean flag = (boolean) request.getSession().getAttribute("token");
+        logger.info("校验token结果为：" + flag);
+        if(!flag){
+            map.put("errorMessage","当前用户token验证没有通过");
+        }
         String openId = request.getParameter("opdeId");
         //String openId = "oy6Qtw6pICdD86JKObwBdoV3cZjA";
         logger.info("当前用户的openID 是：" + openId );
@@ -143,10 +153,12 @@ public class OrderOperationController {
     @RequestMapping(value = "/update",method = RequestMethod.POST)
     public String update(WeChatOrderInfoEntity orderInfoEntity, HttpServletRequest request) throws BusinessException{
         Map<String,Object> map = new HashMap<>();
-        /*
-        SimpleDateFormat sdf =   new SimpleDateFormat( "yyyy-MM-dd" );
-        String checkInTimes = request.getParameter("checkInTimes");
-        */
+        //校验token
+        boolean flag = (boolean) request.getSession().getAttribute("token");
+        logger.info("校验token结果为：" + flag);
+        if(!flag){
+            map.put("errorMessage","当前用户token验证没有通过");
+        }
         String openId = request.getParameter("opdeId");
         try {
             wechatOrderInfoService.update(orderInfoEntity);
@@ -167,8 +179,14 @@ public class OrderOperationController {
      */
     @RequestMapping("/delete")
     @ResponseBody
-    public Map<String,Object> delete(Long id) throws BusinessException{
+    public Map<String,Object> delete(HttpServletRequest request,Long id) throws BusinessException{
         Map<String,Object> map = new HashMap<>();
+        //校验token
+        boolean flag = (boolean) request.getSession().getAttribute("token");
+        logger.info("校验token结果为：" + flag);
+        if(!flag){
+            map.put("errorMessage","当前用户token验证没有通过");
+        }
         try {
             wechatOrderInfoService.delete(id);
             map.put("result",0);
@@ -192,12 +210,14 @@ public class OrderOperationController {
      */
     @RequestMapping("/getAllOrderList")
     public String  getAllOrderList(HttpServletRequest request, Model model) throws BusinessException{
-    /*    String token = request.getParameter("token");
+        String token = request.getParameter("token");
         String tokenId = request.getParameter("tokenId");
         //校验token
-        boolean flag = this.httpClientTools(token, tokenId);
-        request.getSession().setAttribute("token", flag);*/
-
+        boolean isSafe = this.checkPathIsSafe(token, tokenId, request);
+        logger.info("校验token结果为：" + isSafe);
+        if (isSafe==false){
+            return "checkpath";
+        }
         logger.info("进入助手端获取全部订单列表方法");
         String status = request.getParameter("status");
         String keyWords = request.getParameter("keyWords");
@@ -234,11 +254,14 @@ public class OrderOperationController {
      */
     @RequestMapping("/getCurrentUserOrderList")
     public String  getCurrentUserOrderList(HttpServletRequest request, Model model) throws BusinessException{
-      /*  String token = request.getParameter("token");
+        String token = request.getParameter("token");
         String tokenId = request.getParameter("tokenId");
         //校验token
-        boolean flag = this.httpClientTools(token, tokenId);
-        request.getSession().setAttribute("token", flag);*/
+        boolean isSafe = this.checkPathIsSafe(token, tokenId, request);
+        logger.info("校验token结果为：" + isSafe);
+        if (isSafe==false){
+            return "checkpath";
+        }
 
         logger.info("进入助手端获取订当前用户单列表方法");
         String openId = request.getParameter("qimoClientId");
@@ -271,11 +294,14 @@ public class OrderOperationController {
      */
     @RequestMapping("/getTODOOrderList")
     public String  getTODOOrderList(HttpServletRequest request, Model model) throws BusinessException{
-       /* String token = request.getParameter("token");
+        String token = request.getParameter("token");
         String tokenId = request.getParameter("tokenId");
         //校验token
-        boolean flag = this.httpClientTools(token, tokenId);
-        request.getSession().setAttribute("token", flag);*/
+        boolean isSafe = this.checkPathIsSafe(token, tokenId, request);
+        logger.info("校验token结果为：" + isSafe);
+        if (isSafe==false){
+            return "checkpath";
+        }
 
         logger.info("进入助手端获取待处理订单列表方法");
         String pageNumber = request.getParameter("pageNumber");
@@ -312,8 +338,14 @@ public class OrderOperationController {
      */
     @RequestMapping("/updateStatus")
     @ResponseBody
-    public Map<String,Object> updateStatus(Long id) throws BusinessException {
+    public Map<String,Object> updateStatus(HttpServletRequest request,Long id) throws BusinessException {
+        //校验token
+        boolean flag = (boolean) request.getSession().getAttribute("token");
+        logger.info("校验token结果为：" + flag);
         Map<String,Object> map = new HashMap<>();
+        if(!flag){
+            map.put("errorMessage","当前用户token验证没有通过");
+        }
         try {
             logger.info("要更新的订单id 为"+ id );
             WeChatOrderInfoEntity wechatOrderInfoEntity = wechatOrderInfoService.select(id);
@@ -416,15 +448,17 @@ public class OrderOperationController {
     }
 
 
-    public boolean  httpClientTools(String token, String tokenId) {
+    public boolean  checkPathIsSafe(String token, String tokenId, HttpServletRequest request) {
         boolean flag = false;
         Date date = new Date();
         SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
         String datetime = sdf.format(date);
         //String url = "http://api.7moor.com/sso/token/checkTokenLegal?token=" + token + "&tokenId=" + tokenId +"&sig="+sig;
         String url = "http://api.7moor.com/sso/token/checkTokenLegal/" + token + "/" + tokenId;
-
+        logger.info("调用荣联的校验接口开始");
         JSONObject jsonObject = HttpClientUtil.httpGet(url);
+        logger.info("调用荣联接口返回结果为："+jsonObject.toString());
+
         String code = "";
         String message = "";
         if(jsonObject != null) {
@@ -453,8 +487,10 @@ public class OrderOperationController {
             flag = false;
         }
         jsonObject.put("message",message);
+        request.getSession().setAttribute("token", flag);
         return flag ;
     }
+
 
     /**
      * 跳转到退款金额页面
@@ -466,7 +502,6 @@ public class OrderOperationController {
     public String toRefundPage(Long id,Model model){
         WeChatOrderInfoEntity orderInfoEntity = wechatOrderInfoService.select(id);
         model.addAttribute("orderInfoEntity",orderInfoEntity);
-        //TODO 添加输入退款金额的页面
         return "customer/refund";
     }
 
@@ -484,15 +519,12 @@ public class OrderOperationController {
         logger.info("开始调用退款的方法");
         logger.info("退款的订单的ID为：" + id);
         Map resultMap = new HashMap<>();
-        //String token = request.getParameter("token");
-        //String tokenId = request.getParameter("tokenId");
         //校验token
-        //boolean flag = this.httpClientTools(token, tokenId);
-        //request.getSession().setAttribute("token", flag);
-        /*boolean flag = (boolean) request.getSession().getAttribute("token");
-        if(!flag){
+        boolean tokenFlag = (boolean) request.getSession().getAttribute("token");
+        logger.info("校验token结果为：" + tokenFlag);
+        if(!tokenFlag){
             resultMap.put("errorMessage","当前用户token验证没有通过");
-        }*/
+        }
 
         //根据id 获取订单信息
         WeChatOrderInfoEntity orderInfoEntity = wechatOrderInfoService.select(id);

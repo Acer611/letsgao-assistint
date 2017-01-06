@@ -7,7 +7,7 @@
         <meta name="description" content="">
 		<meta http-equiv="X-Frame-Options" content="SAMEORIGIN">
       <title>订单列表</title>
-      <link rel="stylesheet" href="/css/mobile.css">
+      <link rel="stylesheet" href="/css/mobile.css?t=1.1">
         <link rel="stylesheet" href="/css/iScroll.css">
         <script src="/js/zepto.min.js"></script>
         <script src="https://res.wx.qq.com/open/js/jweixin-1.0.0.js"></script>

@@ -57,11 +57,11 @@
                     #elseif($!{productdetail.status}==1)
                         <span class="pull-right gray">
 						<a href="javascript:void(0);" id="$!{productdetail.id}" class="sui-btn btn-large btn-primary updeteModel">更新</a>
-                        <a href="/order/operation/toRefundPage?id=$!{productdetail.id}&type=$!{type}"  class="sui-btn btn-large btn-danger updeteModel">退款</a>
+                        <a href="/order/operation/toRefundPage?id=$!{productdetail.id}&type=$!{type}"  class="sui-btn btn-large btn-danger">退款</a>
 				   </span>
                     #elseif($!{productdetail.status}==2)
                         <span class="pull-right gray">
-                            <a href="/order/operation/toRefundPage?id=$!{productdetail.id}&type=$!{type}"  class="sui-btn btn-large btn-danger updeteModel">退款</a>
+                            <a href="/order/operation/toRefundPage?id=$!{productdetail.id}&type=$!{type}"  class="sui-btn btn-large btn-danger">退款</a>
                        </span>
                     #end
 				</th>

@@ -16,6 +16,27 @@
     <link rel="stylesheet" href="/css/style.css">
     <style>
         .sui-form.form-horizontal .control-group{margin-bottom:9px;}
+        .sui-page-header {
+            margin-left: 50px;
+            position: relative;
+            border-bottom: 1px solid #666;
+            padding: 0;
+            margin-top: 30px;
+            font-size:16px;
+        }
+        .sui-page-header:before {
+            content: "";
+            display: block;
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            background: url(/images/title-arrow.png) no-repeat;
+            top: 4px;
+            left: -50px;
+        }
+        h1.sui-page-header:before {
+            top: 10px;
+        }
     </style>
 </head>
     <body>  
@@ -58,6 +79,13 @@
 					  <input class="input-xlarge" value="$!{orderInfoEntity.totalFee}"  data-rules="required|number|gt=0|pricerule" name="totalFee"  type="text">
 					</div>
 				  </div>
+                <div class="control-group">
+                    <label class="control-label"><strong class="sui-text-danger">*</strong>支付截止时间：</label>
+                    <div class="controls">
+                        <input class="input-xlarge" data-rules="required|deadlinerule" readonly name="deadline"  value="$!{orderInfoEntity.deadline}"  type="text">
+                    </div>
+                </div>
+                <h2 class="sui-page-header">以下信息用户不可见：</h2>
 				  <div class="control-group">
 					<label class="control-label"><strong class="sui-text-danger">*</strong>底价：</label>
 					<div class="controls">
@@ -71,12 +99,7 @@
                         <input class="input-xlarge"  name="proverder" value="$!{orderInfoEntity.proverder}"  data-rules='required' type="text">
                     </div>
                 </div>
-                <div class="control-group">
-                    <label class="control-label"><strong class="sui-text-danger">*</strong>支付截止时间：</label>
-                    <div class="controls">
-                        <input class="input-xlarge" data-rules="required|deadlinerule" readonly name="deadline"  value="$!{orderInfoEntity.deadline}"  type="text">
-                    </div>
-                </div>
+
 		
 		 </div>
 		  <div class="control-group">

@@ -16,6 +16,27 @@
     <link rel="stylesheet" href="/css/style.css">
     <style>
         .sui-form.form-horizontal .control-group{margin-bottom:9px;}
+        .sui-page-header {
+            margin-left: 50px;
+            position: relative;
+            border-bottom: 1px solid #666;
+            padding: 0;
+            margin-top: 30px;
+            font-size:16px;
+        }
+        .sui-page-header:before {
+            content: "";
+            display: block;
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            background: url(/images/title-arrow.png) no-repeat;
+            top: 4px;
+            left: -50px;
+        }
+        h1.sui-page-header:before {
+            top: 10px;
+        }
     </style>
 </head>
     <body>  
@@ -34,7 +55,7 @@
 					
 					<label class="control-label"><strong class="sui-text-danger">*</strong>商品详情：</label>
 					<div class="controls">
-					  <textarea rows="3" class="input-xlarge" data-rules='required' name="orderDetail" value="$!{orderInfoEntity.orderDetail}"></textarea>
+					  <textarea rows="8" class="input-xlarge" data-rules='required' name="orderDetail" value="$!{orderInfoEntity.orderDetail}"></textarea>
 					</div>
 				  </div>
 
@@ -55,13 +76,20 @@
 				   <div class="control-group">
 					<label class="control-label"><strong class="sui-text-danger">*</strong>支付金额：</label>
 					<div class="controls">
-					  <input class="input-xlarge" value="$!{orderInfoEntity.totalFee}"  data-rules="required|number|gt=0" name="totalFee"  type="text">
+					  <input class="input-xlarge" value="$!{orderInfoEntity.totalFee}"  data-rules="required|number|gt=0|pricerule" name="totalFee"  type="text">
 					</div>
 				  </div>
+                <div class="control-group">
+                    <label class="control-label"><strong class="sui-text-danger">*</strong>支付截止时间：</label>
+                    <div class="controls">
+                        <input class="input-xlarge" data-rules="required|deadlinerule" readonly name="deadline"  value="$!{orderInfoEntity.deadline}"  type="text">
+                    </div>
+                </div>
+                <h2 class="sui-page-header">以下信息用户不可见：</h2>
 				  <div class="control-group">
 					<label class="control-label"><strong class="sui-text-danger">*</strong>底价：</label>
 					<div class="controls">
-					  <input class="input-xlarge" data-rules="required|number|gt=0|priceltrule=totalFee" name="realFee" value="$!{orderInfoEntity.realFee}"  type="text">
+					  <input class="input-xlarge" data-rules="required|number|gt=0|priceltrule=totalFee|pricerule" name="realFee" value="$!{orderInfoEntity.realFee}"  type="text">
 					</div>
 				  </div>
                 <div class="control-group">
@@ -71,12 +99,7 @@
                         <input class="input-xlarge"  name="proverder" value="$!{orderInfoEntity.proverder}"  data-rules='required' type="text">
                     </div>
                 </div>
-                <div class="control-group">
-                    <label class="control-label"><strong class="sui-text-danger">*</strong>支付截止时间：</label>
-                    <div class="controls">
-                        <input class="input-xlarge" data-rules="required|deadlinerule" readonly name="deadline"  value="$!{orderInfoEntity.deadline}"  type="text">
-                    </div>
-                </div>
+
 		
 		 </div>
 		  <div class="control-group">
@@ -188,29 +211,34 @@
 
 
         //添加required规则
-        var pricerule = function(value, element, param) {
-            var myreg = /^(((13[0-9]{1})|(15[0-9]{1})|(18[0-9]{1})|(17[0-9]{1}))+\d{8})$/;
-            if(!myreg.test(value))
-            {
+        var pricerule = function(value, element) {
 
-                return false;
-            }else{
-                return true;
-            }
+                var dot = value.indexOf(".");
+                if(dot != -1){
+                    var dotCnt = value.substring(dot+1,value.length);
+                    if(dotCnt.length > 2){
+                        return false
+                    }else{
+                        return true
+                    }
+                }else{
+                    return true;
+                }
         };
-        $.validate.setRule("pricerule", pricerule, '请填写正确的金额');
+        $.validate.setRule("pricerule", pricerule, '价格最多能精确到小数点后两位');
 
 
         //添加required规则
         var deadlinerule = function(value, element, param) {
-            if (new Date().getTime() > new Date(value).getTime()) {
+            var mydate=new Date();
+            if (mydate.setMinutes(mydate.getMinutes()+10) > new Date(value).getTime()) {
 
                 return false;
             }else{
                 return true;
             }
         };
-        $.validate.setRule("deadlinerule", deadlinerule, '截至时间不能比当前时间早');
+        $.validate.setRule("deadlinerule", deadlinerule, '截至时间必须比当前时间晚10分钟以上');
     </script>
     </body>
     </html>

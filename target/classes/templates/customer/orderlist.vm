@@ -57,11 +57,11 @@
                     #elseif($!{productdetail.status}==1)
                         <span class="pull-right gray">
 						<a href="javascript:void(0);" id="$!{productdetail.id}" class="sui-btn btn-large btn-primary updeteModel">更新</a>
-                        <a href="/order/operation/toRefundPage?id=$!{productdetail.id}&type=$!{type}"  class="sui-btn btn-large btn-danger updeteModel">退款</a>
+                        <a href="/order/operation/toRefundPage?id=$!{productdetail.id}&type=$!{type}"  class="sui-btn btn-large btn-danger">退款</a>
 				   </span>
                     #elseif($!{productdetail.status}==2)
                         <span class="pull-right gray">
-                            <a href="/order/operation/toRefundPage?id=$!{productdetail.id}&type=$!{type}"  class="sui-btn btn-large btn-danger updeteModel">退款</a>
+                            <a href="/order/operation/toRefundPage?id=$!{productdetail.id}&type=$!{type}"  class="sui-btn btn-large btn-danger">退款</a>
                        </span>
                     #end
 				</th>
@@ -195,13 +195,14 @@
                 contentType: 'application/json;charset=utf-8',
                 dataType: "json",
                 success: function (data) {
+                    var adtui=replaceAll(data.orderDetail)
                     $.alert({
                         backdrop: true,  // 决定是否为模态对话框添加一个背景遮罩层。另外，该属性指定static时，表示添加遮罩层，同时点击模态对话框的外部区域不会将其关闭。
                         bgcolor: '#123456',   //背景遮罩层颜色，默认是黑色。可以用rgba设置透明度
                         keyboard: true,   //是否可由esc按键关闭
                         title: '订单内容',
                         backdrop: false,
-                        body: data.orderDetail, //必填
+                        body: adtui, //必填
                         hasfoot: false,
                         closeBtn: true ,  //是否显示右上角叉叉（html使用方式无需配置，直接改html结构即可）
                         width: 'large',//推荐优先使用后三个描述性字符串，统一样式
@@ -230,78 +231,102 @@
             }
         })
         $(".btnRemove").on("click",function(){
-            layer.open({type: 2,shadeClose:false});
-            $.ajax({
-                type:"get",
-                url:"/order/operation/delete",
-                data:{id:$(this).attr("id")},
-                contentType:'application/json;charset=utf-8',
-                dataType:"json",
-                success:function(data){
-                    if(data.result==0){
-                        layer.closeAll();
-                        layer.open({
-                            btn: [ '确定'],
-                            content:"取消订单成功",
-                            shadeClose:false,
-                            yes: function(index){
-    //                            WeixinJSBridge.invoke('closeWindow',{},function(res){
-    //                                //alert(res.err_msg);
-    //                            });
-                                window.location.reload();
-                            },
-                        })
-                        //window.location.href="tlt:"
-                    }else{
-                        layer.closeAll();
-                        layer.open({
-                            btn: [ '确定'],
-                            content:"取消订单失败，请稍后重试",
-                            shadeClose:false
-                        })
-                    }
-                },
-                error:function(){
-                    layer.closeAll();
+            var oid=$(this).attr("id");
+            layer.open({
+                content: '您是否确认取消订单',
+                btn: ['是', '否'],
+                shadeClose:false,
+                yes: function(index){
+                    //                            WeixinJSBridge.invoke('closeWindow',{},function(res){
+                    //                                //alert(res.err_msg);
+                    //                            });
+                    layer.open({type: 2,shadeClose:false});
+                    $.ajax({
+                        type:"get",
+                        url:"/order/operation/delete",
+                        data:{id:oid},
+                        contentType:'application/json;charset=utf-8',
+                        dataType:"json",
+                        success:function(data){
+                            if(data.result==0){
+                                layer.closeAll();
+                                layer.open({
+                                    btn: [ '确定'],
+                                    content:"取消订单成功",
+                                    shadeClose:false,
+                                    yes: function(index){
+                                        //                            WeixinJSBridge.invoke('closeWindow',{},function(res){
+                                        //                                //alert(res.err_msg);
+                                        //                            });
+                                        window.location.reload();
+                                    },
+                                })
+                                //window.location.href="tlt:"
+                            }else{
+                                layer.closeAll();
+                                layer.open({
+                                    btn: [ '确定'],
+                                    content:"取消订单失败，请稍后重试",
+                                    shadeClose:false
+                                })
+                            }
+                        },
+                        error:function(){
+                            layer.closeAll();
+                            layer.open({
+                                btn: [ '确定'],
+                                content:"取消订单失败，请稍后重试",
+                                shadeClose:false
+                            })
+                        }
+                    });
                 }
-            });
+            })
         })
         $(".updeteModel").on("click",function(){
-            layer.open({type: 2,shadeClose:false});
-            $.ajax({
-                type:"get",
-                url:"/order/operation/updateStatus",
-                data:{id:$(this).attr("id")},
-                contentType:'application/json;charset=utf-8',
-                dataType:"json",
-                success:function(data){
-                    if(data.result==0){
-                        layer.closeAll();
-                        layer.open({
-                            btn: [ '确定'],
-                            content:"更新状态成功",
-                            shadeClose:false,
-                            yes: function(index){
-    //                            WeixinJSBridge.invoke('closeWindow',{},function(res){
-    //                                //alert(res.err_msg);
-    //                            });
-                                window.location.reload();
-                            },
-                        })
-                        //window.location.href="tlt:"
-                    }else{
-                        layer.closeAll();
-                        layer.open({
-                            btn: [ '确定'],
-                            content:"更新状态失败",
-                            shadeClose:false
-                        })
-                    }
-                },
-                error:function(){
-                    layer.closeAll();
+            var oid=$(this).attr("id");
+            layer.open({
+                content: '您是否确认更新订单',
+                btn: ['是', '否'],
+                shadeClose: false,
+                yes: function (index) {
+                    layer.open({type: 2,shadeClose:false});
+                    $.ajax({
+                        type:"get",
+                        url:"/order/operation/updateStatus",
+                        data:{id:oid},
+                        contentType:'application/json;charset=utf-8',
+                        dataType:"json",
+                        success:function(data){
+                            if(data.result==0){
+                                layer.closeAll();
+                                layer.open({
+                                    btn: [ '确定'],
+                                    content:"更新状态成功",
+                                    shadeClose:false,
+                                    yes: function(index){
+                                        //                            WeixinJSBridge.invoke('closeWindow',{},function(res){
+                                        //                                //alert(res.err_msg);
+                                        //                            });
+                                        window.location.reload();
+                                    },
+                                })
+                                //window.location.href="tlt:"
+                            }else{
+                                layer.closeAll();
+                                layer.open({
+                                    btn: [ '确定'],
+                                    content:"更新状态失败",
+                                    shadeClose:false
+                                })
+                            }
+                        },
+                        error:function(){
+                            layer.closeAll();
+                        }
+                    });
                 }
-            });
+            })
         })
         $("#reloadBtn").on("click",function(){
             window.location.reload();
@@ -329,7 +354,12 @@
         }
         return url+'\n'+arg+'\n'+arg_val;
     }
-
+    function replaceAll(str)
+    {
+        if(str!=null)
+            str = str.replace(/\n|\r/g,"<br/>")
+        return str;
+    }
 </script>
 </body>
 </html>
