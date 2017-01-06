@@ -1,0 +1,99 @@
+
+ <!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="description" content="">
+        <meta http-equiv="X-Frame-Options" content="SAMEORIGIN">
+        <title>订单列表</title>
+        <link href="https://g.alicdn.com/sj/dpl/1.5.1/css/sui.min.css" rel="stylesheet">
+        <script type="text/javascript" src="https://g.alicdn.com/sj/lib/jquery/dist/jquery.min.js"></script>
+        <script type="text/javascript" src="https://g.alicdn.com/sj/dpl/1.5.1/js/sui.min.js"></script>
+        <script type="text/javascript" src="/js/form.js"></script>
+        <link href="https://g.alicdn.com/sj/dpl/1.5.1/css/sui-append.min.css" rel="stylesheet">
+        <script type="text/javascript" src="/js/layer_mobile/layer.js"></script>
+        <link rel="stylesheet" href="/css/style.css">
+	<style>
+	.sui-form.form-horizontal .control-group{margin-bottom:9px;}
+	</style>
+    </head>
+    <body>  
+	<div style="width:600px;margin:20px auto">
+		<form class="sui-form form-horizontal sui-validate" action="/order/operation/refund" method="post"  id="refundForm">
+		  
+		  <div class="select_container">
+				   <div class="control-group">
+					<label class="control-label">订单金额：</label>
+					<div class="controls">
+					  <!--<input class="input-xlarge" data-rules='required' type="text">-->
+					  	<p>$!{orderInfoEntity.totalFee}元</p>
+						<input name="totalFee" value="$!{orderInfoEntity.totalFee}" type="hidden">
+					</div>
+				  </div>
+				  <div class="control-group">
+					<label class="control-label"><strong class="sui-text-danger">*</strong>退票金额：</label>
+					<div class="controls">
+					  <input class="input-xlarge" data-rules='required|number|gt=0|priceltrule=$!{orderInfoEntity.totalFee}' name="refundFee" type="text">
+					</div>
+				  </div>
+			
+		
+		
+		 </div>
+		  <div class="control-group">
+			<label class="control-label"></label>
+			<div class="controls">
+			  <button type="submit" class="sui-btn btn-primary">确定</button>
+			  <button type="reset" class="sui-btn">重置</button>
+			</div>
+		  </div>
+		</form>
+		</div>
+    <script>
+        $(function(){
+            //表单提交
+            var options_scenic = {
+                beforeSubmit: function(){
+                    layer.open({type: 2,shadeClose:false});
+                },
+                success: function (data) {
+                    layer.closeAll();
+                    layer.open({
+                        btn: [ '确定'],
+                        content:"退款成功"
+                        shadeClose:false,
+                        yes: function(){
+                           window.location.href="/order/operation/getAllOrderList?pageNumber=1";
+                        }
+                    })
+                    $("#refundForm")[0].reset();
+
+                },
+                error:function(){
+                    layer.closeAll();
+                    layer.open({
+                        btn: [ '确定'],
+                        content:"订单未成功，请稍后重新提交"
+                        // shadeClose:false
+                    })
+                }
+            };
+            // ajaxForm
+
+            $("#refundForm").ajaxForm(options_scenic);
+
+            // ajaxSubmit
+            $("#refundForm").find("input[type=submit]").click(function () {
+                $("#refundForm").ajaxSubmit(options_scenic);
+            });
+		})
+        //添加priceltrule规则
+        var priceltrule = function(value, element, num) {
+            value = trim(value);
+            return value <= parseInt(num);
+        };
+        $.validate.setRule("priceltrule", priceltrule, '退款金额必须比支付金额低');
+	</script>
+    </body>
+    </html>

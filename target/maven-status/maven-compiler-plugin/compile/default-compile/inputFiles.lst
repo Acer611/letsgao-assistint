@@ -40,6 +40,7 @@ F:\work\letsgo-assistant\src\main\java\com\umessage\letsgo\assistant\common\exce
 F:\work\letsgo-assistant\src\main\java\com\umessage\letsgo\assistant\config\MyBatisConfiguration.java
 F:\work\letsgo-assistant\src\main\java\com\umessage\letsgo\assistant\controller\RewardWithDrawController.java
 F:\work\letsgo-assistant\src\main\java\com\umessage\letsgo\assistant\service\IRewardWithdrawService.java
+F:\work\letsgo-assistant\src\main\java\com\umessage\letsgo\assistant\common\utils\NewImageUtils.java
 F:\work\letsgo-assistant\src\main\java\com\umessage\letsgo\assistant\wechat\builder\TextBuilder.java
 F:\work\letsgo-assistant\src\main\java\com\umessage\letsgo\assistant\common\utils\HttpServletUtil.java
 F:\work\letsgo-assistant\src\main\java\com\umessage\letsgo\assistant\common\utils\JsonUtils.java
@@ -53,6 +54,7 @@ F:\work\letsgo-assistant\src\main\java\com\umessage\letsgo\assistant\dao\provide
 F:\work\letsgo-assistant\src\main\java\com\umessage\letsgo\assistant\model\vo\request\TemplateData.java
 F:\work\letsgo-assistant\src\main\java\com\umessage\letsgo\assistant\service\IWeChatInfoService.java
 F:\work\letsgo-assistant\src\main\java\com\umessage\letsgo\assistant\wechat\handler\StoreCheckNotifyHandler.java
+F:\work\letsgo-assistant\src\main\java\com\umessage\letsgo\assistant\common\utils\FileDownloadUtil.java
 F:\work\letsgo-assistant\src\main\java\com\umessage\letsgo\assistant\dao\provider\WeChatInfoSqlProvider.java
 F:\work\letsgo-assistant\src\main\java\com\umessage\letsgo\assistant\wechat\handler\MenuHandler.java
 F:\work\letsgo-assistant\src\main\java\com\umessage\letsgo\assistant\common\utils\Log.java

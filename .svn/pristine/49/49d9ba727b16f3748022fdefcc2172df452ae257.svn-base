@@ -1,0 +1,221 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta http-equiv="X-Frame-Options" content="SAMEORIGIN">
+    <title>订单录入</title>
+    <link href="https://g.alicdn.com/sj/dpl/1.5.1/css/sui.min.css" rel="stylesheet">
+    <script type="text/javascript" src="https://g.alicdn.com/sj/lib/jquery/dist/jquery.min.js"></script>
+    <script type="text/javascript" src="https://g.alicdn.com/sj/dpl/1.5.1/js/sui.min.js"></script>
+    <script type="text/javascript" src="/js/form.js"></script>
+    <link href="https://g.alicdn.com/sj/dpl/1.5.1/css/sui-append.min.css" rel="stylesheet">
+    <script type="text/javascript" src="/js/layer_mobile/layer.js"></script>
+    <link rel="stylesheet" href="/css/style.css">
+    <style>
+        .sui-form.form-horizontal .control-group{margin-bottom:9px;}
+    </style>
+</head>
+    <body>  
+	<div style="width:600px;margin:20px auto">
+        <form class="sui-form form-horizontal sui-validate" action="/order/operation/insert" method="post" id="orderForm">
+            <input type="hidden" value="$!{opdeId}" name="opdeId"/>
+            <input type="hidden" value="$!{exten}" name="exten"/>
+            <div class="select_container">
+			  <div class="control-group">
+				<label class="control-label"><strong class="sui-text-danger">*</strong>商品描述：</label>
+				<div class="controls">
+				    <input class="input input-xlarge" data-rules='required' placeholder="请输入商品的简单描述" value="$!{orderInfoEntity.orderTitle}" name="orderTitle" type="text">
+				</div>
+			  </div>
+				<div class="control-group">
+					
+					<label class="control-label"><strong class="sui-text-danger">*</strong>商品详情：</label>
+					<div class="controls">
+					  <textarea rows="3" class="input-xlarge" data-rules='required' name="orderDetail" value="$!{orderInfoEntity.orderDetail}"></textarea>
+					</div>
+				  </div>
+
+				 
+				  <div class="control-group">
+					<label class="control-label"><strong class="sui-text-danger">*</strong>联系人：</label>
+					<div class="controls">
+					  <input class="input-xlarge"  name="customerName" value="$!{orderInfoEntity.customerName}"  data-rules='required' type="text">
+					</div>
+				  </div>
+					<div class="control-group">
+                        <label class="control-label"><strong class="sui-text-danger">*</strong>联系电话：</label>
+					<div class="controls">
+					  <input class="input-xlarge" data-rules="required|phonerule" value="$!{orderInfoEntity.phone}" name="phone" type="text">
+					</div>
+				  </div>
+				  
+				   <div class="control-group">
+					<label class="control-label"><strong class="sui-text-danger">*</strong>支付金额：</label>
+					<div class="controls">
+					  <input class="input-xlarge" value="$!{orderInfoEntity.totalFee}"  data-rules="required|number|gt=0|pricerule" name="totalFee"  type="text">
+					</div>
+				  </div>
+				  <div class="control-group">
+					<label class="control-label"><strong class="sui-text-danger">*</strong>底价：</label>
+					<div class="controls">
+					  <input class="input-xlarge" data-rules="required|number|gt=0|priceltrule=totalFee|pricerule" name="realFee" value="$!{orderInfoEntity.realFee}"  type="text">
+					</div>
+				  </div>
+                <div class="control-group">
+
+                    <label class="control-label"><strong class="sui-text-danger">*</strong>供应商：</label>
+                    <div class="controls">
+                        <input class="input-xlarge"  name="proverder" value="$!{orderInfoEntity.proverder}"  data-rules='required' type="text">
+                    </div>
+                </div>
+                <div class="control-group">
+                    <label class="control-label"><strong class="sui-text-danger">*</strong>支付截止时间：</label>
+                    <div class="controls">
+                        <input class="input-xlarge" data-rules="required|deadlinerule" readonly name="deadline"  value="$!{orderInfoEntity.deadline}"  type="text">
+                    </div>
+                </div>
+		
+		 </div>
+		  <div class="control-group">
+			<label class="control-label"></label>
+			<div class="controls">
+			  <button type="submit" class="sui-btn btn-primary">提交</button>
+			  <button type="reset" class="sui-btn">重置</button>
+			</div>
+		  </div>
+		</form>
+		</div>
+    <script>
+        $(function(){
+            var ind=$("input[type=radio]:checked").parent("label").index();
+            $(".select_container>form").eq(ind).show().siblings().hide();
+            $("input[type=radio]").on("change",function(){
+                ind=$(this).parent("label").index();
+                $(".select_container>form").eq(ind).show().siblings().hide();
+            })
+            $('input[name=checkInTime]').datepicker({
+                startDate: new Date(),
+                "data-date-format": "yyyy-mm-dd"
+            }).on("changeDate", function(e){
+                // e 中包含有其他的字段
+                $('input[name=checkOutTime]').datepicker('setStartDate', $('input[name=checkInTime]').val());
+                if($('input[name=checkInTime]').val()>= $('input[name=checkOutTime]').val()){
+                    $('input[name=checkOutTime]').datepicker('update', addDate($('input[name=checkInTime]').val(),1));
+                }
+            });
+            $('input[name=checkOutTime]').datepicker({
+                startDate: $('input[name=checkInTime]').val()||new Date(),
+                "data-date-format": "yyyy-mm-dd"
+            });
+            $('input[name=deadline]').datepicker({
+                startDate: new Date(),
+                timepicker:true,
+                format: "yyyy-mm-dd",
+                autoclose: false, //这里最好设置为false
+            });
+
+            $('input[name=fltDate]').datepicker({
+                startDate: new Date(),
+                "data-date-format": "yyyy-mm-dd"
+            });
+
+
+            //表单提交
+            var options_scenic = {
+                beforeSubmit: function(){
+                    layer.open({type: 2,shadeClose:false});
+                },
+                success: function (data) {
+                    layer.closeAll();
+                    layer.open({
+                        btn: [ '确定'],
+                        content:"订单添加成功"
+                        // shadeClose:false
+                    })
+                    // $('#scenicForm').reset()
+                    $("#orderForm")[0].reset();
+
+                },
+                error:function(){
+                    layer.closeAll();
+                    layer.open({
+                        btn: [ '确定'],
+                        content:"订单创建失败，请稍后重新提交"
+                        // shadeClose:false
+                    })
+                }
+            };
+            // ajaxForm
+
+            $("#orderForm").ajaxForm(options_scenic);
+
+            // ajaxSubmit
+            $("#orderForm").find("input[type=submit]").click(function () {
+                $("#orderForm").ajaxSubmit(options_scenic);
+            });
+        })
+        function addDate(date,days){
+            var d=new Date(date);
+            d.setDate(d.getDate()+days);
+            var m=d.getMonth()+1;
+            return d.getFullYear()+'-'+m+'-'+d.getDate();
+        }
+
+
+        //添加required规则
+        var phonerule = function(value, element, param) {
+            var myreg = /^(((13[0-9]{1})|(15[0-9]{1})|(18[0-9]{1})|(17[0-9]{1}))+\d{8})$/;
+            if(!myreg.test(value))
+            {
+
+                return false;
+            }else{
+                return true;
+            }
+        };
+        $.validate.setRule("phonerule", phonerule, '请填写正确的手机号码');
+
+
+        //添加priceltrule规则
+        var priceltrule = function(value, element, param) {
+            value = trim(value);
+            return parseFloat(value) <= parseFloat($(element).parents('form').find("[name='"+param+"']").val());
+        };
+        $.validate.setRule("priceltrule", priceltrule, '底价必须比支付金额低');
+
+
+        //添加required规则
+        var pricerule = function(value, element) {
+
+                var dot = value.indexOf(".");
+                if(dot != -1){
+                    var dotCnt = value.substring(dot+1,value.length);
+                    if(dotCnt.length > 2){
+                        return false
+                    }else{
+                        return true
+                    }
+                }else{
+                    return true;
+                }
+        };
+        $.validate.setRule("pricerule", pricerule, '价格最多能精确到小数点后两位');
+
+
+        //添加required规则
+        var deadlinerule = function(value, element, param) {
+            var mydate=new Date();
+            if (mydate.setMinutes(mydate.getMinutes()+10) > new Date(value).getTime()) {
+
+                return false;
+            }else{
+                return true;
+            }
+        };
+        $.validate.setRule("deadlinerule", deadlinerule, '截至时间必须比当前时间晚10分钟以上');
+    </script>
+    </body>
+    </html>

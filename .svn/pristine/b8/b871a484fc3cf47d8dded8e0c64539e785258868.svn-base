@@ -1,0 +1,224 @@
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="utf-8">
+        <meta name="format-detection" content="telephone = no"/>
+        <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0, minimum-scale=1.0,user-scalable=no">
+      <meta name="description" content="">
+      <title>订单详情</title>
+	  <link rel="stylesheet" href="/css/mobile.css">
+        <script src="/js/zepto.min.js"></script>
+        <script src="https://res.wx.qq.com/open/js/jweixin-1.0.0.js"></script>
+        <script type="text/javascript" src="/js/layer_mobile/layer.js"></script>
+    </head>
+    <body> 
+	<div class="headbg"></div>
+##	#if($!{wechatOrderInfoEntities.orderType}==1)
+##    <div class="bgcontop">
+##        <ul><li>航班号 </li><li>$!{wechatOrderInfoEntities.fltNo}</li></ul>
+##        <div class="decur">
+##            <div><p>$!{wechatOrderInfoEntities.starting} </p><p>起飞</p>   </div>
+##            <div class="centerBg"></div>
+##            <div><p>$!{wechatOrderInfoEntities.destination}</p><p>抵达</p></div>
+##        </div>
+##    </div>
+##		#elseif($!{wechatOrderInfoEntities.orderType}==2)
+##        <div class="bgcontop">
+##            <ul><li>入住酒店：${wechatOrderInfoEntities.hotelName}</li></ul>
+##            <div class="decur">
+##                <div><p>入住  </p><p>$!date.format('yyyy-MM-dd',$!{wechatOrderInfoEntities.checkInTime})</p>   </div>
+##                <div class="centerBghotel"></div>
+##                <div><p>离店 </p><p>$!date.format('yyyy-MM-dd',$!{wechatOrderInfoEntities.checkOutTime})</p></div>
+##            </div>
+##        </div>
+##		#elseif($!{wechatOrderInfoEntities.orderType}==3)
+##    <div class="bgcontop">
+##        <ul class="center"><li class=" visabg">签证国家：$!{wechatOrderInfoEntities.visaPlace}</li></ul>
+##
+##    </div>
+##		#elseif($!{wechatOrderInfoEntities.orderType}==4)
+##    <div class="bgcontop">
+##        <ul class="center"><li class=" scebg">景点：$!{wechatOrderInfoEntities.scenicSpots}</li></ul>
+##
+##    </div>
+##	#end
+    <div class="bgcontop">
+        <ul class="center"><li>
+            #set($strTitle= $!{wechatOrderInfoEntities.orderTitle})
+
+            #if($strTitle.length()>16)
+                #set($strTitle=$strTitle.substring(0,16))
+                $strTitle ...
+            #else
+                $!{wechatOrderInfoEntities.orderTitle}
+            #end
+        </li></ul>
+    </div>
+	<div class="bgcon">
+		<ul class="wei_f">
+			<li><div>订单号：</div><div>${wechatOrderInfoEntities.orderId}</div></li>
+			<li><div>下单时间：</div><div>$!date.format('yyyy-MM-dd HH:mm:ss',${wechatOrderInfoEntities.createTime})</div></li>
+##	#if($!{wechatOrderInfoEntities.orderType}==1)
+##			<li><div>乘机人：</div>
+##				<div>
+##                    <p>
+##                        $!{wechatOrderInfoEntities.customerName}
+##                        #if($!{orderInfoEntity.idType}&&$!{orderInfoEntity.idType}!="")
+##                        ，$!{orderInfoEntity.idType}：$!{orderInfoEntity.idNumber}
+##                        #end</p>
+####                    <p>李四，$!{orderInfoEntity.idType}：$!{orderInfoEntity.idNumber}</p>
+##				 </div>
+##			 </li>
+##	#elseif($!{wechatOrderInfoEntities.orderType}==2)
+##        <li><div>入住人：</div>
+##            <div>
+##                <p>$!{wechatOrderInfoEntities.customerName}</p>
+####                    ，$!{orderInfoEntity.idType}：$!{orderInfoEntity.idNumber}<p>
+####                <p>李四，$!{orderInfoEntity.idType}：$!{orderInfoEntity.idNumber}</p>
+##            </div>
+##        </li>
+##        <li><div>房间类型：</div><div>$!{wechatOrderInfoEntities.roomType}</div></li>
+##	#elseif($!{wechatOrderInfoEntities.orderType}==3)
+##        <li><div>签证类型：</div><div>$!{wechatOrderInfoEntities.visaType}</div></li>
+##		#end
+##			 <li><div>数量：</div><div>$!{wechatOrderInfoEntities.count}</div></li>
+            <li>
+                <div>商品详情：</div>
+                <div>
+                    <a href="javascript:;" oid="$!{wechatOrderInfoEntities.id}" class="contentOrder">
+                        #set($str= $!{wechatOrderInfoEntities.orderDetail})
+
+                        #if($str.length()>16)
+                            #set($str=$str.substring(0,16))
+                            $str ...
+                        #else
+                            $!{wechatOrderInfoEntities.orderDetail})
+                        #end
+                    </a>
+                </div>
+            </li>
+            <li><div>联系人：</div><div>$!{wechatOrderInfoEntities.customerName}</div></li>
+			 <li><div>联系电话：</div><div>$!{wechatOrderInfoEntities.phone}</div></li>
+            <li><div>支付截止时间：</div><div>$!date.format('yyyy-MM-dd HH:mm:ss',$!{wechatOrderInfoEntities.deadline})</div></li>
+        ##            #if(${wechatOrderInfoEntities.remark}&&${wechatOrderInfoEntities.remark}!="")
+##            <li><div>备注：</div><div>$!{wechatOrderInfoEntities.remark}</div></li>
+##            #end
+		 </ul>
+		<div class="total">订单总额：<span class="money">$!{wechatOrderInfoEntities.totalFee}元</span></div>
+    #if($wechatOrderInfoEntities.status==0)
+		 <div class="btnPay"><a href="javascript:;" id="wcPay">立即支付</a></div>
+        #end
+	</div>
+    <div id="overlay2"></div>
+    <div id="hotelMsg" style="display:none;">
+        <div class="compact">
+            <div class="compact_top">
+                <div class="layClose"></div>
+            </div>
+            <div class="contentareaa">
+
+            </div>
+        </div>
+    </div>
+    <script>
+        wx.config({
+            debug: false, // 开启调试模式,调用的所有api的返回值会在客户端alert出来，若要查看传入的参数，可以在pc端打开，参数信息会通过log打出，仅在pc端时才会打印。
+            appId: '$!{jsapiSignature.appid}', // 必填，公众号的唯一标识
+            timestamp:$!{jsapiSignature.timestamp} , // 必填，生成签名的时间戳
+            nonceStr: '$!{jsapiSignature.noncestr}', // 必填，生成签名的随机串
+            signature: '$!{jsapiSignature.signature}',// 必填，签名，见附录1
+            jsApiList: ['checkJsApi','onMenuShareTimeline','onMenuShareAppMessage','onMenuShareQQ','onMenuShareWeibo','onMenuShareQZone','chooseWXPay'] // 必填，需要使用的JS接口列表，所有JS接口列表见附录2
+        });
+
+    wx.ready(function () {
+        $("#wcPay").on("touchstart",function(){
+            var deadline="$!{wechatOrderInfoEntities.deadline}";
+            if(deadline) {
+                //layer.open({type: 2, shadeClose: false});
+                $.ajax({
+                    type: "get",
+                    url: "/wechat/orderinfo/getDateime",
+                    data: {},
+                    dataType: "json",
+                    success: function (data) {
+                        if (new Date(data.currDateTime).getTime() > new Date("$!date.format('yyyy-MM-dd HH:mm:ss',$!{wechatOrderInfoEntities.deadline})").getTime()) {
+                            //layer.closeAll();
+                            layer.open({
+                                btn: ['确定'],
+                                content: "订单已超过支付时效",
+                                shadeClose: false
+                            })
+                        } else {
+                           // layer.closeAll();
+                            wx.chooseWXPay({
+                                timestamp: $!{payInfoMap.timeStamp}, // 支付签名时间戳，注意微信jssdk中的所有使用timestamp字段均为小写。但最新版的支付后台生成签名使用的timeStamp字段名需大写其中的S字符
+                                nonceStr: '$!{payInfoMap.nonceStr}', // 支付签名随机串，不长于 32 位
+                                package: '$!{payInfoMap.package}', // 统一支付接口返回的prepay_id参数值，提交格式如：prepay_id=***）
+                                signType: '$!{payInfoMap.signType}', // 签名方式，默认为'SHA1'，使用新版支付需传入'MD5'
+                                paySign: '$!{payInfoMap.paySign}', // 支付签名
+                                success: function (res) {
+                                    // 支付成功后的回调函数
+                                    if (res.err_msg == 'get_brand_wcpay_request:ok') {
+                                        alert('支付成功');
+                                        // 使用以上方式判断前端返回,微信团队郑重提示：res.err_msg将在用户支付成功后返回ok，但并不保证它绝对可靠。
+                                    }
+                                    else if (res.err_msg == 'get_brand_wcpay_request:cancel') {
+                                        alert('cancel');
+                                        // 使用以上方式判断前端返回,微信团队郑重提示：res.err_msg将在用户支付成功后返回ok，但并不保证它绝对可靠。
+                                    }
+                                    else if (res.err_msg == 'get_brand_wcpay_request:fail') {
+                                        alert('fail');
+                                        // 使用以上方式判断前端返回,微信团队郑重提示：res.err_msg将在用户支付成功后返回ok，但并不保证它绝对可靠。
+                                    }
+                                }
+                            })
+                        }
+                    },
+                    error: function () {
+                       // layer.closeAll();
+                        layer.open({
+                            btn: ['确定'],
+                            content: "支付失败，请稍后重新支付"
+                            // shadeClose:false
+                        })
+                    }
+                })
+            }else{
+                layer.open({
+                    btn: ['确定'],
+                    content: "超出有效支付时间"
+                    // shadeClose:false
+                })
+            }
+        })
+    })
+
+        $(function(){
+            $(".contentOrder").on("click",function(){
+                //var id=$(this).parent().attr("hotelId");
+                $.ajax({
+                    type: "get",
+                    url: "/wechat/orderinfo/selectOrderDetailById",
+                    data: {id: $(this).attr("oid")},
+                    contentType: 'application/json;charset=utf-8',
+                    dataType: "json",
+                    success: function (data) {
+                        $(".contentareaa").empty().html(data.orderDetail);
+                    }
+                })
+                $("#hotelMsg").fadeIn();
+                $("#overlay2").fadeIn();
+            })
+            $("#overlay2").click(function(){
+                $("#hotelMsg").fadeOut();
+                $("#overlay2").fadeOut();
+            })
+
+            $(".layClose").on("click",function(){
+                $("#hotelMsg").fadeOut();
+                $("#overlay2").fadeOut();
+            })
+        })
+    </script>
+    </body>
+    </html>

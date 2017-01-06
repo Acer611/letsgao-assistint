@@ -1,0 +1,217 @@
+package com.umessage.letsgo.assistant.service.impl;
+
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import com.umessage.letsgo.assistant.common.utils.*;
+import com.umessage.letsgo.assistant.dao.RewardWithdrawDao;
+import com.umessage.letsgo.assistant.model.po.RewardWithdrawEntity;
+import com.umessage.letsgo.assistant.model.vo.request.WxWithDrawRequest;
+import com.umessage.letsgo.assistant.service.IRewardWithdrawService;
+import com.umessage.letsgo.assistant.service.IWeChatInfoService;
+import me.chanjar.weixin.mp.api.WxMpConfigStorage;
+import net.sf.json.JSONObject;
+import org.apache.http.Header;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpHeaders;
+import org.apache.http.client.methods.*;
+import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
+import org.apache.http.entity.ContentType;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.message.BasicHeader;
+import org.apache.http.ssl.SSLContexts;
+import org.apache.http.util.EntityUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+
+import java.io.*;
+import java.security.KeyStore;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.net.ssl.SSLContext;
+
+/**
+ * Created by gaofei on 2016/12/30.
+ */
+
+@Service
+public class RewardWithdrawServiceImpl implements IRewardWithdrawService {
+
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    protected static Header xmlHeader = new BasicHeader(HttpHeaders.CONTENT_TYPE, ContentType.APPLICATION_XML.toString());
+    protected static final String MCH_URI = "https://api.mch.weixin.qq.com";
+
+    @Value(value = "${wechat.p12.path}")
+    private String p12Path;
+    @Autowired
+    private RewardWithdrawDao rewardWithdrawDao;
+    @Autowired
+    protected WxMpConfigStorage wxMpConfigStorage;
+    @Autowired
+    private IWeChatInfoService weChatInfoService;
+    @Autowired
+    private IRewardWithdrawService rewardWithdrawService;
+
+
+
+    @Override
+    public void insert(RewardWithdrawEntity rewardWithdrawEntity) {
+        rewardWithdrawDao.insert(rewardWithdrawEntity);
+    }
+
+    @Override
+    public void update(RewardWithdrawEntity rewardWithdrawEntity) {
+        rewardWithdrawDao.update(rewardWithdrawEntity);
+    }
+
+    @Override
+    public RewardWithdrawEntity select(Long id) {
+       return rewardWithdrawDao.select(id);
+    }
+
+    @Override
+    public List<RewardWithdrawEntity> selectByOpenId(String openId) {
+        return rewardWithdrawDao.selectByOpenId(openId);
+    }
+
+    @Override
+    public void withDraw(Double amount,String openId) {
+        logger.info("提现的service层操作");
+        WxWithDrawRequest wxWithDrawRequest =  new WxWithDrawRequest();
+        //组织提现请求的参数
+        //公众账号appid 变量名 mch_appid
+        //String appId =  wxMpConfigStorage.getAppId();
+        wxWithDrawRequest.setMch_appid(wxMpConfigStorage.getAppId());
+        //商户号 变量名 mchid
+        String mcChid = wxMpConfigStorage.getPartnerId();
+        wxWithDrawRequest.setMchid(mcChid);
+        //随机字符串 变量名 nonce_str
+        String nonceStr = String.valueOf(System.currentTimeMillis());
+        wxWithDrawRequest.setNonce_str(nonceStr);
+        //商户订单号 变量名 partner_trade_no
+        String partenerNo = UuidUtil.getUuidStr();
+        wxWithDrawRequest.setPartner_trade_no(partenerNo);
+        wxWithDrawRequest.setOpenid(openId);
+        wxWithDrawRequest.setCheck_name("NO_CHECK");
+        int amountFen =  Integer.parseInt(AmountUtil.changeY2F(String.valueOf(amount)));
+        wxWithDrawRequest.setAmount(amountFen);
+        wxWithDrawRequest.setDesc("提现");
+        String ip = IPUtil.getV4IP();
+        wxWithDrawRequest.setSpbill_create_ip(ip);
+        logger.info("生成Sign");
+        //签名 变量名 sign
+        String sign = this.generateSign(wxWithDrawRequest);
+        wxWithDrawRequest.setSign(sign);
+        logger.info("组织提现参数完成");
+        logger.info("实体转化为XML");
+        //转换为XML
+        String secapiPayRefundXML = XMLConverUtil.convertToXML(wxWithDrawRequest);
+
+        logger.info("调用企业付款API");
+        //调用企业付款的 API
+        Map resultMap = new HashMap<>();
+        HttpEntity entity = null;
+        try{
+            //TODO 配置证书 证书文件证书文件不能放在web服务器虚拟目录，应放在有访问权限控制的目录中，
+            // TODO 防止被他人下载。商户服务器要做好病毒和木马防护工作，不被非法侵入者窃取证书文件。
+            KeyStore keyStore = KeyStore.getInstance("PKCS12");
+            logger.info("证书文件地址为：" + p12Path);
+            //     /data0/apiclientcert/apiclient_cert.p12
+            FileInputStream instream = new FileInputStream(new File(p12Path));
+            try{
+                keyStore.load(instream,mcChid.toCharArray());
+            }finally {
+                instream.close();
+            }
+            // Trust own CA and all self-signed certs
+            SSLContext sslcontext = SSLContexts.custom()
+                    .loadKeyMaterial(keyStore, mcChid.toCharArray())
+                    .build();
+            // Allow TLSv1 protocol only
+            SSLConnectionSocketFactory sslsf = new SSLConnectionSocketFactory(
+                    sslcontext,
+                    new String[] { "TLSv1.2" },
+                    null,
+                    SSLConnectionSocketFactory.BROWSER_COMPATIBLE_HOSTNAME_VERIFIER);
+            CloseableHttpClient httpclient = HttpClients.custom()
+                    .setSSLSocketFactory(sslsf)
+                    .build();
+
+            HttpPost httpost = new HttpPost(MCH_URI + "/mmpaymkttransfers/promotion/transfers"); //发起POST请求
+            httpost.addHeader(xmlHeader);
+            httpost.addHeader("X-Requested-With", "XMLHttpRequest");
+            httpost.setEntity(new StringEntity(secapiPayRefundXML,"UTF-8"));
+            CloseableHttpResponse response = httpclient.execute(httpost);
+            //TODO 对提现后的返回结果进行处理
+            entity = response.getEntity();
+
+            //返回结果处理
+            String jsonStr = EntityUtils.toString(entity, "UTF-8");
+            logger.info("调用提现方返回结果为" + jsonStr);
+            resultMap = XMLConverUtil.convertToMap(jsonStr);
+            // Gson gson =  new Gson();
+            // jsonObject = gson.fromJson(jsonStr,JsonObject.class);
+
+            EntityUtils.consume(entity);
+            response.close();
+            httpclient.close();
+        }catch (Exception e){
+            logger.info("调用提现方法出错：" + e.getMessage());
+            e.printStackTrace();
+        }
+        logger.info("提现返回的result_code 为 ：" + resultMap.get("result_code"));
+        if(null != resultMap.get("result_code")){
+            logger.info(" 修改当前用户收益的数额");
+            //  修改当前用户收益的数额
+            weChatInfoService.modifyReward(openId,amount);
+            logger.info("添加提现记录");
+            // 添加提现记录
+            rewardWithdrawService.generateRewardInfo(openId,partenerNo,amount,0, (HashMap)resultMap);
+        }
+
+
+
+    }
+
+    /**
+     * 生成提现记录
+     * @param openId 提现人 openID
+     * @param partenerNo 提现商户订单号
+     * @param amount 提现金额
+     * @param status
+     */
+    @Override
+    public void generateRewardInfo(String openId, String partenerNo, Double amount,int status,HashMap resultMap) {
+        RewardWithdrawEntity rewardWithdrawEntity = new RewardWithdrawEntity();
+        rewardWithdrawEntity.setOpenId(openId);
+        rewardWithdrawEntity.setPartentTradeNo(partenerNo);
+        rewardWithdrawEntity.setFee(amount);
+        rewardWithdrawEntity.setWithdrawTime(new Date());
+        rewardWithdrawEntity.setStatus(status);
+        rewardWithdrawDao.insert(rewardWithdrawEntity);
+
+    }
+
+    /**
+     * 生成Sign
+     * @return
+     */
+    public String generateSign(WxWithDrawRequest wxWithDrawRequest) {
+        Map<String,String> map =  WxPaySignUtil.objectToMap(wxWithDrawRequest);
+        Map<String, String> tmap = WxPaySignUtil.order(map);
+        if(tmap.containsKey("sign")){
+            tmap.remove("sign");
+        }
+        String signStr = WxPaySignUtil.mapJoin(tmap, false, false);
+        signStr = signStr + "&key=" + wxMpConfigStorage.getPartnerKey();
+        String sign = MD5.MD5Encode(signStr.toString());
+        return sign.toUpperCase();
+    }
+}

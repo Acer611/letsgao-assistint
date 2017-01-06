@@ -1,0 +1,19 @@
+.bs-search{width:100%;text-align:center;margin:20px auto;}
+.pagination{margin: 0 auto;text-align:center;}
+table li{text-align:left;padding:5px 10%;}
+
+
+
+#hotelMsg{display:none;position:fixed;left:50%;background-color:#fff;border-radius:20px;z-index:9999;width:80%;margin-left:-40%;top:10%;height:80%;box-sizing: border-box;
+    padding-bottom: 0.5rem;}
+#hotelMsg .compact{padding:0 0.5rem;height:100%;}
+.layClose{position:absolute;right:0.25rem;top:0.25rem;background: url(../images/close.png) 0 0 no-repeat;width: 0.703125rem;height:0.71875rem;float:right;background-size: 100% 100%;}
+.compact_top{height:1.125rem;}
+#hotelMsg  ul{padding-bottom: 0.9375rem;padding-top:0.3125rem;}
+#hotelMsg  ul li span{color:#1fbad1;vertical-align: middle;display:inline-block;}
+#hotelMsg  ul li p{color:#333333;vertical-align: middle;display:inline-block;}
+#hotelMsg  ul li{font-size:14px;margin-top:0.46875rem;}
+[data-dpr="2"] #hotelMsg  ul li{font-size:28px;}
+[data-dpr="3"] #hotelMsg  ul li{font-size:42px;}
+
+#overlay2{display:none;background-color: rgba(0,0,0,.8);width:100%;height:100%;position:fixed;left:0;top:0;z-index:999;}

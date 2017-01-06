@@ -5,6 +5,7 @@ com\umessage\letsgo\assistant\common\utils\Log.class
 com\umessage\letsgo\assistant\common\helper\UserLoginHelper.class
 com\umessage\letsgo\assistant\dao\provider\PayInfoSqlProvider$1.class
 com\umessage\letsgo\assistant\common\utils\Util.class
+com\umessage\letsgo\assistant\common\utils\NewImageUtils.class
 com\umessage\letsgo\assistant\wechat\handler\MenuHandler.class
 com\umessage\letsgo\assistant\wechat\security\ReferUrlAuthenticationFailureHandler.class
 com\umessage\letsgo\assistant\model\po\PayInfoEntity.class
@@ -77,6 +78,7 @@ com\umessage\letsgo\assistant\service\impl\RefundInfoServiceImpl.class
 com\umessage\letsgo\assistant\dao\provider\WeChatOrderInfoSqlProvider$6.class
 com\umessage\letsgo\assistant\LetsgoAssistantApplication.class
 com\umessage\letsgo\assistant\wechat\security\TargetUrlAuthenticationSuccessHandler.class
+com\umessage\letsgo\assistant\common\utils\FileDownloadUtil.class
 com\umessage\letsgo\assistant\common\utils\XMLConverUtil$2.class
 com\umessage\letsgo\assistant\common\utils\JsonUtils.class
 com\umessage\letsgo\assistant\dao\provider\WeChatOrderInfoSqlProvider$7.class
